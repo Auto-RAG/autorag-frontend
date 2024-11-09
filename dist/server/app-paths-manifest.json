@@ -1,0 +1,12 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/projects/[project_id]/trials/[trial_id]/page": "app/projects/[project_id]/trials/[trial_id]/page.js",
+  "/page": "app/page.js",
+  "/projects/[project_id]/page": "app/projects/[project_id]/page.js",
+  "/projects/[project_id]/trials/page": "app/projects/[project_id]/trials/page.js",
+  "/projects/page": "app/projects/page.js",
+  "/pricing/page": "app/pricing/page.js",
+  "/about/page": "app/about/page.js",
+  "/docs/page": "app/docs/page.js",
+  "/blog/page": "app/blog/page.js"
+}
