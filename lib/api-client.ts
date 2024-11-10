@@ -30,13 +30,13 @@ export interface PreparationStatus {
     performance_history: PerformancePoint[];
     current_performance: number;
   }
-  
+
   export interface ProjectStats {
-    total: number;
-    active: number;
-    archived: number;
-    totalTrials: number;
-    totalQAPairs: number;
+    total_projects: number;
+    active_projects: number;
+    total_trials: number;
+    active_trials: number;
+    total_qa_pairs: number;
   }
   
   export interface Task {
@@ -49,7 +49,20 @@ export interface PreparationStatus {
     error?: string;
   }
   
+  export interface Trial {
+    id: string;
+    project_id: string;
+    status: 'active' | 'completed' | 'failed';
+    created_at: string;
+    updated_at: string;
+    preparation_status: PreparationStatus;
+    qa_pairs_count: number;
+    performance_score?: number;
+  }
+  
   export class APIClient {
+   
+    
     private baseUrl: string;
     private token: string;
   
@@ -79,6 +92,15 @@ export interface PreparationStatus {
       return response.json();
     }
   
+    async getProject(projectId: string) {
+      const response = await this.getProjects(1, 1);
+      const project = response.data.find(p => p.id === projectId);
+      if (!project) {
+        throw new Error(`Project with ID ${projectId} not found`);
+      }
+      return project;
+    }
+
     async getProjects(page = 1, limit = 10, status?: 'active' | 'archived') {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
       if (status) params.append('status', status);
@@ -104,6 +126,12 @@ export interface PreparationStatus {
       return this.fetch<Project>(`/projects/${projectId}/status`, {
         method: 'PATCH',
         body: JSON.stringify({ status }),
+      });
+    }
+
+    async getTrials(projectId: string) {
+      return this.fetch<{ total: number; data: Trial[] }>(`/projects/${projectId}/trials`, {
+        method: 'GET',
       });
     }
   
