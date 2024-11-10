@@ -20,6 +20,7 @@ import {
   BarChart2,
   ChevronLeft,
 } from "lucide-react";
+import { format } from 'timeago.js';
 
 import { CreateTrialDialog } from "./trial-creation-wizard";
 
@@ -73,7 +74,7 @@ const mockTrials = [
 
 export function ProjectDetail({ projectId }: { projectId: string }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("trials");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [trials, setTrials] = useState<Trial[]>(mockTrials); // 초기 상태를 목업 데이터로 설정
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -119,6 +120,20 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         return "text-gray-500";
     }
   };
+
+  function formatLocalTime(utcTimeStr: string) {
+    const date = new Date(utcTimeStr);
+    return date.toLocaleString(undefined, {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+      timeZoneName: 'short'
+    });
+  }
 
   const renderOverviewCards = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -179,7 +194,14 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               </span>
             </TableCell>
             <TableCell>
-              {new Date(trial.created_at).toLocaleDateString()}
+              <div className="flex flex-col">
+                <span className="text-sm">
+                  {formatLocalTime(trial.created_at)}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {format(trial.created_at, navigator.language)}
+                </span>
+              </div>
             </TableCell>
             <TableCell>
               <Button
@@ -227,17 +249,17 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               isOpen={isDialogOpen}
               projectId={projectId}
               onOpenChange={setIsDialogOpen}
+              onTrialCreated={() => {
+                setIsDialogOpen(false);
+                router.refresh();
+              }}
             />
           </Dialog.Portal>
         </Dialog.Root>
       </div>
-
+      <div>{renderOverviewCards()}</div>
       <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger className="flex items-center gap-2" value="overview">
-            <FileText className="h-4 w-4" />
-            Overview
-          </TabsTrigger>
           <TabsTrigger className="flex items-center gap-2" value="trials">
             <Beaker className="h-4 w-4" />
             Trials
@@ -252,14 +274,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview">
-          <Card>
-            <CardHeader>
-              <CardTitle>Project Overview</CardTitle>
-            </CardHeader>
-            <CardContent>{renderOverviewCards()}</CardContent>
-          </Card>
-        </TabsContent>
 
         <TabsContent value="trials">
           <Card>

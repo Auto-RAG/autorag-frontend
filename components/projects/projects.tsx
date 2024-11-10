@@ -560,7 +560,7 @@ export function Projects() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => router.push(`/projects/${project.id}`)}
+                      onClick={() => router.push(`/projects/${project.id}/`)}
                     >
                       View Details
                     </Button>
