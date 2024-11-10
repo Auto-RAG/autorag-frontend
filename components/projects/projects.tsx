@@ -90,7 +90,7 @@ const mockProjects: ProjectList = {
   projects: [
   {
     id: "1",
-    name: "Research Papers QA",
+    name: "[Demo] Research Papers QA",
     description: "QA system for academic papers",
     status: "active",
     created_at: "2024-01-01T00:00:00Z",
@@ -115,7 +115,7 @@ const mockProjects: ProjectList = {
   },
   {
     id: "2",
-    name: "Medical Documentation",
+    name: "[Demo] Medical Documentation",
     description: "Medical records analysis system",
     status: "active",
     created_at: "2024-01-15T00:00:00Z",
@@ -287,6 +287,32 @@ const PerformanceSparkline = ({ data }: { data: PerformancePoint[] }) => {
   );
 };
 
+interface ProjectStats {
+  total_projects: number;
+  active_projects: number;
+  total_trials: number;
+  active_trials: number;
+  total_qa_pairs: number;
+}
+
+const calculateProjectStats = (projects: Project[]): ProjectStats => {
+  return projects.reduce((stats, project) => ({
+    total_projects: stats.total_projects + 1,
+    active_projects: project.status === 'active' 
+      ? stats.active_projects + 1 
+      : stats.active_projects,
+    total_trials: stats.total_trials + (project.trials_count || 0),
+    active_trials: stats.active_trials + (project.active_trials || 0),
+    total_qa_pairs: stats.total_qa_pairs + (project.total_qa_pairs || 0),
+  }), {
+    total_projects: 0,
+    active_projects: 0,
+    total_trials: 0,
+    active_trials: 0,
+    total_qa_pairs: 0,
+  });
+};
+
 export function Projects() {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -296,11 +322,11 @@ export function Projects() {
   });
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<ProjectStats>({
-    total: 0,
-    active: 0,
-    archived: 0,
-    totalTrials: 0,
-    totalQAPairs: 0
+    total_projects: 0,
+    active_projects: 0,
+    total_trials: 0,
+    active_trials: 0,
+    total_qa_pairs: 0,
   });
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -309,48 +335,45 @@ export function Projects() {
 
   useEffect(() => {
     loadProjects();
-    // loadStats();
     console.log(process.env.NEXT_PUBLIC_API_URL);
   }, []);
+
+  useEffect(() => {
+    const newStats = calculateProjectStats(projectList.data);
+    setStats(newStats);
+  }, [projectList.data]);
 
   const loadProjects = async () => {
     try {
       setLoading(true);
       const response = await apiClient.getProjects(page);
       console.log('API Response:', response);
-      setProjectList(prev => ({
-        total: response.total || 0,
-        data: [...prev.data, ...response.data]
-      }));
-      setHasMore(response.data.length === 10);
+      
+      // response와 response.data가 있는지 확인
+      if (response && Array.isArray(response.data)) {
+        const tempData = [...response.data, ...mockProjects.projects];
+        setProjectList(prev => ({
+          total: tempData.length || 0,
+          data: [...prev.data, ...tempData]
+        }));
+        setHasMore(response.data.length === 10);
+      } else {
+        console.warn('Invalid API response format:', response);
+        setProjectList({ total: mockProjects.projects.length, data: mockProjects.projects });
+        setHasMore(false);
+      }
     } catch (error) {
       console.error('Failed to load projects:', error);
+      setProjectList({ total: mockProjects.projects.length, data: mockProjects.projects });
+      setHasMore(false);
     } finally {
       setLoading(false);
     }
-  };
-
-  // const loadStats = async () => {
-  //   try {
-  //     const projectStats = await apiClient.getProjectStats();
-  //     setStats(projectStats);
-  //   } catch (error) {
-  //     console.error('Failed to load stats:', error);
-  //   }
-  // };
+  }; 
 
   const handleProjectCreated = (project: Project) => {
     setProjectList(prev => ({ ...prev, data: [project, ...prev.data] }));
-    // loadStats();
     setIsCreateOpen(false);
-  };
-
-  const projectStats = {
-    total: projectList.total,
-    active: projectList.data.filter((p) => p.status === "active").length,
-    archived: projectList.data.filter((p) => p.status === "archived").length,
-    totalTrials: projectList.data.reduce((sum, p) => sum + p.trials_count, 0),
-    totalQAPairs: projectList.data.reduce((sum, p) => sum + p.total_qa_pairs, 0),
   };
 
   const getTimeAgo = (dateString: string) => {
@@ -399,7 +422,7 @@ export function Projects() {
             <Beaker className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projectStats.total}</div>
+            <div className="text-2xl font-bold">{stats.total_projects}</div>
           </CardContent>
         </Card>
         <Card>
@@ -410,7 +433,7 @@ export function Projects() {
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projectStats.active}</div>
+            <div className="text-2xl font-bold">{stats.active_projects}</div>
           </CardContent>
         </Card>
         <Card>
@@ -419,7 +442,7 @@ export function Projects() {
             <Beaker className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projectStats.totalTrials}</div>
+            <div className="text-2xl font-bold">{stats.total_trials}</div>
           </CardContent>
         </Card>
         <Card>
@@ -431,7 +454,7 @@ export function Projects() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {projectStats.totalQAPairs}
+              {stats.total_qa_pairs}
             </div>
           </CardContent>
         </Card>
@@ -441,7 +464,7 @@ export function Projects() {
             <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projectStats.archived}</div>
+            <div className="text-2xl font-bold">{stats.total_projects - stats.active_projects}</div>
           </CardContent>
         </Card>
       </div>
@@ -520,19 +543,26 @@ export function Projects() {
                   <TableCell>
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
-                        <PerformanceSparkline
-                          data={project.performance_history}
-                        />
-                        <div className="flex items-center text-green-600">
-                          <TrendingUp className="h-4 w-4 mr-1" />
-                          {(project.current_performance * 100).toFixed(1)}%
-                        </div>
+                        {project.performance_history && (
+                          <PerformanceSparkline
+                            data={project.performance_history}
+                          />
+                        )}
+                        {typeof project.current_performance === 'number' && (
+                          <div className="flex items-center text-green-600">
+                            <TrendingUp className="h-4 w-4 mr-1" />
+                            {`${(project.current_performance * 100).toFixed(1)}%`}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-sm text-gray-500">
-                      {getTimeAgo(project.last_activity)}
+                    <div>
+                      {project.last_activity 
+                        ? getTimeAgo(project.last_activity)
+                        : 'No activity'
+                      }
                     </div>
                   </TableCell>
                   <TableCell>
