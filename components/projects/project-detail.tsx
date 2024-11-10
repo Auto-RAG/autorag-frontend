@@ -25,6 +25,7 @@ import { CreateTrialDialog } from "./trial-creation-wizard";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { APIClient } from "@/lib/api-client";
 
 interface Trial {
   id: string;
@@ -78,21 +79,24 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
   useEffect(() => {
     const fetchProjectData = async () => {
       try {
         // Fetch trials
-        const trialsResponse = await fetch(`/api/projects/${projectId}/trials`);
-        const trialsData = await trialsResponse.json();
-
-        setTrials(trialsData.data); // API 호출 시 데이터로 업데이트
-
-        // Fetch tasks
-        const tasksResponse = await fetch(`/api/projects/${projectId}/tasks`);
-        const tasksData = await tasksResponse.json();
-
-        setTasks(tasksData);
-
+        const response = await apiClient.getTrials(projectId);
+        console.log('API Response:', response);
+        
+        // Convert API response to match Trial interface
+        const formattedTrials: Trial[] = response.data.map((trial: any) => ({
+          id: trial.id,
+          name: trial.name,
+          status: trial.status,
+          created_at: trial.created_at,
+          config_yaml: trial.config?.config_path || ''
+        }));
+        
+        setTrials(formattedTrials);
         setIsLoading(false);
       } catch (error) {
         console.error("Error fetching project data:", error);
@@ -100,8 +104,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
       }
     };
 
-    // API 호출을 주석 처리하여 목업 데이터 사용
-    // fetchProjectData();
+    fetchProjectData();
   }, [projectId]);
 
   const getStatusColor = (status: string) => {
