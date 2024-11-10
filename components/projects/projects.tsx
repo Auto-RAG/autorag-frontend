@@ -38,9 +38,8 @@ import { Badge } from "@/components/ui/badge";
 import { 
   APIClient,
   Project,
-  PerformancePoint,
-
-  ProjectStats, 
+  PerformancePoint, 
+  ProjectStats,
   ProjectList
 } from '@/lib/api-client';
 interface PreparationStatus {
@@ -286,14 +285,6 @@ const PerformanceSparkline = ({ data }: { data: PerformancePoint[] }) => {
     </div>
   );
 };
-
-interface ProjectStats {
-  total_projects: number;
-  active_projects: number;
-  total_trials: number;
-  active_trials: number;
-  total_qa_pairs: number;
-}
 
 const calculateProjectStats = (projects: Project[]): ProjectStats => {
   return projects.reduce((stats, project) => ({
