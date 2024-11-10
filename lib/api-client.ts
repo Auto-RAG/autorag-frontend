@@ -60,6 +60,11 @@ export interface PreparationStatus {
     performance_score?: number;
   }
   
+  export interface CreateTrialRequest {
+    name: string;
+    config?: Record<string, any>;
+  }
+  
   export class APIClient {
    
     
@@ -149,5 +154,23 @@ export interface PreparationStatus {
       return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/${type}`, {
         method: 'POST',
       });
+    }
+
+    async createTrial(projectId: string, request: CreateTrialRequest) {
+      return this.fetch<Trial>(`/projects/${projectId}/trials`, {
+        method: 'POST',
+        body: JSON.stringify(request),
+      });
+    }
+
+    async uploadFiles(projectId: string, formData: FormData) {
+      return this.fetch<{ filePaths: string[] }>(
+        `/projects/${projectId}/upload`,
+        {
+          method: 'POST',
+          body: formData,
+          // Don't set Content-Type header - browser will set it with boundary
+        }
+      );
     }
   }
