@@ -192,188 +192,194 @@ export function TrialDetail({
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="space-y-1">
-          <Button
-            color="default"
-            startContent={<ChevronLeft size={16} />}
-            variant="light"
-            onClick={() => window.history.back()}
-          >
-            Back to Trials
-          </Button>
-          <h1 className="text-2xl font-bold">
-            {trial?.name || "Trial Details"}
-          </h1>
-          <p className="text-sm text-gray-500">
-            Created at:{" "}
-            {trial?.created_at
-              ? new Date(trial.created_at).toLocaleString()
-              : "-"}
-          </p>
-        </div>
-        <div className="space-x-4">
-          {!isConfigEditing ? (
-            <Button
-              color="primary"
-              startContent={<Settings2 size={16} />}
-              variant="flat"
-              onClick={() => setIsConfigEditing(true)}
-            >
-              Edit Config
-            </Button>
-          ) : (
-            <Button color="success" onClick={handleConfigSave}>
-              Save Config
-            </Button>
-          )}
-          <Button
-            color="primary"
-            disabled={trial?.status === "in_progress"}
-            startContent={<PlayCircle size={16} />}
-            onClick={handleRunTrial}
-          >
-            Run Trial
-          </Button>
-        </div>
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="flex items-center gap-2"
+          onClick={() => router.push(`/projects/${projectId}`)}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          Back to Trials
+        </Button>
       </div>
 
-      <Tabs
-        className="w-full"
-        value={activeTab}
-        onValueChange={handleTabChange}
-      >
-        <TabsList>
-          <TabsTrigger className="flex items-center gap-2" value="overview">
-            <FileText className="h-4 w-4" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger className="flex items-center gap-2" value="config">
-            <Settings2 className="h-4 w-4" />
-            Configuration
-          </TabsTrigger>
-          <TabsTrigger className="flex items-center gap-2" value="qa">
-            <Settings2 className="h-4 w-4" />
-            QA Creation
-          </TabsTrigger>
-          <TabsTrigger className="flex items-center gap-2" value="tasks">
-            <PlayCircle className="h-4 w-4" />
-            Tasks
-          </TabsTrigger>
-          <TabsTrigger className="flex items-center gap-2" value="results">
-            <BarChart2 className="h-4 w-4" />
-            Results
-          </TabsTrigger>
-        </TabsList>
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="space-y-1">
+            <h1 className="text-2xl font-bold">
+              {trial?.name  + " Trial Details"}
+            </h1>
+            <p className="text-sm text-gray-500">
+              Created at:{" "}
+              {trial?.created_at
+                ? new Date(trial.created_at).toLocaleString()
+                : "-"}
+            </p>
+          </div>
+          <div className="space-x-4">
+            {!isConfigEditing ? (
+              <Button
+                color="primary"
+                startContent={<Settings2 size={16} />}
+                variant="flat"
+                onClick={() => setIsConfigEditing(true)}
+              >
+                Edit Config
+              </Button>
+            ) : (
+              <Button color="success" onClick={handleConfigSave}>
+                Save Config
+              </Button>
+            )}
+            <Button
+              color="primary"
+              disabled={trial?.status === "in_progress"}
+              startContent={<PlayCircle size={16} />}
+              onClick={handleRunTrial}
+            >
+              Run Trial
+            </Button>
+          </div>
+        </div>
 
-        <TabsContent value="overview">
-          <Card>
-            <CardHeader>
-              <CardTitle>Trial Overview</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium">
-                      Status
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(trial?.status || "")}
-                      <span className="text-lg capitalize">
-                        {trial?.status}
-                      </span>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium">
-                      Total Tasks
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-lg">{tasks.length}</div>
-                  </CardContent>
-                </Card>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm font-medium">
-                      Completion Rate
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-lg">
-                      {(
-                        (tasks.filter((t) => t.status === "completed").length /
-                          tasks.length) *
-                          100 || 0
-                      ).toFixed(1)}
-                      %
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        <Tabs
+          className="w-full"
+          value={activeTab}
+          onValueChange={handleTabChange}
+        >
+          <TabsList>
+            <TabsTrigger className="flex items-center gap-2" value="overview">
+              <FileText className="h-4 w-4" />
+              Overview
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="config">
+              <Settings2 className="h-4 w-4" />
+              Configuration
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="qa">
+              <Settings2 className="h-4 w-4" />
+              QA Creation
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="tasks">
+              <PlayCircle className="h-4 w-4" />
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="results">
+              <BarChart2 className="h-4 w-4" />
+              Results
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="qa">
-          <Card>
-            <CardHeader>
-              <CardTitle>QA Data Editor</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[800px] border rounded-md overflow-y-auto">
-                <QADashboard />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="config">
-          <Card>
-            <CardHeader>
-              <CardTitle>Configuration</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className=" border rounded-md overflow-hidden">
-                <Editor
-                  defaultLanguage="yaml"
-                  height="100%"
-                  options={{
-                    minimap: { enabled: false },
-                    readOnly: !isConfigEditing,
-                  }}
-                  value={config}
-                  onChange={(value) => setConfig(value || "")}
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="overview">
+            <Card>
+              <CardHeader>
+                <CardTitle>Trial Overview</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">
+                        Status
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center gap-2">
+                        {getStatusIcon(trial?.status || "")}
+                        <span className="text-lg capitalize">
+                          {trial?.status}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">
+                        Total Tasks
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg">{tasks.length}</div>
+                    </CardContent>
+                  </Card>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-sm font-medium">
+                        Completion Rate
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-lg">
+                        {(
+                          (tasks.filter((t) => t.status === "completed").length /
+                            tasks.length) *
+                            100 || 0
+                        ).toFixed(1)}
+                        %
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="tasks">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tasks</CardTitle>
-            </CardHeader>
-            <CardContent>{renderTasksTable()}</CardContent>
-          </Card>
-        </TabsContent>
+          <TabsContent value="qa">
+            <Card>
+              <CardHeader>
+                <CardTitle>QA Data Editor</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[800px] border rounded-md overflow-y-auto">
+                  <QADashboard />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="config">
+            <Card>
+              <CardHeader>
+                <CardTitle>Configuration</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className=" border rounded-md overflow-hidden">
+                  <Editor
+                    defaultLanguage="yaml"
+                    height="100%"
+                    options={{
+                      minimap: { enabled: false },
+                      readOnly: !isConfigEditing,
+                    }}
+                    value={config}
+                    onChange={(value) => setConfig(value || "")}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-        <TabsContent value="results">
-          <Card>
-            <CardHeader>
-              <CardTitle>Results & Reports</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {/* Add results visualization components */}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+          <TabsContent value="tasks">
+            <Card>
+              <CardHeader>
+                <CardTitle>Tasks</CardTitle>
+              </CardHeader>
+              <CardContent>{renderTasksTable()}</CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="results">
+            <Card>
+              <CardHeader>
+                <CardTitle>Results & Reports</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {/* Add results visualization components */}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
