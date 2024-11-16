@@ -18,7 +18,7 @@ import {
   FileText,
   MessageSquare,
   BarChart2,
-  ChevronLeft,
+  ChevronLeft,Settings,XCircle
 } from "lucide-react";
 import { format } from 'timeago.js';
 
@@ -27,6 +27,17 @@ import { CreateTrialDialog } from "./trial-creation-wizard";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APIClient } from "@/lib/api-client";
+import ParseTabContent from "../parsings/parse-results-tab";
+import ArtifactsView from "../artifacts/artifacts-view-library";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { ChevronRight } from "lucide-react";
 
 interface Trial {
   id: string;
@@ -47,65 +58,37 @@ interface Task {
   save_path?: string;
 }
 
-// 예시 데이터
-const mockTrials = [
-  {
-    id: "1",
-    name: "Trial #1",
-    status: "completed",
-    created_at: "2024-03-01T10:00:00Z",
-    config_yaml: "",
-  },
-  {
-    id: "2",
-    name: "Trial #2",
-    status: "in_progress",
-    created_at: "2024-03-02T15:30:00Z",
-    config_yaml: "",
-  },
-  {
-    id: "3",
-    name: "Trial #3",
-    status: "failed",
-    created_at: "2024-03-03T09:45:00Z",
-    config_yaml: "",
-  },
-] as Trial[];
-
 export function ProjectDetail({ projectId }: { projectId: string }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("trials");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [trials, setTrials] = useState<Trial[]>(mockTrials); // 초기 상태를 목업 데이터로 설정
+  const [trials, setTrials] = useState<Trial[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [projectName, setProjectName] = useState("");
 
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
   useEffect(() => {
-    const fetchProjectData = async () => {
+    // Fetch project name and trials
+    const fetchData = async () => {
       try {
-        // Fetch trials
-        const response = await apiClient.getTrials(projectId);
-        console.log('API Response:', response);
-        
-        // Convert API response to match Trial interface
-        const formattedTrials: Trial[] = response.data.map((trial: any) => ({
-          id: trial.id,
-          name: trial.name,
-          status: trial.status,
-          created_at: trial.created_at,
-          config_yaml: trial.config?.config_path || ''
-        }));
-        
-        setTrials(formattedTrials);
+        const [projectResponse, trialsResponse] = await Promise.all([
+          apiClient.getProject(projectId),
+          apiClient.getTrials(projectId)
+        ]);
+        setProjectName(projectResponse.name);
+        var trials = trialsResponse.data;
+        trials = trials.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        // @ts-ignore
+        setTrials(trials as Trial[]); // Type assertion to match the state type
         setIsLoading(false);
       } catch (error) {
-        console.error("Error fetching project data:", error);
+        console.error("Error fetching data:", error);
         setIsLoading(false);
       }
     };
 
-    fetchProjectData();
+    fetchData();
   }, [projectId]);
 
   const getStatusColor = (status: string) => {
@@ -196,10 +179,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             <TableCell>
               <div className="flex flex-col">
                 <span className="text-sm">
-                  {formatLocalTime(trial.created_at)}
+                {format(trial.created_at, navigator.language)}
                 </span>
                 <span className="text-xs text-gray-500">
-                  {format(trial.created_at, navigator.language)}
+                {formatLocalTime(trial.created_at)}
                 </span>
               </div>
             </TableCell>
