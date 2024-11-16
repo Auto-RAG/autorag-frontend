@@ -24,24 +24,44 @@ import {
 import { useRouter } from "next/navigation";
 
 import QADashboard from "../qacreations/qacreation-page";
+import toast, { Toaster } from 'react-hot-toast';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { APIClient } from "@/lib/api-client";
+import { Skeleton } from "@/components/ui/skeleton"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
+import { ChevronRight } from "lucide-react";
+
 interface Task {
   id: string;
   project_id: string;
+  task_id: string;
   trial_id: string;
   name: string;
+  save_dir?: string;
+  corpus_path?: string;
+  qa_path?: string;
+  config_path?: string;
   type: "parse" | "chunk" | "qa" | "validate" | "evaluate";
   status: "not_started" | "in_progress" | "completed" | "failed";
   error_message?: string;
   created_at: string;
   save_path?: string;
+  name?: string;
 }
 
 interface Trial {
   id: string;
   project_id: string;
+  trial_id: string;
   name: string;
   status: "not_started" | "in_progress" | "completed" | "failed";
   config_yaml: string;
@@ -55,18 +75,48 @@ export function TrialDetail({
   projectId: string;
   trialId: string;
 }) {
+  const [trialConfig, setTrialConfig] = useState<Trial | null>(null);
   const [trial, setTrial] = useState<Trial | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [config, setConfig] = useState("");
   const [isConfigEditing, setIsConfigEditing] = useState(false);
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("tasks");
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [projectName, setProjectName] = useState("");
 
   // URL 해시가 변경될 때마다 탭 상태 업데이트
   useEffect(() => {
     const hash = window.location.hash.slice(1);
+    
+    // Fetch project and trial info
+    const fetchInitialData = async () => {
+      try {
+        const [projectResponse, trialConfigResponse, trialResponse] = await Promise.all([
+          apiClient.getProject(projectId),
+          apiClient.getTrialConfig(projectId, trialId),
+          apiClient.getTrial(projectId, trialId)
+        ]);
+        
+        setProjectName(projectResponse.name);
+        console.log(trialConfigResponse);
+        // @ts-ignore
+        setTrialConfig(trialConfigResponse);
+        // @ts-ignore
+        setTrial(trialResponse);
+        // @ts-ignore
+        setConfig(trialResponse.config_yaml);
+      } catch (error) {
+        console.error("Error fetching initial data:", error);
+        toast.error("Failed to load trial information");
+      }
+    };
 
+    fetchInitialData();
     if (hash) {
       setActiveTab(hash);
     }
@@ -76,6 +126,11 @@ export function TrialDetail({
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     router.push(`${window.location.pathname}#${value}`, { scroll: false });
+    
+    // Refresh tasks when switching to tasks tab
+    if (value === "tasks") {
+      fetchTasks();
+    }
   };
 
   // useEffect(() => {
@@ -99,13 +154,35 @@ export function TrialDetail({
   //       console.error("Error fetching trial data:", error);
   //     }
   //   };
+  // Move fetchTasks to a separate function outside useEffect
+  const fetchTasks = async () => {
+    if (!projectId) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await apiClient.getTasks(projectId);
+      // @ts-ignore
+      setTasks(response.data as Task[]);
+      toast.success("Tasks fetched successfully");
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+      toast.error("Error: Failed to fetch tasks");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   //   fetchTrialData();
   // }, [projectId, trialId]);
+  // Keep the original useEffect for initial load
+  useEffect(() => {
+    fetchTasks();
+  }, [projectId]);
 
   const handleConfigSave = async () => {
     try {
       await fetch(`/api/projects/${projectId}/trials/${trialId}/config`, {
+      await fetch(`http://127.0.0.1:5000/projects/${projectId}/trials/${trialId}/config`, {
         method: "POST",
         body: JSON.stringify({ config_yaml: config }),
       });
@@ -116,13 +193,25 @@ export function TrialDetail({
   };
 
   const handleRunTrial = async () => {
+  const handleRunTrial = async (fullIngest = false, skipValidation = false) => {
     try {
       await fetch(`/api/projects/${projectId}/trials/${trialId}/evaluate`, {
         method: "POST",
         body: JSON.stringify({ config_yaml: config }),
+      toast("Starting Trial");
+
+      const task = await apiClient.evaluateTrial(projectId, trialId, {
+        full_ingest: fullIngest,
+        skip_validation: skipValidation
       });
+      console.log(task);
+      toast.success("Trial Started");
+      fetchTasks();
+
     } catch (error) {
       console.error("Error running trial:", error);
+      toast.error("Failed to start trial evaluation", {
+      });
     }
   };
 
