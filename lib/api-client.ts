@@ -65,9 +65,35 @@ export interface PreparationStatus {
     config?: Record<string, any>;
   }
   
+
+export interface EvaluateTrialOptions {
+  full_ingest?: boolean;
+  skip_validation?: boolean;
+}
+
+  export interface Task {
+    id: string;
+    project_id: string;
+    trial_id: string;
+    name: string;
+    type: "parse" | "chunk" | "qa";
+    status: "pending" | "in_progress" | "completed" | "failed";
+    error_message?: string;
+    created_at: string;
+    save_path?: string;
+  }
+
+  export interface TasksResponse {
+    total: number;
+    data: Task[];
+  }
+
+  export interface EvaluateTrialOptions {
+    full_ingest?: boolean;
+    skip_validation?: boolean;
+  }
+
   export class APIClient {
-   
-    
     private baseUrl: string;
     private token: string;
   
@@ -134,12 +160,23 @@ export interface PreparationStatus {
       });
     }
 
+    async getTrialConfig(projectId: string, trialId: string) {
+      return this.fetch<Trial>(`/projects/${projectId}/trials/${trialId}/config`, {
+        method: 'GET',
+      });
+    }
+
     async getTrials(projectId: string) {
       return this.fetch<{ total: number; data: Trial[] }>(`/projects/${projectId}/trials`, {
         method: 'GET',
       });
     }
-  
+    async getTrial(projectId: string, trialId: string) {
+      return this.fetch<Trial>(`/projects/${projectId}/trials/${trialId}`, {
+        method: 'GET',
+      });
+    }
+    
     // Trial related methods
     async getTrialStats(projectId: string) {
       return this.fetch<{
@@ -162,7 +199,7 @@ export interface PreparationStatus {
         body: JSON.stringify(request),
       });
     }
-
+    
     async uploadFiles(projectId: string, formData: FormData) {
       return this.fetch<{ filePaths: string[] }>(
         `/projects/${projectId}/upload`,
@@ -172,5 +209,37 @@ export interface PreparationStatus {
           // Don't set Content-Type header - browser will set it with boundary
         }
       );
+    }
+
+    async evaluateTrial(projectId: string, trialId: string, options: EvaluateTrialOptions = {}) {
+      return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/evaluate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(options),
+      });
+    }
+  
+    async saveTrialConfig(projectId: string, trialId: string, config_yaml: string) {
+      return this.fetch<Trial>(`/projects/${projectId}/trials/${trialId}/config`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ config_yaml }),
+      });
+    }
+
+    async getTasks(projectId: string) {
+      return this.fetch<TasksResponse>(`/projects/${projectId}/tasks`, {
+        method: 'GET',
+      });
+    }
+
+    async getTask(projectId: string, taskId: string) {
+      return this.fetch<Task>(`/projects/${projectId}/tasks/${taskId}`, {
+        method: 'GET',
+      });
     }
   }
