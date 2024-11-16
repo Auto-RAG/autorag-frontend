@@ -222,86 +222,113 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   );
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <Button
-            color="default"
-            startContent={<ChevronLeft size={16} />}
-            variant="light"
-            onClick={() => router.back()}
-          >
-            Back
-          </Button>
-          <h1 className="text-2xl font-bold mt-2">Project Details</h1>
+    <div className="w-full space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage><b>{projectName || "Project Details"}</b></BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+      <div className="w-full space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            
+            <h1 className="text-2xl font-bold mt-2 font-ibm-bold">Project : <b>{projectName || "Project Details"}</b></h1>
+          </div>
+          <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog.Trigger asChild>
+              <Button color="primary" startContent={<Beaker size={16} />}>
+                New Trial
+              </Button>
+            </Dialog.Trigger>
+
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+
+              <CreateTrialDialog
+                isOpen={isDialogOpen}
+                projectId={projectId}
+                onOpenChange={setIsDialogOpen}
+                onTrialCreated={() => {
+                  setIsDialogOpen(false);
+                  router.refresh();
+                }}
+              />
+            </Dialog.Portal>
+          </Dialog.Root>
         </div>
-        <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <Dialog.Trigger asChild>
-            <Button color="primary" startContent={<Beaker size={16} />}>
-              New Trial
-            </Button>
-          </Dialog.Trigger>
+        <div>{renderOverviewCards()}</div>
+        <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger className="flex items-center gap-2" value="trials">
+              <Beaker className="h-4 w-4" />
+              Trials
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="artifacts">
+              <BarChart2 className="h-4 w-4" />
+              Artifacts
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="parse">
+              <BarChart2 className="h-4 w-4" />
+              Parsed Data
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="config">
+              <Settings className="h-4 w-4" />
+              Configuration
 
-          <Dialog.Portal>
-            <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+            </TabsTrigger>
+          </TabsList>
 
-            <CreateTrialDialog
-              isOpen={isDialogOpen}
-              projectId={projectId}
-              onOpenChange={setIsDialogOpen}
-              onTrialCreated={() => {
-                setIsDialogOpen(false);
-                router.refresh();
-              }}
-            />
-          </Dialog.Portal>
-        </Dialog.Root>
+
+          <TabsContent value="trials">
+            <Card>
+              <CardHeader>
+                <CardTitle>Trials</CardTitle>
+              </CardHeader>
+              <CardContent>{renderTrialsTable()}</CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="artifacts">
+            <Card>
+              <CardHeader>
+                <CardTitle>Artifacts(RAW_DATA)</CardTitle>
+              </CardHeader>
+              <CardContent><ArtifactsView projectId={projectId} /></CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="parse">
+            <Card>
+              <CardHeader>
+                <CardTitle>Parse Results</CardTitle>
+              </CardHeader>
+              <CardContent>  <ParseTabContent />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="config">
+            <Card>
+              <CardHeader>
+                <CardTitle>Configuration</CardTitle>
+              </CardHeader>
+              <CardContent>{/* Chat interface content */}</CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-      <div>{renderOverviewCards()}</div>
-      <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger className="flex items-center gap-2" value="trials">
-            <Beaker className="h-4 w-4" />
-            Trials
-          </TabsTrigger>
-          <TabsTrigger className="flex items-center gap-2" value="results">
-            <BarChart2 className="h-4 w-4" />
-            Results
-          </TabsTrigger>
-          <TabsTrigger className="flex items-center gap-2" value="chat">
-            <MessageSquare className="h-4 w-4" />
-            Chat
-          </TabsTrigger>
-        </TabsList>
-
-
-        <TabsContent value="trials">
-          <Card>
-            <CardHeader>
-              <CardTitle>Trials</CardTitle>
-            </CardHeader>
-            <CardContent>{renderTrialsTable()}</CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="results">
-          <Card>
-            <CardHeader>
-              <CardTitle>Results</CardTitle>
-            </CardHeader>
-            <CardContent>{/* Results content */}</CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="chat">
-          <Card>
-            <CardHeader>
-              <CardTitle>Chat Interface</CardTitle>
-            </CardHeader>
-            <CardContent>{/* Chat interface content */}</CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
     </div>
   );
 }
