@@ -527,6 +527,149 @@ export function TrialDetail({
                 <CardTitle>Tasks</CardTitle>
               </CardHeader>
               <CardContent>{renderTasksTable()}</CardContent>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex justify-center p-4">
+                    <Skeleton className="w-[100px] h-[20px] rounded-full" />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-12 gap-4">
+                    <div className="col-span-3 border-r pr-4">
+                      <div className="space-y-2">
+                        {tasks.map((task) => (
+                          <div
+                            key={task.task_id}
+                            className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 ${
+                              selectedTask?.task_id === task.task_id ? 'bg-gray-100' : ''
+                            }`}
+                            onClick={() => setSelectedTask(task)}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <div className="font-medium truncate" style={{maxWidth: "200px"}}>
+                                  {task.task_id.substring(0, 8)}...
+                                </div>
+                                <div className="text-sm text-gray-500 capitalize">
+                                  {task.type}
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                {getStatusIcon(task.status)}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="col-span-9">
+                      {selectedTask ? (
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-sm">Task ID</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <p className="text-sm font-mono">{selectedTask.task_id}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-sm">Status</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="flex items-center gap-2">
+                                  {getStatusIcon(selectedTask.status)}
+                                  <span className="capitalize">{selectedTask.status}</span>
+                                </div>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-sm">Created At</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <p>{new Date(selectedTask.created_at).toLocaleString()}</p>
+                              </CardContent>
+                            </Card>
+                            <Card>
+                              <CardHeader>
+                                <CardTitle className="text-sm">Type</CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <p className="capitalize">{selectedTask.type}</p>
+                              </CardContent>
+                            </Card>
+                          </div>
+
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="text-sm">Save Directory</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <p className="text-sm font-mono break-all">{selectedTask.save_dir || "N/A"}</p>
+                            </CardContent>
+                          </Card>
+
+                          <Card>
+                            <CardHeader>
+                              <CardTitle className="text-sm">Output Files</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                {selectedTask.corpus_path && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-mono break-all">{selectedTask.corpus_path}</span>
+                                    <Button
+                                      color="primary"
+                                      size="sm"
+                                      variant="flat"
+                                      onClick={() => window.open(`/api/files${selectedTask.corpus_path}`, "_blank")}
+                                    >
+                                      View Corpus
+                                    </Button>
+                                  </div>
+                                )}
+                                {selectedTask.qa_path && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-mono break-all">{selectedTask.qa_path}</span>
+                                    <Button
+                                      color="secondary"
+                                      size="sm"
+                                      variant="flat"
+                                      onClick={() => window.open(`/api/files${selectedTask.qa_path}`, "_blank")}
+                                    >
+                                      View QA
+                                    </Button>
+                                  </div>
+                                )}
+                                {selectedTask.config_path && (
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-mono break-all">{selectedTask.config_path}</span>
+                                    <Button
+                                      color="warning"
+                                      size="sm"
+                                      variant="flat"
+                                      onClick={() => window.open(`/api/files${selectedTask.config_path}`, "_blank")}
+                                    >
+                                      View Config
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-gray-500">
+                          Select a task to view details
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
             </Card>
           </TabsContent>
 
@@ -537,10 +680,12 @@ export function TrialDetail({
               </CardHeader>
               <CardContent>
                 {/* Add results visualization components */}
+                ?
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
+        <Toaster />
       </div>
     </div>
   );
