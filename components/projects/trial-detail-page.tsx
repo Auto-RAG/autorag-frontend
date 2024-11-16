@@ -294,10 +294,40 @@ export function TrialDetail({
       </div>
 
       <div className="space-y-6">
+    <div className="w-full p-0 space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/">Home</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbLink href={`/projects/${projectId}`}><b>{projectName || "Project Details"}</b></BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator>
+            <ChevronRight className="h-4 w-4" />
+          </BreadcrumbSeparator>
+          <BreadcrumbItem>
+            <BreadcrumbPage>{'Trial : ' + trial?.name || "Trial Details"}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <div className="w-full space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
             <h1 className="text-2xl font-bold">
               {trial?.name  + " Trial Details"}
+            <h1 className="text-2xl font-bold font-ibm">
+              {"Trial : " + trial?.name}
             </h1>
             <p className="text-sm text-gray-500">
               Created at:{" "}
@@ -326,6 +356,7 @@ export function TrialDetail({
               disabled={trial?.status === "in_progress"}
               startContent={<PlayCircle size={16} />}
               onClick={handleRunTrial}
+              onClick={() => handleRunTrial()}
             >
               Run Trial
             </Button>
