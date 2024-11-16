@@ -12,6 +12,7 @@ module.exports = {
       fontFamily: {
         sans: ["var(--font-sans)"],
         mono: ["var(--font-mono)"],
+        ibm: ["var(--font-ibm-plex)"]
       },
       borderRadius: {
         lg: "var(--radius)",

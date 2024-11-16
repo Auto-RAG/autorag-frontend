@@ -6,7 +6,7 @@ import clsx from "clsx";
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
-import { fontSans } from "@/config/fonts";
+import { fontSans, fontIBM } from "@/config/fonts";
 import { CustomNavigation } from "@/components/custom-navigation";
 
 export const metadata: Metadata = {
@@ -39,21 +39,22 @@ export default function RootLayout({
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
           fontSans.variable,
+          fontIBM.variable
         )}
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <div className="relative flex flex-col h-screen">
+          <div className="relative flex flex-col h-screen  font-ibm-bold">
             {/* <Navbar /> */}
             <div className="min-h-screen bg-gray-50">
               <CustomNavigation />
               {/* Main Content */}
-              <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+              <main className="w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
                 {children}
               </main>
             </div>
 
             <footer className="fixed bottom-0 w-full flex items-center justify-center py-3 bg-background border-t">
-              AutoRAG Inc.
+              <small><b>Powered by AutoRAG</b></small>
             </footer>
           </div>
         </Providers>
