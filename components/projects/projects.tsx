@@ -345,7 +345,7 @@ export function Projects() {
         const tempData = [...response.data, ...mockProjects.projects];
         setProjectList(prev => ({
           total: tempData.length || 0,
-          data: [...prev.data, ...tempData]
+          data: [...tempData]
         }));
         setHasMore(response.data.length === 10);
       } else {
@@ -388,7 +388,7 @@ export function Projects() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 font-ibm-bold">
       {/* Header Section */}
       <div className="flex justify-between items-center">
         <div>
@@ -486,7 +486,7 @@ export function Projects() {
                 <TableRow key={project.id}>
                   <TableCell>
                     <div>
-                      <div className="font-medium">{project.name}</div>
+                      <div className="font-bold font-ibm-bold ">{project.name}</div>
                       <div className="text-sm text-gray-500">
                         {project.description}
                       </div>
