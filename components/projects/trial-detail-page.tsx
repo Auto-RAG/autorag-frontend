@@ -41,11 +41,8 @@ import {
 import { ChevronRight } from "lucide-react";
 
 interface Task {
-  id: string;
-  project_id: string;
   task_id: string;
   trial_id: string;
-  name: string;
   save_dir?: string;
   corpus_path?: string;
   qa_path?: string;
@@ -54,7 +51,6 @@ interface Task {
   status: "not_started" | "in_progress" | "completed" | "failed";
   error_message?: string;
   created_at: string;
-  save_path?: string;
   name?: string;
 }
 
@@ -83,7 +79,6 @@ export function TrialDetail({
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("overview");
   const [activeTab, setActiveTab] = useState("tasks");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -133,27 +128,6 @@ export function TrialDetail({
     }
   };
 
-  // useEffect(() => {
-  //   const fetchTrialData = async () => {
-  //     try {
-  //       const trialResponse = await fetch(
-  //         `/api/projects/${projectId}/trials/${trialId}`,
-  //       );
-  //       const trialData = await trialResponse.json();
-
-  //       setTrial(trialData);
-  //       setConfig(trialData.config_yaml);
-
-  //       const tasksResponse = await fetch(
-  //         `/api/projects/${projectId}/trials/${trialId}/tasks`,
-  //       );
-  //       const tasksData = await tasksResponse.json();
-
-  //       setTasks(tasksData);
-  //     } catch (error) {
-  //       console.error("Error fetching trial data:", error);
-  //     }
-  //   };
   // Move fetchTasks to a separate function outside useEffect
   const fetchTasks = async () => {
     if (!projectId) return;
@@ -172,8 +146,6 @@ export function TrialDetail({
     }
   };
 
-  //   fetchTrialData();
-  // }, [projectId, trialId]);
   // Keep the original useEffect for initial load
   useEffect(() => {
     fetchTasks();
@@ -181,7 +153,6 @@ export function TrialDetail({
 
   const handleConfigSave = async () => {
     try {
-      await fetch(`/api/projects/${projectId}/trials/${trialId}/config`, {
       await fetch(`http://127.0.0.1:5000/projects/${projectId}/trials/${trialId}/config`, {
         method: "POST",
         body: JSON.stringify({ config_yaml: config }),
@@ -192,12 +163,8 @@ export function TrialDetail({
     }
   };
 
-  const handleRunTrial = async () => {
   const handleRunTrial = async (fullIngest = false, skipValidation = false) => {
     try {
-      await fetch(`/api/projects/${projectId}/trials/${trialId}/evaluate`, {
-        method: "POST",
-        body: JSON.stringify({ config_yaml: config }),
       toast("Starting Trial");
 
       const task = await apiClient.evaluateTrial(projectId, trialId, {
@@ -228,72 +195,7 @@ export function TrialDetail({
     }
   };
 
-  const renderTasksTable = () => (
-    <Table aria-label="Tasks list">
-      <TableHeader>
-        <TableColumn>TYPE</TableColumn>
-        <TableColumn>NAME</TableColumn>
-        <TableColumn>STATUS</TableColumn>
-        <TableColumn>CREATED AT</TableColumn>
-        <TableColumn>OUTPUT</TableColumn>
-      </TableHeader>
-      <TableBody>
-        {tasks.map((task) => (
-          <TableRow key={task.id}>
-            <TableCell className="capitalize">{task.type}</TableCell>
-            <TableCell>{task.name}</TableCell>
-            <TableCell>
-              <div className="flex items-center gap-2">
-                {getStatusIcon(task.status)}
-                <span
-                  className={`
-                  ${task.status === "completed" && "text-green-500"}
-                  ${task.status === "in_progress" && "text-blue-500"}
-                  ${task.status === "failed" && "text-red-500"}
-                `}
-                >
-                  {task.status}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              {new Date(task.created_at).toLocaleDateString()}
-            </TableCell>
-            <TableCell>
-              {task.save_path && (
-                <Button
-                  color="primary"
-                  size="sm"
-                  variant="flat"
-                  onClick={() =>
-                    window.open(`/api/files${task.save_path}`, "_blank")
-                  }
-                >
-                  View Output
-                </Button>
-              )}
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
-
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="flex items-center gap-2"
-          onClick={() => router.push(`/projects/${projectId}`)}
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back to Trials
-        </Button>
-      </div>
-
-      <div className="space-y-6">
     <div className="w-full p-0 space-y-6">
       <Breadcrumb>
         <BreadcrumbList>
@@ -324,8 +226,6 @@ export function TrialDetail({
       <div className="w-full space-y-6">
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <h1 className="text-2xl font-bold">
-              {trial?.name  + " Trial Details"}
             <h1 className="text-2xl font-bold font-ibm">
               {"Trial : " + trial?.name}
             </h1>
@@ -355,7 +255,6 @@ export function TrialDetail({
               color="primary"
               disabled={trial?.status === "in_progress"}
               startContent={<PlayCircle size={16} />}
-              onClick={handleRunTrial}
               onClick={() => handleRunTrial()}
             >
               Run Trial
@@ -413,42 +312,6 @@ export function TrialDetail({
                   </Button>
           </div>
         </div>
-
-        <Tabs
-          className="w-full"
-          value={activeTab}
-          onValueChange={handleTabChange}
-        >
-          <TabsList>
-            <TabsTrigger className="flex items-center gap-2" value="overview">
-              <FileText className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="config">
-              <Settings2 className="h-4 w-4" />
-              Configuration
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="qa">
-              <Settings2 className="h-4 w-4" />
-              QA Creation
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="tasks">
-              <PlayCircle className="h-4 w-4" />
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="results">
-              <BarChart2 className="h-4 w-4" />
-              Results
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview">
-            <Card>
-              <CardHeader>
-                <CardTitle>Trial Overview</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card>
                     <CardHeader>
@@ -493,9 +356,6 @@ export function TrialDetail({
                     </CardContent>
                   </Card>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         <Tabs
           className="w-full"
           value={activeTab}
@@ -557,7 +417,6 @@ export function TrialDetail({
               <CardHeader>
                 <CardTitle>Tasks</CardTitle>
               </CardHeader>
-              <CardContent>{renderTasksTable()}</CardContent>
               <CardContent>
                 {isLoading ? (
                   <div className="flex justify-center p-4">
@@ -710,7 +569,6 @@ export function TrialDetail({
                 <CardTitle>Results & Reports</CardTitle>
               </CardHeader>
               <CardContent>
-                {/* Add results visualization components */}
                 ?
               </CardContent>
             </Card>
