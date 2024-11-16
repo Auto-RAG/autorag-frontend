@@ -329,6 +329,57 @@ export function TrialDetail({
             >
               Run Trial
             </Button>
+            <Button
+              color="secondary"
+              disabled={trial?.status === "in_progress"}
+              startContent={<PlayCircle size={16} />}
+              onClick={() => handleRunTrial(true, false)}
+            >
+              Full Ingest
+            </Button>
+            <Button
+              color="warning"
+              disabled={trial?.status === "in_progress"}
+              startContent={<PlayCircle size={16} />}
+              onClick={() => handleRunTrial(false, true)}
+            >
+              Skip Validation
+            </Button>
+            <Button
+                    color="primary"
+                    startContent={<FileText size={16} />}
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(
+                          `/projects/${projectId}/trials/${trialId}/report/open`
+                        );
+                        if (!response.ok) throw new Error('Failed to open report');
+                        // 성공 후 처리 (예: 상태 업데이트)
+                      } catch (error) {
+                        console.error('Error opening report:', error);
+                      }
+                    }}
+                  >
+                    Open Report
+                  </Button>
+                  <Button
+                    color="default"
+                    variant="flat"
+                    startContent={<XCircle size={16} />}
+                    onClick={async () => {
+                      try {
+                        const response = await fetch(
+                          `/projects/${projectId}/trials/${trialId}/report/close`
+                        );
+                        if (!response.ok) throw new Error('Failed to close report');
+                        // 성공 후 처리
+                      } catch (error) {
+                        console.error('Error closing report:', error);
+                      }
+                    }}
+                  >
+                    Close Report
+                  </Button>
           </div>
         </div>
 
@@ -367,6 +418,7 @@ export function TrialDetail({
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <Card>
                     <CardHeader>
                       <CardTitle className="text-sm font-medium">
@@ -413,6 +465,27 @@ export function TrialDetail({
               </CardContent>
             </Card>
           </TabsContent>
+        <Tabs
+          className="w-full"
+          value={activeTab}
+          onValueChange={handleTabChange}
+        >
+          <TabsList>
+
+          <TabsTrigger className="flex items-center gap-2" value="tasks">
+              <PlayCircle className="h-4 w-4" />
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="qa">
+              <Settings2 className="h-4 w-4" />
+              QA Creation
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="config">
+              <Settings2 className="h-4 w-4" />
+              Configuration
+            </TabsTrigger>
+          </TabsList>
+
 
           <TabsContent value="qa">
             <Card>
