@@ -39,6 +39,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
+import ParquetViewer from "../qacreations/qa-analysis-layout";
 
 interface Task {
   task_id: string;
@@ -367,6 +368,10 @@ export function TrialDetail({
               <PlayCircle className="h-4 w-4" />
               Tasks
             </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="qa_chunk_view">
+              <Settings2 className="h-4 w-4" />
+              qa_chunk_view
+            </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="qa">
               <Settings2 className="h-4 w-4" />
               QA Creation
@@ -562,7 +567,18 @@ export function TrialDetail({
               </CardContent>
             </Card>
           </TabsContent>
-
+          
+          <TabsContent value="qa_chunk_view">
+            <Card>
+              <CardHeader>
+                <CardTitle>qa_chunk_view</CardTitle>
+              </CardHeader>
+              <CardContent>
+              {/* <ParquetQAAnalysis qaParquetUrl={selectedTask?.qa_path || ""} chunkParquetUrl={selectedTask?.corpus_path || "" }/> */}
+              <ParquetViewer qaParquetUrl={"http://localhost:3000/qa.parquet"} chunkParquetUrl={"http://localhost:3000/chunk.parquet" }/>
+              </CardContent>
+            </Card>
+          </TabsContent>
           <TabsContent value="results">
             <Card>
               <CardHeader>
