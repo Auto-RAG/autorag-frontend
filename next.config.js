@@ -7,6 +7,10 @@ const nextConfig = {
             topLevelAwait: true,
             layers: true,
         };
+        config.resolve.fallback = {
+            ...config.resolve.fallback,
+            fs: false,
+        };
         return config;
     },
 };
