@@ -242,4 +242,108 @@ export interface EvaluateTrialOptions {
         method: 'GET',
       });
     }
+
+    async createParseTask(projectId: string, trialId: string, data: {
+      name: string;
+      path: string;
+      config: {
+        modules: Array<{
+          module_type: string;
+          parse_method: string[];
+        }>;
+      };
+    }) {
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/parse`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.token && { Authorization: `Bearer ${this.token}` }),
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
+    async createChunkTask(projectId: string, trialId: string, data: {
+      name: string;
+      config: {
+        modules: Array<{
+          module_type: string;
+          chunk_method: string[];
+          chunk_size?: number;
+          chunk_overlap?: number;
+        }>;
+      };
+    }) {
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/chunk`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.token && { Authorization: `Bearer ${this.token}` }),
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
+    async createQATask(projectId: string, trialId: string, data: {
+      preset: string;
+      name: string;
+      qa_num: number;
+      llm_config: {
+        llm_name: string;
+      };
+      lang: string;
+    }) {
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/qa`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(this.token && { Authorization: `Bearer ${this.token}` }),
+          },
+          body: JSON.stringify(data),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
+    async waitForTask(projectId: string, taskId: string) {
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/tasks/${taskId}`,
+        {
+          headers: {
+            ...(this.token && { Authorization: `Bearer ${this.token}` }),
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
   }
