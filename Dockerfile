@@ -6,7 +6,7 @@ WORKDIR /app
 RUN corepack enable && corepack prepare yarn@3.5.1 --activate
 
 COPY package.json yarn.lock .yarnrc.yml ./
-COPY .yarn ./.yarn
+# COPY .yarn ./.yarn
 
 RUN yarn install
 
@@ -20,14 +20,13 @@ RUN corepack enable && corepack prepare yarn@3.5.1 --activate
 # 소스 파일 복사
 COPY . .
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/.yarn ./.yarn
+# COPY --from=deps /app/.yarn ./.yarn
 
 # 빌드 전에 디렉토리 확인
 RUN ls -la && \
     # Next.js 빌드 실행
-    yarn build && \
-    ls  && \
-    ls -la .next
+    yarn build 
+    # ls -la .next
 # 실행 단계
 FROM node:22-alpine AS runner
 WORKDIR /app
@@ -40,7 +39,7 @@ ENV HOSTNAME="0.0.0.0"
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/yarn.lock ./
 COPY --from=builder /app/.yarnrc.yml ./
-COPY --from=builder /app/.yarn ./.yarn
+# COPY --from=builder /app/.yarn ./.yarn
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
