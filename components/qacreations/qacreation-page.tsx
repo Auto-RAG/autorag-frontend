@@ -166,8 +166,8 @@ const QADashboard = () => {
           <CardContent>
             <Table>
               <TableBody>
-                {qaData.map((item) => (
-                  <TableRow key={`question-${item.id}`}>
+                {qaData.map((item, index) => (
+                  <TableRow key={`question-${index}`}>
                     <TableCell className="align-top">
                       <div className="flex justify-between items-start">
                         <span className="text-sm">{item.question}</span>
