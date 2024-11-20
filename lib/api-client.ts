@@ -64,6 +64,11 @@ export interface PreparationStatus {
     name: string;
     config?: Record<string, any>;
   }
+
+  export interface SetEnvRequest {
+    key: string;
+    value: string;
+  }
   
 
 export interface EvaluateTrialOptions {
@@ -345,5 +350,12 @@ export interface EvaluateTrialOptions {
       }
 
       return await response.json();
+    }
+
+    async setEnv(request: SetEnvRequest) {
+      return this.fetch<Trial>(`/env`, {
+        method: 'POST',
+        body: JSON.stringify(request),
+      });
     }
   }
