@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 
 import ApiKeyForm from "@/components/settings/ApiKeyForm";
+import ApiKeyView from "@/components/settings/ApiKeyView";
 
 
 export const metadata: Metadata = {
@@ -30,6 +31,9 @@ export default function SettingsPage() {
               <h2 className="text-xl font-semibold mb-4">API Settings</h2>
               <div className="space-y-4">
                 <ApiKeyForm />
+              </div>
+              <div className="space-y-4">
+                <ApiKeyView />
               </div>
             </div>
 
