@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
 import ParquetViewer from "../qacreations/qa-analysis-layout";
+import { ConfigEditor } from "./trials/config-editor";
+import { ConfigSelector } from "./trials/config-selector";
 
 interface Task {
   task_id: string;
@@ -196,6 +198,14 @@ export function TrialDetail({
     }
   };
 
+  const handleConfigSelect = async (configYaml: string) => {
+    setConfig(configYaml);
+  };
+
+  const handleCustomSelect = () => {
+    setIsConfigEditing(true);
+  };
+
   const handleEvaluate = async () => {
     try {
       toast("Starting Evaluation");
@@ -203,6 +213,7 @@ export function TrialDetail({
         full_ingest: false,
         skip_validation: true
       });
+
       console.log(task);
       toast.success("Evaluation Started");
       fetchTasks();
@@ -438,17 +449,13 @@ export function TrialDetail({
                 <CardTitle>Configuration</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className=" border rounded-md overflow-hidden">
-                  <Editor
-                    defaultLanguage="yaml"
-                    height="100%"
-                    options={{
-                      minimap: { enabled: false },
-                      readOnly: !isConfigEditing,
-                    }}
-                    value={config}
-                    onChange={(value) => setConfig(value || "")}
-                  />
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="border overflow-hidden">
+                  <ConfigSelector onConfigSelect={handleConfigSelect} onCustomSelect={handleCustomSelect} />
+                  </div>
+                <div className="border rounded-md overflow-hidden">
+                  <ConfigEditor value={config}/>
+                </div>
                 </div>
               </CardContent>
             </Card>
