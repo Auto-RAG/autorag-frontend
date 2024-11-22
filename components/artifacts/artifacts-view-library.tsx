@@ -20,7 +20,9 @@ interface TreeItem {
   isFolder: boolean;
 }
 
-const FileContents: React.FC<{ projectId: string }> = ({ projectId }) => {
+const FileContents: React.FC<{ projectId: string;
+  onSelect: (nodeId: string) => void;
+ }> = ({ projectId, onSelect }) => {
   const [treeContent, setTreeContent] = useState<React.ReactNode>(null);
 
   useEffect(() => {
@@ -83,12 +85,13 @@ const FileContents: React.FC<{ projectId: string }> = ({ projectId }) => {
               <span className="text-sm">{node.name}</span>
             </div>
           }
+          onClick={() => onSelect(node.name)}
         />
       );
     };
 
     fetchContents();
-  }, [projectId]);
+  }, [projectId, onSelect]);
 
   return treeContent;
 };
@@ -115,7 +118,7 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
       <div className="grid grid-cols-2 gap-4 h-full">
         <div className="overflow-auto border rounded p-2">
           <Box sx={{ minHeight: 352, minWidth: 250 }}>
-           <FileContents projectId={projectId} />
+           <FileContents projectId={projectId} onSelect={handleSelect} />
           </Box>
         </div>
         <div className="overflow-auto border rounded p-2">
