@@ -145,11 +145,13 @@ export interface EvaluateTrialOptions {
     async createProject(data: { 
       name: string; 
       description?: string;
-      config?: object;
     }) {
       return this.fetch<Project>('/projects', {
         method: 'POST',
         body: JSON.stringify(data),
+        headers: {
+          'Authorization': 'Bearer good'
+        }
       });
     }
   
