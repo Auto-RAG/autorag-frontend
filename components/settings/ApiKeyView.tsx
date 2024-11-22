@@ -6,6 +6,7 @@ import { Dictionary } from 'apache-arrow';
 import toast from 'react-hot-toast';
 
 import { APIClient } from '@/lib/api-client';
+import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@nextui-org/table';
 
 
 
@@ -132,35 +133,45 @@ export default function ApiKeyView() {
       </div>
       <div className="mt-8">
         <h2 className="text-lg font-semibold mb-4">Environment Variables</h2>
-        <div className="border rounded-md divide-y">
-          {Object.entries(envVars).map(([key, value]) => (
-            <div key={key} className="flex items-center justify-between p-4">
-              <div className="flex-1 flex items-center gap-4">
-                <p className="font-medium flex-1">{key}</p>
-              <div className="flex-auto flex items-left">
-                <p className="font-mono text-sm flex-1">
-                  {revealedKeys[key] ? String(value) : '••••••••'}
-                </p>
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  className="p-2 hover:bg-gray-100 rounded-md"
-                  onClick={() => handleReveal(key)}
-                >
-                  {revealedKeys[key] ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-                <button
-                  className="p-2 hover:bg-gray-100 rounded-md text-red-500"
-                  onClick={() => handleDelete(key)}
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-        </div>
+        <Table aria-label="Environment variables table">
+          <TableHeader>
+            <TableColumn className="w-[150px] text-left">KEY</TableColumn>
+            <TableColumn className="w-[300px]">VALUE</TableColumn>
+            <TableColumn className="w-[80px] text-right">REVEAL</TableColumn>
+            <TableColumn className="w-[80px] text-right">DELETE</TableColumn>
+          </TableHeader>
+          <TableBody>
+            {Object.entries(envVars).map(([key, value]) => (
+              <TableRow key={key}>
+                <TableCell>
+                  <p className="font-medium">{key}</p>
+                </TableCell>
+                <TableCell>
+                  <p className="font-mono text-sm whitespace-pre-wrap break-all">
+                    {revealedKeys[key] ? String(value) : '••••••••'}
+                  </p>
+                </TableCell>
+                <TableCell className="text-right">
+                  <button
+                    className="p-1 hover:bg-gray-100 rounded-md"
+                    onClick={() => handleReveal(key)}
+                  >
+                    {revealedKeys[key] ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </TableCell>
+                <TableCell className="text-right">
+                  <button
+                    className="p-1 hover:bg-gray-100 rounded-md text-red-500"
+                    onClick={() => handleDelete(key)}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
+    </div>
   );
 }
