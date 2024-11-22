@@ -213,13 +213,30 @@ export interface EvaluateTrialOptions {
       );
     }
 
+    async validateTrial(projectId: string, trialId: string) {
+      return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/validate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          full_ingest: false,
+          skip_validation: false
+        }),
+      });
+    }
+
     async evaluateTrial(projectId: string, trialId: string, options: EvaluateTrialOptions = {}) {
       return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/evaluate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(options),
+        body: JSON.stringify({
+          full_ingest: true,
+          skip_validation: false,
+          ...options
+        }),
       });
     }
   
