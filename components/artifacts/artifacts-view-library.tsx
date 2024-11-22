@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { File, Folder, ChevronRight, ChevronDown } from 'lucide-react';
+import { File, Folder } from 'lucide-react';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import Box from '@mui/material/Box';
@@ -18,10 +18,6 @@ interface TreeItem {
   data: string;
   canRename: boolean;
   isFolder: boolean;
-}
-
-interface TreeItems {
-  [key: string]: TreeItem;
 }
 
 const FileContents: React.FC<{ projectId: string }> = ({ projectId }) => {
@@ -46,8 +42,6 @@ const FileContents: React.FC<{ projectId: string }> = ({ projectId }) => {
           }))
         };
 
-        console.log(fileNode);
-        
         const treeView = (
           <SimpleTreeView>
             {renderTreeItems(fileNode)}
@@ -108,7 +102,6 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/artifacts/content?path=${nodeId}`);
         const content = await response.text();
 
-        console.log(content);
         setSelectedFileContent(content);
       } catch (error) {
         console.error('Error fetching file content:', error);
