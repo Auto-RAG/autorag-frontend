@@ -307,10 +307,7 @@ const calculateProjectStats = (projects: Project[]): ProjectStats => {
 export function Projects() {
   const router = useRouter();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [projectList, setProjectList] = useState<{ total: number; data: Project[] }>({
-    total: 0,
-    data: []
-  });
+  const [projectList, setProjectList] = useState<{ total: number; data: Project[] } | null>(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<ProjectStats>({
     total_projects: 0,
@@ -330,9 +327,9 @@ export function Projects() {
   }, []);
 
   useEffect(() => {
-    const newStats = calculateProjectStats(projectList.data);
+    const newStats = calculateProjectStats(projectList?.data || []);
     setStats(newStats);
-  }, [projectList.data]);
+  }, [projectList?.data]);
 
   const loadProjects = async () => {
     try {
@@ -340,27 +337,28 @@ export function Projects() {
       const response = await apiClient.getProjects(page);
       console.log('API Response:', response);
       
-      // response와 response.data가 있는지 확인
-      if (response && Array.isArray(response.data)) {
-        const tempData = [...response.data, ...mockProjects.projects];
-        setProjectList(prev => ({
-          total: tempData.length || 0,
-          data: [...tempData]
-        }));
-        setHasMore(response.data.length === 10);
-      } else {
-        console.warn('Invalid API response format:', response);
-        setProjectList({ total: mockProjects.projects.length, data: mockProjects.projects });
-        setHasMore(false);
-      }
+      // Ensure consistent data structure
+      const projectData = response?.data || [];
+      const combinedProjects = [...projectData, ...mockProjects.projects];
+      
+      setProjectList({
+        total: combinedProjects.length,
+        data: combinedProjects
+      });
+      setHasMore(projectData.length === 10);
+      
     } catch (error) {
       console.error('Failed to load projects:', error);
-      setProjectList({ total: mockProjects.projects.length, data: mockProjects.projects });
+      // Fallback to mock data
+      setProjectList({
+        total: mockProjects.projects.length,
+        data: mockProjects.projects
+      });
       setHasMore(false);
     } finally {
       setLoading(false);
     }
-  }; 
+  };
 
   const handleProjectCreated = (project: Project) => {
     setProjectList(prev => ({ ...prev, data: [project, ...prev.data] }));
@@ -368,24 +366,31 @@ export function Projects() {
   };
 
   const getTimeAgo = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    if (typeof window === 'undefined') return ''; // 서버 사이드에서는 빈 문자열 반환
 
-    if (seconds < 3600) {
-      const minutes = Math.floor(seconds / 60);
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
-      return `${minutes}m ago`;
-    } else if (seconds < 86400) {
-      const hours = Math.floor(seconds / 3600);
-
-      return `${hours}h ago`;
-    } else {
-      const days = Math.floor(seconds / 86400);
-
-      return `${days}d ago`;
+      if (seconds < 3600) {
+        const minutes = Math.floor(seconds / 60);
+        return minutes <= 0 ? 'Just now' : `${minutes}m ago`;
+      } else if (seconds < 86400) {
+        const hours = Math.floor(seconds / 3600);
+        return `${hours}h ago`;
+      } else {
+        const days = Math.floor(seconds / 86400);
+        return `${days}d ago`;
+      }
+    } catch {
+      return 'Invalid date';
     }
   };
+
+  if (loading || !projectList) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6 font-ibm-bold">
@@ -550,10 +555,9 @@ export function Projects() {
                   </TableCell>
                   <TableCell>
                     <div>
-                      {project.last_activity 
+                      {typeof window !== 'undefined' && project.last_activity 
                         ? getTimeAgo(project.last_activity)
-                        : 'No activity'
-                      }
+                        : 'Loading...'}
                     </div>
                   </TableCell>
                   <TableCell>
