@@ -30,9 +30,6 @@ export default function SettingsPage() {
             <div className="pt-6 border-t">
               <h2 className="text-xl font-semibold mb-4">API Settings</h2>
               <div className="space-y-4">
-                <ApiKeyForm />
-              </div>
-              <div className="space-y-4">
                 <ApiKeyView />
               </div>
             </div>
