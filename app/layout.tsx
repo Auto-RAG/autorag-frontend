@@ -33,15 +33,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html  lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head />
       <body 
         className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
+          "min-h-screen bg-background font-sans antialiased"
         )}
+        suppressHydrationWarning
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "light" }}>
-          <div className="relative flex flex-col h-screen  font-ibm-bold">
+        <Providers themeProps={{ attribute: "class", defaultTheme: "light", enableSystem: false }}>
+          <div className="relative flex flex-col h-screen font-ibm-bold">
             {/* <Navbar /> */}
             <div className="min-h-screen bg-gray-50">
               <CustomNavigation />
