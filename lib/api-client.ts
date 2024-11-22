@@ -203,12 +203,11 @@ export interface EvaluateTrialOptions {
     }
     
     async uploadFiles(projectId: string, formData: FormData) {
-      return this.fetch<{ filePaths: string[] }>(
+      return this.fetch<{ response: Object }>(
         `/projects/${projectId}/upload`,
         {
           method: 'POST',
           body: formData,
-          // Don't set Content-Type header - browser will set it with boundary
         }
       );
     }

@@ -18,7 +18,8 @@ import {
   FileText,
   MessageSquare,
   BarChart2,
-  ChevronLeft,Settings,XCircle
+  ChevronLeft,Settings,XCircle,
+  Upload
 } from "lucide-react";
 import { format } from 'timeago.js';
 
@@ -38,6 +39,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
+import { renderUploadFiles } from "./upload-files";
 
 interface Trial {
   id: string;
@@ -273,6 +275,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         <div>{renderOverviewCards()}</div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger className="flex items-center gap-2" value="upload">
+              <Beaker className="h-4 w-4" />
+              Upload Files
+            </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="trials">
               <Beaker className="h-4 w-4" />
               Trials
@@ -292,7 +298,17 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </TabsTrigger>
           </TabsList>
 
-
+          <TabsContent value="upload">
+            <Card>
+              <CardHeader>
+                <CardTitle>Artifacts</CardTitle>
+              </CardHeader>
+              <CardContent>{renderUploadFiles(projectId, () => {
+                setActiveTab("artifacts");
+              })}</CardContent>
+            </Card>
+          </TabsContent>
+          
           <TabsContent value="trials">
             <Card>
               <CardHeader>
