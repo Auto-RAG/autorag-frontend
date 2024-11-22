@@ -32,7 +32,6 @@ export function CreateProjectDialog({
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const handleSubmit = async () => {
     setIsLoading(true);
