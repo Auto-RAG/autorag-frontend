@@ -24,14 +24,91 @@ interface TreeItems {
   [key: string]: TreeItem;
 }
 
+const FileContents: React.FC<{ projectId: string }> = ({ projectId }) => {
+  const [treeContent, setTreeContent] = useState<React.ReactNode>(null);
+
+  useEffect(() => {
+    const fetchContents = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/artifacts`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch artifacts');
+        }
+        const data = await response.json();
+        const fileNode: FileNode = {
+          name: data.name,
+          type: data.type,
+          children: data.children?.map((child: any) => ({
+            name: child.name,
+            type: child.type,
+            children: child.children
+          }))
+        };
+
+        console.log(fileNode);
+        
+        const treeView = (
+          <SimpleTreeView>
+            {renderTreeItems(fileNode)}
+          </SimpleTreeView>
+        );
+        
+        setTreeContent(treeView);
+      } catch (error) {
+        console.error('Error fetching artifacts:', error);
+        setTreeContent(<div>Error loading file tree</div>);
+      }
+    };
+
+    const renderTreeItems = (node: FileNode) => {
+      if (node.type === 'directory') {
+        return (
+          <TreeItem 
+            key={node.name}
+            itemId={node.name} 
+            label={
+              <div className="flex items-center gap-2 py-1">
+                <Folder className="h-4 w-4 text-blue-500" />
+                <span className="text-sm">{node.name}</span>
+              </div>
+            }
+          >
+            {node.children?.map(child => renderTreeItems(child))}
+          </TreeItem>
+        );
+      }
+      
+      return (
+        <TreeItem
+          key={node.name}
+          itemId={node.name}
+          label={
+            <div className="flex items-center gap-2 py-1">
+              <File className="h-4 w-4 text-gray-500" />
+              <span className="text-sm">{node.name}</span>
+            </div>
+          }
+        />
+      );
+    };
+
+    fetchContents();
+  }, [projectId]);
+
+  return treeContent;
+};
+
 const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
   const [selectedFileContent, setSelectedFileContent] = useState<string | null>(null);
 
   const handleSelect = async (nodeId: string) => {
     if (nodeId.includes('.pdf')) {
       try {
-        const response = await fetch(`http://127.0.0.1:5000/projects/${projectId}/artifacts/content?path=${nodeId}`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/artifacts/content?path=${nodeId}`);
         const content = await response.text();
+
+        console.log(content);
         setSelectedFileContent(content);
       } catch (error) {
         console.error('Error fetching file content:', error);
@@ -45,27 +122,7 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
       <div className="grid grid-cols-2 gap-4 h-full">
         <div className="overflow-auto border rounded p-2">
           <Box sx={{ minHeight: 352, minWidth: 250 }}>
-            <SimpleTreeView>
-              <TreeItem itemId="raw_data" label={
-                <div className="flex items-center gap-2 py-1">
-                  <Folder className="h-4 w-4 text-blue-500" />
-                  <span className="text-sm">raw_data</span>
-                </div>
-              }>
-                <TreeItem itemId="raw_data-baseball_1.pdf" label={
-                  <div className="flex items-center gap-2 py-1">
-                    <File className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">baseball_1.pdf</span>
-                  </div>
-                } />
-                <TreeItem itemId="raw_data-korean_texts_two_page.pdf" label={
-                  <div className="flex items-center gap-2 py-1">
-                    <File className="h-4 w-4 text-gray-500" />
-                    <span className="text-sm">korean_texts_two_page.pdf</span>
-                  </div>
-                } />
-              </TreeItem>
-            </SimpleTreeView>
+           <FileContents projectId={projectId} />
           </Box>
         </div>
         <div className="overflow-auto border rounded p-2">
