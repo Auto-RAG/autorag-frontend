@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Trash2 } from 'lucide-react'; // Assuming you're using lucide-react for icons
 import { Dictionary } from 'apache-arrow';
+import toast from 'react-hot-toast';
 
 import { APIClient } from '@/lib/api-client';
 
@@ -33,11 +34,37 @@ export default function ApiKeyView() {
 
   const handleSubmitNewApi = async () => {
     try {
+        // When apiKeyName is empty, don't submit
+        if (apiKeyName === '') {
+            toast.error("API Key Name is required", {
+                position: "top-center",
+                duration: 3000,
+            });
+
+            return;
+        }
+        // When apiKeyValue is empty, don't submit
+        if (apiKeyValue === '') {
+            toast.error("API Key Value is required", {
+                position: "top-center",
+                duration: 3000,
+            });
+            
+            return;
+        }
+    
       await apiClient.setEnv({
         key: apiKeyName,
         value: apiKeyValue,
       });
-      // You might want to add a success notification here
+      toast.success("API Key Added", {
+        position: "top-center",
+        duration: 3000,
+      });
+      // Fetch updated list instead of manually updating state
+      await fetchEnvVars();
+      setApiKeyName('');
+      setApiKeyValue('');
     } catch (error) {
       console.error('Error submitting Environment value:', error);
     }
@@ -55,6 +82,11 @@ export default function ApiKeyView() {
     try {
       await apiClient.deleteEnv(key);
       fetchEnvVars();
+
+      toast.success("API Key Deleted", {
+        position: "top-center",
+        duration: 1500,
+      });
     } catch (error) {
       console.error('Error deleting environment variable:', error);
     }

@@ -8,6 +8,7 @@ import { Providers } from "./providers";
 import { siteConfig } from "@/config/site";
 // import { fontSans } from "@/config/fonts";
 import { CustomNavigation } from "@/components/custom-navigation";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: {
@@ -48,6 +49,7 @@ export default function RootLayout({
               {/* Main Content */}
               <main className="w-full mx-auto py-4 px-4 sm:px-6 lg:px-8">
                 {children}
+                <Toaster />
               </main>
             </div>
 
