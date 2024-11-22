@@ -183,6 +183,35 @@ export function TrialDetail({
     }
   };
 
+  const handleValidate = async () => {
+    try {
+      toast("Starting Validation");
+      const task = await apiClient.validateTrial(projectId, trialId);
+      console.log(task);
+      toast.success("Validation Started");
+      fetchTasks();
+    } catch (error) {
+      console.error("Error starting validation:", error);
+      toast.error("Failed to start validation");
+    }
+  };
+
+  const handleEvaluate = async () => {
+    try {
+      toast("Starting Evaluation");
+      const task = await apiClient.evaluateTrial(projectId, trialId, {
+        full_ingest: false,
+        skip_validation: true
+      });
+      console.log(task);
+      toast.success("Evaluation Started");
+      fetchTasks();
+    } catch (error) {
+      console.error("Error starting evaluation:", error);
+      toast.error("Failed to start evaluation");
+    }
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "completed":
@@ -272,9 +301,17 @@ export function TrialDetail({
               color="warning"
               disabled={trial?.status === "in_progress"}
               startContent={<PlayCircle size={16} />}
-              onClick={() => handleRunTrial(false, true)}
+              onClick={handleValidate}
             >
-              Skip Validation
+              Validate
+            </Button>
+            <Button
+              color="success"
+              disabled={trial?.status === "in_progress"}
+              startContent={<PlayCircle size={16} />}
+              onClick={handleEvaluate}
+            >
+              Evaluate 
             </Button>
             <Button
                     color="primary"
