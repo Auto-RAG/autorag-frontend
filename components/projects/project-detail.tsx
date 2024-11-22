@@ -68,6 +68,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [projectName, setProjectName] = useState("");
 
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
   useEffect(() => {
     // Fetch project name and trials
     const fetchData = async () => {
@@ -76,8 +77,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           apiClient.getProject(projectId),
           apiClient.getTrials(projectId)
         ]);
+
         setProjectName(projectResponse.name);
         var trials = trialsResponse.data;
+
         trials = trials.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         // @ts-ignore
         setTrials(trials as Trial[]); // Type assertion to match the state type
@@ -159,50 +162,64 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     </div>
   );
 
-  const renderTrialsTable = () => (
-    <Table aria-label="Trials list">
-      <TableHeader>
-        <TableColumn>NAME</TableColumn>
-        <TableColumn>STATUS</TableColumn>
-        <TableColumn>CREATED AT</TableColumn>
-        <TableColumn>ACTIONS</TableColumn>
-      </TableHeader>
-      <TableBody>
-        {trials.map((trial) => (
-          <TableRow key={trial.id}>
-            <TableCell>{trial.name}</TableCell>
-            <TableCell>
-              <span className={getStatusColor(trial.status)}>
-                {trial.status}
-              </span>
-            </TableCell>
-            <TableCell>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                {format(trial.created_at, navigator.language)}
+  const renderTrialsTable = () => {
+    if (trials.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 text-center">
+          <Beaker className="h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium">No trials yet</h3>
+          <p className="text-sm text-muted-foreground">
+            Create your first trial to start experimenting
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <Table aria-label="Trials list">
+        <TableHeader>
+          <TableColumn>NAME</TableColumn>
+          <TableColumn>STATUS</TableColumn>
+          <TableColumn>CREATED AT</TableColumn>
+          <TableColumn>ACTIONS</TableColumn>
+        </TableHeader>
+        <TableBody>
+          {trials.map((trial) => (
+            <TableRow key={trial.id}>
+              <TableCell>{trial.name}</TableCell>
+              <TableCell>
+                <span className={getStatusColor(trial.status)}>
+                  {trial.status}
                 </span>
-                <span className="text-xs text-gray-500">
-                {formatLocalTime(trial.created_at)}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <Button
-                color="primary"
-                size="sm"
-                variant="flat"
-                onClick={() =>
-                  router.push(`/projects/${projectId}/trials/${trial.id}`)
-                }
-              >
-                View Details
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col">
+                  <span className="text-sm">
+                  {format(trial.created_at, navigator.language)}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                  {formatLocalTime(trial.created_at)}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <Button
+                  color="primary"
+                  size="sm"
+                  variant="flat"
+                  onClick={() =>
+                    router.push(`/projects/${projectId}/trials/${trial.id}`)
+                  }
+                >
+                  View Details
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
 
   return (
     <div className="w-full space-y-6">
