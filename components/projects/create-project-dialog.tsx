@@ -32,12 +32,14 @@ export function CreateProjectDialog({
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
       const project = await apiClient.createProject({
-        name: name,
-        description: description,
+        name: name.trim(),
+        description: description.trim()
       });
 
       onProjectCreated(project);
