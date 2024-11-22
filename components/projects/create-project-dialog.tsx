@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { APIClient } from "@/lib/api-client";
 
 interface CreateProjectDialogProps {
   open: boolean;
@@ -26,6 +27,7 @@ export function CreateProjectDialog({
   onOpenChange,
   onProjectCreated,
 }: CreateProjectDialogProps) {
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -33,22 +35,10 @@ export function CreateProjectDialog({
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name,
-          description,
-        }),
+      const project = await apiClient.createProject({
+        name: name,
+        description: description,
       });
-
-      if (!response.ok) {
-        throw new Error("Failed to create project");
-      }
-
-      const project = await response.json();
 
       onProjectCreated(project);
       setName("");
