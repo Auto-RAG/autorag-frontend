@@ -49,6 +49,7 @@
     "global": "^4.4.0",
     "hyparquet": "^1.5.0",
     "intl-messageformat": "^10.5.0",
+    "js-yaml": "^4.1.0",
     "lucide-react": "^0.454.0",
     "next": "^15.0.2",
     "next-themes": "^0.2.1",
@@ -66,6 +67,7 @@
     "timeago.js": "^4.0.2"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "20.5.7",
     "@types/react": "18.3.3",
     "@types/react-dom": "18.3.0",

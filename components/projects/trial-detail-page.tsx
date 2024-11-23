@@ -619,7 +619,7 @@ export function TrialDetail({
               </CardHeader>
               <CardContent>
               {/* <ParquetQAAnalysis qaParquetUrl={selectedTask?.qa_path || ""} chunkParquetUrl={selectedTask?.corpus_path || "" }/> */}
-              <ParquetViewer qaParquetUrl={"http://localhost:3000/qa.parquet"} chunkParquetUrl={"http://localhost:3000/chunk.parquet" }/>
+              <ParquetViewer chunkParquetUrl={"http://localhost:3000/chunk.parquet" } qaParquetUrl={"http://localhost:3000/qa.parquet"}/>
               </CardContent>
             </Card>
           </TabsContent>

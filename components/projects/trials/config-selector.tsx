@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 import * as RadioGroup from "@radix-ui/react-radio-group";
 
@@ -12,25 +13,37 @@ interface ConfigSelectorProps {
   onCustomSelect: () => void;
 }
 
+interface Config{
+    config: Object;
+    config_string: string;
+}
+
 export function ConfigSelector({ onConfigSelect, onCustomSelect }: ConfigSelectorProps) {
   const [coverage, setCoverage] = useState<"compact" | "half" | "full">("compact");
   const [language, setLanguage] = useState<"english" | "korean">("english");
   const [gpuSetting, setGpuSetting] = useState<"only" | "none" | "full">("only");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Here you would map the selections to the appropriate config YAML
     // This is a placeholder - you'll need to implement the actual config mapping
     const configKey = `${coverage}-${language}-${gpuSetting}`;
-    const configYaml = getConfigForSelection(configKey);
+    const configYaml = await getConfigForSelection(configKey);
 
-    onConfigSelect(configYaml);
+    onConfigSelect(configYaml.config_string);
   };
 
-  const getConfigForSelection = (key: string): string => {
-    // This would contain your mapping logic for different combinations
-    // Placeholder return
-    return `# Configuration for ${key}\n# Add your YAML configuration here`;
-  };
+    const getConfigForSelection = async (key: string): Promise<Config> => {
+        try {
+          const response = await fetch(`/api/sample/config/${key}`);
+          const configContent = await response.json();
+        
+          return { config: configContent.content, config_string: configContent.raw_content };
+        } catch (error) {
+          console.error('Error loading config:', error);
+
+          return { config: '# Error loading configuration file', config_string: '# Error loading configuration file' };
+        }
+    };
 
   return (
     <form onSubmit={(e) => {
