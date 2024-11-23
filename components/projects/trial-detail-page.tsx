@@ -440,8 +440,8 @@ export function TrialDetail({
           <TabsContent value="config">
             <Card>
               <CardHeader>
-                <CardTitle>Configuration</CardTitle>
-                <div className="flex justify-end">
+                <div className="flex items-center justify-between">
+                  <CardTitle>Configuration</CardTitle>
                   <Button className="bg-blue-500 hover:bg-blue-600 text-white" variant="solid" onClick={handleConfigSave}>
                     Save Config
                   </Button>
