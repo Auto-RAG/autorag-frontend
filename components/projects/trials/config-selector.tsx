@@ -10,7 +10,6 @@ import { cn } from "@/lib/utils";
 
 interface ConfigSelectorProps {
   onConfigSelect: (config: string) => void;
-  onCustomSelect: () => void;
 }
 
 interface Config{
@@ -18,7 +17,7 @@ interface Config{
     config_string: string;
 }
 
-export function ConfigSelector({ onConfigSelect, onCustomSelect }: ConfigSelectorProps) {
+export function ConfigSelector({ onConfigSelect }: ConfigSelectorProps) {
   const [coverage, setCoverage] = useState<"compact" | "half" | "full">("compact");
   const [language, setLanguage] = useState<"english" | "korean">("english");
   const [gpuSetting, setGpuSetting] = useState<"only" | "none" | "full">("only");
@@ -161,12 +160,9 @@ export function ConfigSelector({ onConfigSelect, onCustomSelect }: ConfigSelecto
           </RadioGroup.Root>
         </div>
 
-        <div className="flex space-x-4">
+        <div className="flex space-x-4 p-4">
           <Button type="submit" className="flex-1">
             Apply Configuration
-          </Button>
-          <Button type="button" className="flex-1" variant="outline" onClick={onCustomSelect}>
-            Custom Configuration
           </Button>
         </div>
       </div>

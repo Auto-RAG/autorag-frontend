@@ -59,6 +59,14 @@ export interface PreparationStatus {
     qa_pairs_count: number;
     performance_score?: number;
   }
+
+  export interface TrialConfig {
+    raw_path?: string;
+    corpus_path?: string;
+    qa_path?: string;
+    config?: unknown;
+    metadata?: Record<string, any>;
+  }
   
   export interface CreateTrialRequest {
     name: string;
@@ -240,13 +248,13 @@ export interface EvaluateTrialOptions {
       });
     }
   
-    async saveTrialConfig(projectId: string, trialId: string, config_yaml: string) {
+    async setTrialConfig(projectId: string, trialId: string, trialConfig: TrialConfig) {
       return this.fetch<Trial>(`/projects/${projectId}/trials/${trialId}/config`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ config_yaml }),
+        body: JSON.stringify(trialConfig),
       });
     }
 

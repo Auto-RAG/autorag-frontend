@@ -28,7 +28,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { APIClient } from "@/lib/api-client";
+import { APIClient, TrialConfig } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Breadcrumb,
@@ -78,7 +78,6 @@ export function TrialDetail({
   const [trial, setTrial] = useState<Trial | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [config, setConfig] = useState("");
-  const [isConfigEditing, setIsConfigEditing] = useState(false);
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const router = useRouter();
@@ -155,14 +154,27 @@ export function TrialDetail({
   }, [projectId]);
 
   const handleConfigSave = async () => {
+    const response = await fetch("/api/yaml/convert", {
+      method: "POST",
+      body: JSON.stringify({ content: config }),
+    });
+
+    const parsedConfig = await response.json();
+    const trialConfig = {
+      config: parsedConfig.data
+    }
+
     try {
-      await fetch(`http://127.0.0.1:5000/projects/${projectId}/trials/${trialId}/config`, {
-        method: "POST",
-        body: JSON.stringify({ config_yaml: config }),
-      });
-      setIsConfigEditing(false);
+      const response = await apiClient.setTrialConfig(projectId, trialId, trialConfig);
+      
+      if (!response) {
+        throw new Error("Failed to save config");
+      }
+
+      toast.success("Config saved successfully");
     } catch (error) {
       console.error("Error saving config:", error);
+      toast.error("Failed to save configuration");
     }
   };
 
@@ -200,10 +212,6 @@ export function TrialDetail({
 
   const handleConfigSelect = async (configYaml: string) => {
     setConfig(configYaml);
-  };
-
-  const handleCustomSelect = () => {
-    setIsConfigEditing(true);
   };
 
   const handleEvaluate = async () => {
@@ -278,20 +286,6 @@ export function TrialDetail({
             </p>
           </div>
           <div className="space-x-4">
-            {!isConfigEditing ? (
-              <Button
-                color="primary"
-                startContent={<Settings2 size={16} />}
-                variant="flat"
-                onClick={() => setIsConfigEditing(true)}
-              >
-                Edit Config
-              </Button>
-            ) : (
-              <Button color="success" onClick={handleConfigSave}>
-                Save Config
-              </Button>
-            )}
             <Button
               color="primary"
               disabled={trial?.status === "in_progress"}
@@ -447,11 +441,16 @@ export function TrialDetail({
             <Card>
               <CardHeader>
                 <CardTitle>Configuration</CardTitle>
+                <div className="flex justify-end">
+                  <Button className="bg-blue-500 hover:bg-blue-600 text-white" variant="solid" onClick={handleConfigSave}>
+                    Save Config
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="border overflow-hidden">
-                  <ConfigSelector onConfigSelect={handleConfigSelect} onCustomSelect={handleCustomSelect} />
+                  <ConfigSelector onConfigSelect={handleConfigSelect} />
                   </div>
                 <div className="border rounded-md overflow-hidden">
                   <ConfigEditor value={config}/>
