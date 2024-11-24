@@ -51,6 +51,7 @@ const ParseResultsContent: React.FC = () => {
   const formatFileSize = (size: string) => {
     return size;
   };
+  
   return (
     <div className="space-y-4">
       {!selectedFile ? (

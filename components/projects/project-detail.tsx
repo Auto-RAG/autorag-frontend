@@ -229,7 +229,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           </Dialog.Root>
         </div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger className="flex items-center gap-2" value="upload">
               <FileText className="h-4 w-4" />
               Upload Files
@@ -242,10 +242,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <Beaker className="h-4 w-4" />
               Trials
             </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="parse">
+            {/* <TabsTrigger className="flex items-center gap-2" value="parse">
               <BarChart2 className="h-4 w-4" />
               Parsed Data
-            </TabsTrigger>
+            </TabsTrigger> */}
           </TabsList>
 
           <TabsContent value="upload">
@@ -276,7 +276,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <CardContent><ArtifactsView projectId={projectId} /></CardContent>
             </Card>
           </TabsContent>
-          <TabsContent value="parse">
+          {/* <TabsContent value="parse">
             <Card>
               <CardHeader>
                 <CardTitle>Parse Results</CardTitle>
@@ -284,7 +284,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <CardContent>  <ParseTabContent />
               </CardContent>
             </Card>
-          </TabsContent>
+          </TabsContent> */}
         </Tabs>
       </div>
     </div>
