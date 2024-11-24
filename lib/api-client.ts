@@ -1,5 +1,3 @@
-import { Dictionary } from "apache-arrow";
-
 // lib/api-client.ts
 export interface PreparationStatus {
     parse: "not_started" | "in_progress" | "completed" | "failed";
@@ -396,7 +394,7 @@ export interface EvaluateTrialOptions {
     }
 
     async getEnvList() {
-      return this.fetch<Dictionary[]>(`/env`, {
+      return this.fetch<Record<string, string>>(`/env`, {
         method: 'GET',
       });
     }

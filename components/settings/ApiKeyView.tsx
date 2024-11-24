@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { Eye, EyeOff, Trash2 } from 'lucide-react'; // Assuming you're using lucide-react for icons
-import { Dictionary } from 'apache-arrow';
 import toast from 'react-hot-toast';
 
 import { APIClient } from '@/lib/api-client';
@@ -14,7 +13,7 @@ import { Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from 
 export default function ApiKeyView() {
   const [apiKeyName, setApiKeyName] = useState('');
   const [apiKeyValue, setApiKeyValue] = useState('');
-  const [envVars, setEnvVars] = useState<Dictionary[]>([]);
+  const [envVars, setEnvVars] = useState<Record<string, string>>({});
   const [revealedKeys, setRevealedKeys] = useState<Record<string, boolean>>({});
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
