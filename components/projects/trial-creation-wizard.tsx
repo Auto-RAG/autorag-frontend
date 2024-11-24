@@ -31,6 +31,7 @@ import { Steps } from "@/components/ui/steps";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface TrialFormData {
   name: string;
@@ -175,92 +176,105 @@ export function CreateTrialDialog({
     try {
       try {
         setIsProcessing(true);
-      
-      // Step 1: Create Trial
-      const trialResponse = await apiClient.createTrial(projectId, {
-        name: formData.name
-      });
-      trialId = trialResponse.id;
 
-      // Step 2: Parse
-      console.log("Starting Parse step...");
-      await updateStep(0, 'in-progress');
+        // Step 1: Create Trial
+        const trialResponse = await apiClient.createTrial(projectId, {
+          name: formData.name
+        });
+        trialId = trialResponse.id;
 
+        // Step 2: Parse
+        console.log("Starting Parse step...");
+        await updateStep(0, 'in-progress');
 
-      const parseResponse = await apiClient.createParseTask(projectId, trialId, {
-        name: `parse_${trialId}`,
-        path: formData.config?.modules[0].glob_path || '',
-        config: {
-          modules: [{
-            module_type: "langchain_parse",
-            parse_method: [getParserFromFilePath(formData.config?.modules[0].glob_path || 'csv')]
-          }]
+        console.log(`formData.config?.modules[0].glob_path: ${formData.config?.modules[0].glob_path}`);
+        const parseResponse = await apiClient.createParseTask(projectId, trialId, {
+          name: `parse_${trialId}`,
+          path: formData.config?.modules[0].glob_path || '',
+          config: {
+            modules: [{
+              module_type: "langchain_parse",
+              parse_method: [getParserFromFilePath(formData.config?.modules[0].glob_path || 'csv')]
+            }]
+          }
+        });
+        toast.success('Parse task created successfully');
+        console.log(`parseResponse: ${JSON.stringify(parseResponse)}`);
+        // 에러 응답 처리
+        if (parseResponse.status !== 'started') {
+          toast.error(parseResponse.data);
+          await updateStep(0, 'error');
+          return;
         }
-      });
+        console.log(`parseResponse.task_id: ${parseResponse.task_id}`);
+        await waitForTask(projectId, parseResponse.task_id);
 
-      await waitForTask(projectId, parseResponse.id);
-      await updateStep(0, 'completed');
-      console.log("Parse step completed");
-    } catch (error) {
-      console.error('Error in parse step:', error);
-      await updateStep(0, 'error');  // Parse 단계 에러
-      throw error;
-    }
+        await updateStep(0, 'completed');
+        console.log("Parse step completed");
+      } catch (error) {
 
-    try {
-      // Step 3: Chunk
-      console.log("Starting Chunk step...");
-      await updateStep(1, 'in-progress');
+        console.error('Error in parse step:', error);
+        toast.error(`Error in parse step: ${error}`);
+        await updateStep(0, 'error');  // Parse 단계 에러
+        throw error;
+      }
 
-
-      const chunkResponse = await apiClient.createChunkTask(projectId, trialId, {
-        name: `chunk_${trialId}`,
-        config: {
-          modules: [{
-            module_type: "llama_index_chunk",
-            chunk_method: ["Token"],
-            chunk_size: 512,
-            chunk_overlap: 50
-          }]
-        }
-      });
-
-      await waitForTask(projectId, chunkResponse.id);
-      await updateStep(1, 'completed');
-      console.log("Chunk step completed");
-
-    } catch (error) {
-      console.error('Error in chunk step:', error);
-      await updateStep(1, 'error');  // Chunk 단계 에러
-      throw error;
-    }
+      try {
+        // Step 3: Chunk
+        console.log("Starting Chunk step...");
+        await updateStep(1, 'in-progress');
 
 
-    try {
-      // Step 3: QA
-      console.log("Starting QA step...");
-      await updateStep(2, 'in-progress');
+        const chunkResponse = await apiClient.createChunkTask(projectId, trialId, {
+          name: `chunk_${trialId}`,
+          config: {
+            modules: [{
+              module_type: "llama_index_chunk",
+              chunk_method: ["Token"],
+              chunk_size: 512,
+              chunk_overlap: 50
+            }]
+          }
+        });
 
-      const qaResponse = await apiClient.createQATask(projectId, trialId, {
-        preset: "simple",
-        name: `qa_${trialId}`,
-        qa_num: 5,
-        llm_config: {
-          llm_name: "mock"
-        },
-        lang: "ko"
-      });
+        await waitForTask(projectId, chunkResponse.id);
+        await updateStep(1, 'completed');
+        console.log("Chunk step completed");
 
-      await waitForTask(projectId, qaResponse.id);
-      await updateStep(2, 'completed');
-      console.log("QA step completed");
+      } catch (error) {
+        console.error('Error in chunk step:', error);
+        toast.error(`Error in chunk step: ${error}`);
+        await updateStep(1, 'error');  // Chunk 단계 에러
+        throw error;
+      }
 
-    } catch (error) {
-      console.error('Error in QA step:', error);
-      await updateStep(2, 'error');
-      throw error;
-    }
-    
+
+      try {
+        // Step 3: QA
+        console.log("Starting QA step...");
+        await updateStep(2, 'in-progress');
+
+        const qaResponse = await apiClient.createQATask(projectId, trialId, {
+          preset: "simple",
+          name: `qa_${trialId}`,
+          qa_num: 5,
+          llm_config: {
+            llm_name: "mock"
+          },
+          lang: "ko"
+        });
+
+        await waitForTask(projectId, qaResponse.id);
+        await updateStep(2, 'completed');
+        console.log("QA step completed");
+
+      } catch (error) {
+        console.error('Error in QA step:', error);
+        toast.error(`Error in QA step: ${error}`);
+        await updateStep(2, 'error');
+        throw error;
+      }
+
 
       // Trial detail 페이지로 이동
       router.push(`/projects/${projectId}/trials/${trialId}`);
@@ -280,12 +294,12 @@ export function CreateTrialDialog({
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const response = await apiClient.getTask(projectId, taskId);
-
-      if (response.status === 'completed') {
+      console.log(`response: ${JSON.stringify(response)}`);
+      if (response.status === 'SUCCESS') {
         return response;
       }
 
-      if (response.status === 'failed') {
+      if (response.status === 'FAILURE' ) {
         throw new Error(`Task failed: ${response.error || 'Unknown error'}`);
       }
 
@@ -495,6 +509,8 @@ export function CreateTrialDialog({
           </Card>
         </div>
       </DialogContent>
+      <Toaster />
+
     </Dialog>
   );
 }
