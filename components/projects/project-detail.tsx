@@ -68,15 +68,22 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     // Fetch project name and trials
     const fetchData = async () => {
       try {
-        const [projectResponse, trialsResponse] = await Promise.all([
-          apiClient.getProject(projectId),
-          apiClient.getTrials(projectId)
-        ]);
+        const trialsResponse = await apiClient.getTrials(projectId);
 
-        setProjectName(projectResponse.name);
+        setProjectName(projectId);
         var trials = trialsResponse.data;
 
-        trials = trials.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        console.log(trials[0].created_at);
+        console.log(trials[0].created_at.replace(/, /, ' '));
+        console.log(new Date(trials[0].created_at.replace(/, /, ' ')));
+
+        // Sort trials by creation date in descending order
+        trials = trials.sort((a, b) => {
+          const dateA = new Date(a.created_at.replace(/, /, ' '));
+          const dateB = new Date(b.created_at.replace(/, /, ' '));
+          
+          return dateB.getTime() - dateA.getTime(); // Sort descending - newest first
+        });
         // @ts-ignore
         setTrials(trials as Trial[]); // Type assertion to match the state type
         setIsLoading(false);
