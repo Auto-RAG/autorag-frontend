@@ -18,7 +18,8 @@ import {
   FileText,
   MessageSquare,
   BarChart2,
-  ChevronLeft,Settings,XCircle
+  ChevronLeft,Settings,XCircle,
+  Upload
 } from "lucide-react";
 import { format } from 'timeago.js';
 
@@ -38,6 +39,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
+import { renderUploadFiles } from "./upload-files";
 
 interface Trial {
   id: string;
@@ -68,6 +70,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
   const [projectName, setProjectName] = useState("");
 
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
   useEffect(() => {
     // Fetch project name and trials
     const fetchData = async () => {
@@ -76,8 +79,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           apiClient.getProject(projectId),
           apiClient.getTrials(projectId)
         ]);
+
         setProjectName(projectResponse.name);
         var trials = trialsResponse.data;
+
         trials = trials.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
         // @ts-ignore
         setTrials(trials as Trial[]); // Type assertion to match the state type
@@ -159,50 +164,64 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     </div>
   );
 
-  const renderTrialsTable = () => (
-    <Table aria-label="Trials list">
-      <TableHeader>
-        <TableColumn>NAME</TableColumn>
-        <TableColumn>STATUS</TableColumn>
-        <TableColumn>CREATED AT</TableColumn>
-        <TableColumn>ACTIONS</TableColumn>
-      </TableHeader>
-      <TableBody>
-        {trials.map((trial) => (
-          <TableRow key={trial.id}>
-            <TableCell>{trial.name}</TableCell>
-            <TableCell>
-              <span className={getStatusColor(trial.status)}>
-                {trial.status}
-              </span>
-            </TableCell>
-            <TableCell>
-              <div className="flex flex-col">
-                <span className="text-sm">
-                {format(trial.created_at, navigator.language)}
+  const renderTrialsTable = () => {
+    if (trials.length === 0) {
+      return (
+        <div className="flex flex-col items-center justify-center p-8 text-center">
+          <Beaker className="h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium">No trials yet</h3>
+          <p className="text-sm text-muted-foreground">
+            Create your first trial to start experimenting
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <Table aria-label="Trials list">
+        <TableHeader>
+          <TableColumn>NAME</TableColumn>
+          <TableColumn>STATUS</TableColumn>
+          <TableColumn>CREATED AT</TableColumn>
+          <TableColumn>ACTIONS</TableColumn>
+        </TableHeader>
+        <TableBody>
+          {trials.map((trial) => (
+            <TableRow key={trial.id}>
+              <TableCell>{trial.name}</TableCell>
+              <TableCell>
+                <span className={getStatusColor(trial.status)}>
+                  {trial.status}
                 </span>
-                <span className="text-xs text-gray-500">
-                {formatLocalTime(trial.created_at)}
-                </span>
-              </div>
-            </TableCell>
-            <TableCell>
-              <Button
-                color="primary"
-                size="sm"
-                variant="flat"
-                onClick={() =>
-                  router.push(`/projects/${projectId}/trials/${trial.id}`)
-                }
-              >
-                View Details
-              </Button>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
-  );
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col">
+                  <span className="text-sm">
+                  {format(trial.created_at, navigator.language)}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                  {formatLocalTime(trial.created_at)}
+                  </span>
+                </div>
+              </TableCell>
+              <TableCell>
+                <Button
+                  color="primary"
+                  size="sm"
+                  variant="flat"
+                  onClick={() =>
+                    router.push(`/projects/${projectId}/trials/${trial.id}`)
+                  }
+                >
+                  View Details
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    );
+  };
 
   return (
     <div className="w-full space-y-6">
@@ -256,6 +275,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         <div>{renderOverviewCards()}</div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger className="flex items-center gap-2" value="upload">
+              <Beaker className="h-4 w-4" />
+              Upload Files
+            </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="trials">
               <Beaker className="h-4 w-4" />
               Trials
@@ -275,7 +298,17 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </TabsTrigger>
           </TabsList>
 
-
+          <TabsContent value="upload">
+            <Card>
+              <CardHeader>
+                <CardTitle>Artifacts</CardTitle>
+              </CardHeader>
+              <CardContent>{renderUploadFiles(projectId, () => {
+                setActiveTab("artifacts");
+              })}</CardContent>
+            </Card>
+          </TabsContent>
+          
           <TabsContent value="trials">
             <Card>
               <CardHeader>
