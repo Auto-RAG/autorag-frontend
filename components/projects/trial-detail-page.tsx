@@ -28,7 +28,7 @@ import toast, { Toaster } from 'react-hot-toast';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { APIClient } from "@/lib/api-client";
+import { APIClient, TrialConfig } from "@/lib/api-client";
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Breadcrumb,
@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
 import ParquetViewer from "../qacreations/qa-analysis-layout";
+import { ConfigEditor } from "./trials/config-editor";
+import { ConfigSelector } from "./trials/config-selector";
 
 interface Task {
   task_id: string;
@@ -76,7 +78,6 @@ export function TrialDetail({
   const [trial, setTrial] = useState<Trial | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [config, setConfig] = useState("");
-  const [isConfigEditing, setIsConfigEditing] = useState(false);
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const router = useRouter();
@@ -153,14 +154,27 @@ export function TrialDetail({
   }, [projectId]);
 
   const handleConfigSave = async () => {
+    const response = await fetch("/api/yaml/convert", {
+      method: "POST",
+      body: JSON.stringify({ content: config }),
+    });
+
+    const parsedConfig = await response.json();
+    const trialConfig = {
+      config: parsedConfig.data
+    }
+
     try {
-      await fetch(`http://127.0.0.1:5000/projects/${projectId}/trials/${trialId}/config`, {
-        method: "POST",
-        body: JSON.stringify({ config_yaml: config }),
-      });
-      setIsConfigEditing(false);
+      const response = await apiClient.setTrialConfig(projectId, trialId, trialConfig);
+      
+      if (!response) {
+        throw new Error("Failed to save config");
+      }
+
+      toast.success("Config saved successfully");
     } catch (error) {
       console.error("Error saving config:", error);
+      toast.error("Failed to save configuration");
     }
   };
 
@@ -196,6 +210,10 @@ export function TrialDetail({
     }
   };
 
+  const handleConfigSelect = async (configYaml: string) => {
+    setConfig(configYaml);
+  };
+
   const handleEvaluate = async () => {
     try {
       toast("Starting Evaluation");
@@ -203,6 +221,7 @@ export function TrialDetail({
         full_ingest: false,
         skip_validation: true
       });
+
       console.log(task);
       toast.success("Evaluation Started");
       fetchTasks();
@@ -267,20 +286,6 @@ export function TrialDetail({
             </p>
           </div>
           <div className="space-x-4">
-            {!isConfigEditing ? (
-              <Button
-                color="primary"
-                startContent={<Settings2 size={16} />}
-                variant="flat"
-                onClick={() => setIsConfigEditing(true)}
-              >
-                Edit Config
-              </Button>
-            ) : (
-              <Button color="success" onClick={handleConfigSave}>
-                Save Config
-              </Button>
-            )}
             <Button
               color="primary"
               disabled={trial?.status === "in_progress"}
@@ -435,20 +440,21 @@ export function TrialDetail({
           <TabsContent value="config">
             <Card>
               <CardHeader>
-                <CardTitle>Configuration</CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Configuration</CardTitle>
+                  <Button className="bg-blue-500 hover:bg-blue-600 text-white" variant="solid" onClick={handleConfigSave}>
+                    Save Config
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className=" border rounded-md overflow-hidden">
-                  <Editor
-                    defaultLanguage="yaml"
-                    height="100%"
-                    options={{
-                      minimap: { enabled: false },
-                      readOnly: !isConfigEditing,
-                    }}
-                    value={config}
-                    onChange={(value) => setConfig(value || "")}
-                  />
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="border overflow-hidden">
+                  <ConfigSelector onConfigSelect={handleConfigSelect} />
+                  </div>
+                <div className="border rounded-md overflow-hidden">
+                  <ConfigEditor value={config}/>
+                </div>
                 </div>
               </CardContent>
             </Card>
@@ -612,7 +618,7 @@ export function TrialDetail({
               </CardHeader>
               <CardContent>
               {/* <ParquetQAAnalysis qaParquetUrl={selectedTask?.qa_path || ""} chunkParquetUrl={selectedTask?.corpus_path || "" }/> */}
-              <ParquetViewer qaParquetUrl={"http://localhost:3000/qa.parquet"} chunkParquetUrl={"http://localhost:3000/chunk.parquet" }/>
+              <ParquetViewer chunkParquetUrl={"http://localhost:3000/chunk.parquet" } qaParquetUrl={"http://localhost:3000/qa.parquet"}/>
               </CardContent>
             </Card>
           </TabsContent>
