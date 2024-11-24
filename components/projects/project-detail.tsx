@@ -24,7 +24,7 @@ import { renderUploadFiles } from "./upload-files";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { APIClient } from "@/lib/api-client";
+import { APIClient, Trial } from "@/lib/api-client";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -33,14 +33,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-
-interface Trial {
-  id: string;
-  name: string;
-  status: "not_started" | "in_progress" | "completed" | "failed";
-  created_at: string;
-  config_yaml: string;
-}
 
 interface Task {
   id: string;
@@ -104,6 +96,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         return "text-blue-500";
       case "failed":
         return "text-red-500";
+      case "terminated":
+        return "text-orange-500";
+      case "not_started":
+        return "text-gray-400";
       default:
         return "text-gray-500";
     }

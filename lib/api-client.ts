@@ -54,12 +54,14 @@ export interface PreparationStatus {
   export interface Trial {
     id: string;
     project_id: string;
-    status: 'active' | 'completed' | 'failed';
+    config?: TrialConfig;
+    name: string;
+    status: "not_started" | "in_progress" | "completed" | "failed" | "terminated";
     created_at: string;
-    updated_at: string;
-    preparation_status: PreparationStatus;
-    qa_pairs_count: number;
-    performance_score?: number;
+    report_task_id?: string;
+    chat_task_id?: string;
+    corpus_path?: string;
+    qa_path?: string;
   }
 
   export interface TrialConfig {
