@@ -1,3 +1,5 @@
+import { Dictionary } from "apache-arrow";
+
 // lib/api-client.ts
 export interface PreparationStatus {
     parse: "not_started" | "in_progress" | "completed" | "failed";
@@ -64,6 +66,11 @@ export interface PreparationStatus {
     name: string;
     config?: Record<string, any>;
   }
+
+  export interface SetEnvRequest {
+    key: string;
+    value: string;
+  }
   
 
 export interface EvaluateTrialOptions {
@@ -91,6 +98,12 @@ export interface EvaluateTrialOptions {
   export interface EvaluateTrialOptions {
     full_ingest?: boolean;
     skip_validation?: boolean;
+  }
+
+  // Add interface for environment variable type
+  export interface EnvVariable {
+    key: string;
+    value?: string;
   }
 
   export class APIClient {
@@ -364,5 +377,30 @@ export interface EvaluateTrialOptions {
       }
 
       return await response.json();
+    }
+
+    async setEnv(request: SetEnvRequest) {
+      return this.fetch<Trial>(`/env`, {
+        method: 'POST',
+        body: JSON.stringify(request),
+      });
+    }
+
+    async getEnvList() {
+      return this.fetch<Dictionary[]>(`/env`, {
+        method: 'GET',
+      });
+    }
+
+    async getEnv(key: string) {
+      return this.fetch<string>(`/env/${key}`, {
+        method: 'GET',
+      });
+    }
+
+    async deleteEnv(key: string) {
+      return this.fetch<string>(`/env/${key}`, {
+        method: 'DELETE',
+      });
     }
   }
