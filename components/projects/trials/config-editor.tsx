@@ -18,7 +18,7 @@ export function ConfigEditor({ value, readOnly = true }: { value: string; readOn
   };
 
   return (
-    <div className="relative h-[600px]">
+    <div className="relative h-full min-h-[600px] flex flex-col">
       <div className="absolute top-2 right-2 z-10 flex gap-2">
         {isReadOnly ? (
           <Button
@@ -42,11 +42,13 @@ export function ConfigEditor({ value, readOnly = true }: { value: string; readOn
         )}
       </div>
       <MonacoEditor
+        className="flex-1"
         defaultLanguage="yaml"
         height="100%"
         options={{
           minimap: { enabled: false },
           readOnly: isReadOnly,
+          automaticLayout: true,
         }}
         value={value}
       />

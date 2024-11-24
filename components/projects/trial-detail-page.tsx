@@ -1,22 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-} from "@nextui-org/table";
 import { Button } from "@nextui-org/button";
-import { Editor } from "@monaco-editor/react";
 import {
   Settings2,
   PlayCircle,
   FileText,
-  BarChart2,
-  ChevronLeft,
   AlertCircle,
   CheckCircle2,
   XCircle,
