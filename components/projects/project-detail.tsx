@@ -40,6 +40,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
 import { renderUploadFiles } from "./upload-files";
+import { Label } from "@radix-ui/react-label";
+import { Textarea } from "@nextui-org/input";
 
 interface Trial {
   id: string;
@@ -62,7 +64,7 @@ interface Task {
 
 export function ProjectDetail({ projectId }: { projectId: string }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("trials");
+  const [activeTab, setActiveTab] = useState("upload");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [trials, setTrials] = useState<Trial[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -274,27 +276,22 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         </div>
         <div>{renderOverviewCards()}</div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger className="flex items-center gap-2" value="upload">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger className="flex items-center gap-2" value="upload">
               <Beaker className="h-4 w-4" />
               Upload Files
+            </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="artifacts">
+              <BarChart2 className="h-4 w-4" />
+              Documents
             </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="trials">
               <Beaker className="h-4 w-4" />
               Trials
             </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="artifacts">
-              <BarChart2 className="h-4 w-4" />
-              Artifacts
-            </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="parse">
               <BarChart2 className="h-4 w-4" />
               Parsed Data
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="config">
-              <Settings className="h-4 w-4" />
-              Configuration
-
             </TabsTrigger>
           </TabsList>
 
@@ -333,14 +330,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               </CardHeader>
               <CardContent>  <ParseTabContent />
               </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="config">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuration</CardTitle>
-              </CardHeader>
-              <CardContent>{/* Chat interface content */}</CardContent>
             </Card>
           </TabsContent>
         </Tabs>
