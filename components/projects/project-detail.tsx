@@ -12,24 +12,19 @@ import {
 } from "@nextui-org/table";
 import { Button } from "@nextui-org/button";
 import * as Dialog from "@radix-ui/react-dialog";
-import {
-  Beaker,
-  PlayCircle,
-  FileText,
-  MessageSquare,
-  BarChart2,
-  ChevronLeft,Settings,XCircle,
-  Upload
-} from "lucide-react";
+import { Beaker, BarChart2, FileText } from "lucide-react";
 import { format } from 'timeago.js';
+import { ChevronRight } from "lucide-react";
+
+import ParseTabContent from "../parsings/parse-results-tab";
+import ArtifactsView from "../artifacts/artifacts-view-library";
 
 import { CreateTrialDialog } from "./trial-creation-wizard";
+import { renderUploadFiles } from "./upload-files";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APIClient } from "@/lib/api-client";
-import ParseTabContent from "../parsings/parse-results-tab";
-import ArtifactsView from "../artifacts/artifacts-view-library";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -38,10 +33,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ChevronRight } from "lucide-react";
-import { renderUploadFiles } from "./upload-files";
-import { Label } from "@radix-ui/react-label";
-import { Textarea } from "@nextui-org/input";
 
 interface Trial {
   id: string;
@@ -113,6 +104,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
 
   function formatLocalTime(utcTimeStr: string) {
     const date = new Date(utcTimeStr);
+
     return date.toLocaleString(undefined, {
       year: 'numeric',
       month: '2-digit',
@@ -124,47 +116,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
       timeZoneName: 'short'
     });
   }
-
-  const renderOverviewCards = () => (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Total Trials</CardTitle>
-          <Beaker className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{trials.length}</div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Active Tasks</CardTitle>
-          <PlayCircle className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {tasks.filter((task) => task.status === "in_progress").length}
-          </div>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
-          <BarChart2 className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {(
-              (tasks.filter((task) => task.status === "completed").length /
-                tasks.length) *
-                100 || 0
-            ).toFixed(1)}
-            %
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
 
   const renderTrialsTable = () => {
     if (trials.length === 0) {
@@ -274,11 +225,10 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </Dialog.Portal>
           </Dialog.Root>
         </div>
-        <div>{renderOverviewCards()}</div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger className="flex items-center gap-2" value="upload">
-              <Beaker className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               Upload Files
             </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="artifacts">
@@ -298,7 +248,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           <TabsContent value="upload">
             <Card>
               <CardHeader>
-                <CardTitle>Artifacts</CardTitle>
+                <CardTitle>Upload Files</CardTitle>
               </CardHeader>
               <CardContent>{renderUploadFiles(projectId, () => {
                 setActiveTab("artifacts");
