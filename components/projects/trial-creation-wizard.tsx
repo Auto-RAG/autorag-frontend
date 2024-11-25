@@ -173,6 +173,7 @@ export function CreateTrialDialog({
 
   const handleCreateTrial = async () => {
     let trialId = '';
+
     try {
       try {
         setIsProcessing(true);
@@ -237,7 +238,7 @@ export function CreateTrialDialog({
           }
         });
 
-        await waitForTask(projectId, chunkResponse.id);
+        await waitForTask(projectId, chunkResponse.task_id);
         await updateStep(1, 'completed');
         console.log("Chunk step completed");
 
@@ -264,7 +265,7 @@ export function CreateTrialDialog({
           lang: "ko"
         });
 
-        await waitForTask(projectId, qaResponse.id);
+        await waitForTask(projectId, qaResponse.task_id);
         await updateStep(2, 'completed');
         console.log("QA step completed");
 
