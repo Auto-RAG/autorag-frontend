@@ -172,7 +172,7 @@ export function CreateTrialDialog({
   }, [steps]);
 
   const handleCreateTrial = async () => {
-    let trialId = '';
+    let trial_id = '';
 
     try {
       try {
@@ -182,15 +182,15 @@ export function CreateTrialDialog({
         const trialResponse = await apiClient.createTrial(projectId, {
           name: formData.name
         });
-        trialId = trialResponse.id;
-
+        trial_id = trialResponse.id;
+        console.log(`trial_id: ${trial_id}`);
         // Step 2: Parse
         console.log("Starting Parse step...");
         await updateStep(0, 'in-progress');
 
         console.log(`formData.config?.modules[0].glob_path: ${formData.config?.modules[0].glob_path}`);
-        const parseResponse = await apiClient.createParseTask(projectId, trialId, {
-          name: `parse_${trialId}`,
+        const parseResponse = await apiClient.createParseTask(projectId, trial_id, {
+          name: `parse_${trial_id}`,
           path: formData.config?.modules[0].glob_path || '',
           config: {
             modules: [{
@@ -226,8 +226,8 @@ export function CreateTrialDialog({
         await updateStep(1, 'in-progress');
 
 
-        const chunkResponse = await apiClient.createChunkTask(projectId, trialId, {
-          name: `chunk_${trialId}`,
+        const chunkResponse = await apiClient.createChunkTask(projectId, trial_id, {
+          name: `chunk_${trial_id}`,
           config: {
             modules: [{
               module_type: "llama_index_chunk",
@@ -255,9 +255,9 @@ export function CreateTrialDialog({
         console.log("Starting QA step...");
         await updateStep(2, 'in-progress');
 
-        const qaResponse = await apiClient.createQATask(projectId, trialId, {
+        const qaResponse = await apiClient.createQATask(projectId, trial_id, {
           preset: "simple",
-          name: `qa_${trialId}`,
+          name: `qa_${trial_id}`,
           qa_num: 5,
           llm_config: {
             llm_name: "mock"
@@ -277,8 +277,10 @@ export function CreateTrialDialog({
       }
 
 
-      // Trial detail 페이지로 이동
-      router.push(`/projects/${projectId}/trials/${trialId}`);
+      // Trial detail 페이지로 0.5초 후 이동
+      setTimeout(() => {
+        router.push(`/projects/${projectId}/trials/${trial_id}`);
+      }, 500);
 
 
     } catch (error: any) {
