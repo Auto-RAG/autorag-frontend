@@ -6734,12 +6734,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lucide-react@npm:^0.454.0":
-  version: 0.454.0
-  resolution: "lucide-react@npm:0.454.0"
+"lucide-react@npm:^0.460.0":
+  version: 0.460.0
+  resolution: "lucide-react@npm:0.460.0"
   peerDependencies:
     react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
-  checksum: 6f4dc004d84730fd7b246d531a4b801e850ba81e390bd1ac3bd66a4e02ee6dd81e023acf789eb8aec5c030c53915d058badda174d6095664610fe41ba1310208
+  checksum: 6106dc16dd7ce7928d6136e81c9e84e87e1b6b0910a0c78777a387c795c0512755e8bf4c602ab8f09518919999a494ed86ba7190863e8e7aec6c82665147ead3
   languageName: node
   linkType: hard
 
@@ -7087,7 +7087,7 @@ __metadata:
     hyparquet: ^1.5.0
     intl-messageformat: ^10.5.0
     js-yaml: ^4.1.0
-    lucide-react: ^0.454.0
+    lucide-react: ^0.460.0
     next: ^15.0.2
     next-themes: ^0.2.1
     parquet-wasm: ^0.6.1
