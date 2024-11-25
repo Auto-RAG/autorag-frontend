@@ -1,7 +1,9 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
-import { FileText, ChevronRight, Eye } from 'lucide-react';
+import { FileText, ChevronRight, Eye, Plus } from 'lucide-react';
 import DocumentParserInterface from './document-parser-ui';
 
 interface ParsedFile {
@@ -122,9 +124,18 @@ const ParseResultsContent: React.FC = () => {
 };
 
 // Project Detail의 Parse 탭 내용 업데이트
-const ParseTabContent = () => (
+const ParseTabContent: React.FC = () => {
+  return (
+    <div>
+      <div className="flex justify-end mb-4">
+        <button className="flex items-center gap-1 px-3 py-2 text-sm text-white bg-black hover:bg-gray-800 rounded-md">
+          <Plus size={16} />
+          New Parse
+        </button>
+      </div>
       <ParseResultsContent />
-
-);
+    </div>
+  );
+};
 
 export default ParseTabContent;

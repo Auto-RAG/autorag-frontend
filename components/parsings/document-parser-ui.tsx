@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Dialog } from '@radix-ui/react-dialog';
 import { ChevronDown, ChevronRight, Copy, Maximize2, X } from 'lucide-react';
