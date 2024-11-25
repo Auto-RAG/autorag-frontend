@@ -42,7 +42,7 @@ export interface PreparationStatus {
   export interface Task {
     id: string;
     type: 'parse' | 'chunk' | 'qa';
-    status: 'pending' | 'in_progress' | 'completed' | 'failed';
+    status: 'PENDING' | 'STARTED' | 'SUCCESS' | 'FAILURE';
     created_at: string;
     updated_at: string;
     result?: any;
@@ -90,7 +90,7 @@ export interface EvaluateTrialOptions {
     trial_id: string;
     name: string;
     type: "parse" | "chunk" | "qa";
-    status: "pending" | "in_progress" | "completed" | "failed";
+    status: "PENDING" | "STARTED" | "SUCCESS" | "FAILURE";
     error_message?: string;
     created_at: string;
     save_path?: string;
@@ -127,10 +127,11 @@ export interface EvaluateTrialOptions {
     ): Promise<T> {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
         ...options,
-        // credentials: 'include',  // 추가
+        mode: 'cors',  // Explicitly set CORS mode
+        credentials: 'include',
         headers: {
-        //   'Authorization': `Bearer ${this.token}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer good`,
           ...options.headers,
         },
       });
@@ -168,9 +169,7 @@ export interface EvaluateTrialOptions {
       return this.fetch<Project>('/projects', {
         method: 'POST',
         body: JSON.stringify(data),
-        headers: {
-          'Authorization': 'Bearer good'
-        }
+        
       });
     }
   
