@@ -16,11 +16,10 @@ import { Beaker, BarChart2, FileText } from "lucide-react";
 import { format } from 'timeago.js';
 import { ChevronRight } from "lucide-react";
 
-import ParseTabContent from "../parsings/parse-results-tab";
 import ArtifactsView from "../artifacts/artifacts-view-library";
 
 import { CreateTrialDialog } from "./trial-creation-wizard";
-import { renderUploadFiles } from "./upload-files";
+import { UploadFiles } from "./upload-files";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -203,7 +202,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
       <div className="w-full space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            
             <h1 className="text-2xl font-bold mt-2 font-ibm-bold">Project : <b>{projectName || "Project Details"}</b></h1>
           </div>
           <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -228,6 +226,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </Dialog.Portal>
           </Dialog.Root>
         </div>
+        <div>{renderTrialsTable()}</div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger className="flex items-center gap-2" value="upload">
@@ -237,10 +236,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             <TabsTrigger className="flex items-center gap-2" value="artifacts">
               <BarChart2 className="h-4 w-4" />
               Documents
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="trials">
-              <Beaker className="h-4 w-4" />
-              Trials
             </TabsTrigger>
             {/* <TabsTrigger className="flex items-center gap-2" value="parse">
               <BarChart2 className="h-4 w-4" />
@@ -253,21 +248,11 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <CardHeader>
                 <CardTitle>Upload Files</CardTitle>
               </CardHeader>
-              <CardContent>{renderUploadFiles(projectId, () => {
+              <CardContent>{<UploadFiles filesUploadedCallback={() => {
                 setActiveTab("artifacts");
-              })}</CardContent>
+              }} projectId={projectId} />}</CardContent>
             </Card>
           </TabsContent>
-          
-          <TabsContent value="trials">
-            <Card>
-              <CardHeader>
-                <CardTitle>Trials</CardTitle>
-              </CardHeader>
-              <CardContent>{renderTrialsTable()}</CardContent>
-            </Card>
-          </TabsContent>
-
           <TabsContent value="artifacts">
             <Card>
               <CardHeader>
@@ -276,15 +261,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
               <CardContent><ArtifactsView projectId={projectId} /></CardContent>
             </Card>
           </TabsContent>
-          {/* <TabsContent value="parse">
-            <Card>
-              <CardHeader>
-                <CardTitle>Parse Results</CardTitle>
-              </CardHeader>
-              <CardContent>  <ParseTabContent />
-              </CardContent>
-            </Card>
-          </TabsContent> */}
         </Tabs>
       </div>
     </div>

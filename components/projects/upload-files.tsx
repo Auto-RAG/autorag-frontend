@@ -45,9 +45,7 @@ const handleFileChange = (projectId: string,
   };
 
 
-export function renderUploadFiles(projectId: string,
-    filesUploadedCallback: () => void,
-){
+export function UploadFiles({ projectId, filesUploadedCallback }: { projectId: string, filesUploadedCallback: () => void }) {
     return (
       <div className="grid w-full gap-4">
         <div className="flex items-center justify-center w-full">
