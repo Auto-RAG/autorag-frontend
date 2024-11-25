@@ -87,97 +87,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
     fetchData();
   }, [projectId]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "text-green-500";
-      case "in_progress":
-        return "text-blue-500";
-      case "failed":
-        return "text-red-500";
-      case "terminated":
-        return "text-orange-500";
-      case "not_started":
-        return "text-gray-400";
-      default:
-        return "text-gray-500";
-    }
-  };
-
-  function formatLocalTime(utcTimeStr: string) {
-    const date = new Date(utcTimeStr);
-
-    return date.toLocaleString(undefined, {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-      timeZoneName: 'short'
-    });
-  }
-
-  const renderTrialsTable = () => {
-    if (trials.length === 0) {
-      return (
-        <div className="flex flex-col items-center justify-center p-8 text-center">
-          <Beaker className="h-16 w-16 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-medium">No trials yet</h3>
-          <p className="text-sm text-muted-foreground">
-            Create your first trial to start experimenting
-          </p>
-        </div>
-      );
-    }
-
-    return (
-      <Table aria-label="Trials list">
-        <TableHeader>
-          <TableColumn>NAME</TableColumn>
-          <TableColumn>STATUS</TableColumn>
-          <TableColumn>CREATED AT</TableColumn>
-          <TableColumn>ACTIONS</TableColumn>
-        </TableHeader>
-        <TableBody>
-          {trials.map((trial) => (
-            <TableRow key={trial.id}>
-              <TableCell>{trial.name}</TableCell>
-              <TableCell>
-                <span className={getStatusColor(trial.status)}>
-                  {trial.status}
-                </span>
-              </TableCell>
-              <TableCell>
-                <div className="flex flex-col">
-                  <span className="text-sm">
-                  {format(trial.created_at, navigator.language)}
-                  </span>
-                  <span className="text-xs text-gray-500">
-                  {formatLocalTime(trial.created_at)}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell>
-                <Button
-                  color="primary"
-                  size="sm"
-                  variant="flat"
-                  onClick={() =>
-                    router.push(`/projects/${projectId}/trials/${trial.id}`)
-                  }
-                >
-                  View Details
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    );
-  };
-
   return (
     <div className="w-full space-y-6">
       <Breadcrumb>
@@ -226,7 +135,6 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
             </Dialog.Portal>
           </Dialog.Root>
         </div>
-        <div>{renderTrialsTable()}</div>
         <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger className="flex items-center gap-2" value="upload">

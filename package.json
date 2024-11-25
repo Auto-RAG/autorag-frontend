@@ -46,7 +46,6 @@
     "axios": "^1.7.2",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-    "date-fns": "^4.1.0",
     "framer-motion": "~11.1.1",
     "global": "^4.4.0",
     "hyparquet": "^1.5.0",

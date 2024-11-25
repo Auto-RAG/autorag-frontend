@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { format } from 'date-fns';
-import { Badge, Beaker } from "lucide-react";
+import { format } from 'timeago.js';
+import { Beaker } from "lucide-react";
+import { useEffect, useState } from "react";
 
 import { APIClient, Trial } from "@/lib/api-client";
 import {
@@ -14,18 +15,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { formatLocalTime } from "@/lib/utils";
+import { formatLocalTime, getStatusColor } from "@/lib/utils";
 
-interface TrialsListProps {
-  projectId: string;
-}
 
 async function fetchTrials(project_id: string) {
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   try {
     const trialsResponse = await apiClient.getTrials(project_id);
-    let trials = trialsResponse.data;
+    var trials = trialsResponse.data;
 
     // Sort trials by creation date in descending order
     trials = trials.sort((a, b) => {
@@ -43,11 +41,25 @@ async function fetchTrials(project_id: string) {
   }
 }
 
-export async function TrialsList({
+export function TrialsList({
   projectId,
-}: TrialsListProps) {
+}: {projectId: string}) {
   const router = useRouter();
-  const trials = await fetchTrials(projectId);
+
+  const [trials, setTrials] = useState<Trial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadTrials = async () => {
+      const trialResponse = await fetchTrials(projectId);
+      
+      setTrials(trialResponse);
+      setIsLoading(false);
+    };
+
+    loadTrials();
+  }, [projectId]);
+  
 
   const renderTrialsTable = (trials: Trial[], projectId: string) => {
     if (trials.length === 0) {
@@ -77,18 +89,14 @@ export async function TrialsList({
             <TableRow key={trial.id}>
               <TableCell>{trial.name}</TableCell>
               <TableCell>
-                <Badge className={
-                  trial.status === 'in_progress' ? 'bg-primary' :
-                  trial.status === 'completed' ? 'bg-green-500' :
-                  'bg-red-500'
-                }>
+              <span className={getStatusColor(trial.status)}>
                   {trial.status}
-                </Badge>
+                </span>
               </TableCell>
               <TableCell>
                 <div className="flex flex-col">
                   <span className="text-sm">
-                    {format(new Date(trial.created_at), 'PPP')}
+                    {format(trial.created_at, navigator.language)}
                   </span>
                   <span className="text-xs text-gray-500">
                     {formatLocalTime(trial.created_at)}
@@ -97,8 +105,8 @@ export async function TrialsList({
               </TableCell>
               <TableCell>
                 <Button
-                  variant="default"
                   size="sm"
+                  variant="default"
                   onClick={() =>
                     router.push(`/projects/${projectId}/trials/${trial.id}`)
                   }
@@ -113,11 +121,13 @@ export async function TrialsList({
     );
   };
 
-  return (
+  if (!isLoading) {
+    return (
     <div className="space-y-6 p-6">
         <div className="rounded-md border">
           {renderTrialsTable(trials, projectId)}
         </div>
       </div>
   );
+}
 }

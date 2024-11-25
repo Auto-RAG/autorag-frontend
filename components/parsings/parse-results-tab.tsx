@@ -127,7 +127,8 @@ const ParseResultsContent: React.FC = () => {
 const ParseTabContent: React.FC = () => {
   return (
     <div>
-      <div className="flex justify-end mb-4">
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Parsed Data</h1>
         <button className="flex items-center gap-1 px-3 py-2 text-sm text-white bg-black hover:bg-gray-800 rounded-md">
           <Plus size={16} />
           New Parse

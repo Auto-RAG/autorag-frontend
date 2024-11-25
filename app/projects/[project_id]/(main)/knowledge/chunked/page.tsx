@@ -1,4 +1,4 @@
-import ParseTabContent from "@/components/parsings/parse-results-tab";
+import ChunkedPage from "@/components/chunked/chunked-page";
 
 
 type PageProps = {
@@ -8,5 +8,5 @@ type PageProps = {
 export default async function DocumentsPage({ params }: PageProps) {
     const {project_id} = await params;
 
-    return <ParseTabContent />;
+    return <ChunkedPage />;
 }
