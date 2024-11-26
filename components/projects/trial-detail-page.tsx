@@ -126,6 +126,7 @@ export function TrialDetail({
     try {
       setIsLoading(true);
       const response = await apiClient.getTasks(projectId);
+      
       // @ts-ignore
       setTasks(response.data as Task[]);
       toast.success("Tasks fetched successfully");
@@ -307,41 +308,6 @@ export function TrialDetail({
             >
               Evaluate 
             </Button>
-            <Button
-                    color="primary"
-                    startContent={<FileText size={16} />}
-                    onClick={async () => {
-                      try {
-                        const response = await fetch(
-                          `/projects/${projectId}/trials/${trialId}/report/open`
-                        );
-                        if (!response.ok) throw new Error('Failed to open report');
-                        // 성공 후 처리 (예: 상태 업데이트)
-                      } catch (error) {
-                        console.error('Error opening report:', error);
-                      }
-                    }}
-                  >
-                    Open Report
-                  </Button>
-                  <Button
-                    color="default"
-                    variant="flat"
-                    startContent={<XCircle size={16} />}
-                    onClick={async () => {
-                      try {
-                        const response = await fetch(
-                          `/projects/${projectId}/trials/${trialId}/report/close`
-                        );
-                        if (!response.ok) throw new Error('Failed to close report');
-                        // 성공 후 처리
-                      } catch (error) {
-                        console.error('Error closing report:', error);
-                      }
-                    }}
-                  >
-                    Close Report
-                  </Button>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
