@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { QADialog } from "./qa-dialog";
 
 
 interface QASet {
@@ -25,6 +26,7 @@ interface QASet {
 
 export function QAOverview({ projectId }: { projectId: string }) {
   const [qaSets, setQASets] = useState<QASet[]>([]);
+  const [showQADialog, setShowQADialog] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -63,9 +65,14 @@ export function QAOverview({ projectId }: { projectId: string }) {
   return (
     <div className="w-full">
       <div className="flex justify-end mb-4">
-        <Button variant="default">+ New QA</Button>
+        <Button variant="default" onClick={() => setShowQADialog(true)}>
+          + New QA
+        </Button>
       </div>
-      
+      <QADialog
+        open={showQADialog}
+        onOpenChange={setShowQADialog}
+      />
       <Table>
         <TableHeader>
           <TableRow>

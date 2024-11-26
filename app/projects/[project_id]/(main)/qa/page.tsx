@@ -6,8 +6,8 @@ interface QAPageProps {
   }
 }
 
-export default function QAPage({ params }: QAPageProps) {
-  const { project_id } = params
+export default async function QAPage({ params }: QAPageProps) {
+  const { project_id } = await params;
 
   return (
     <div className="flex flex-col gap-4 p-6">
