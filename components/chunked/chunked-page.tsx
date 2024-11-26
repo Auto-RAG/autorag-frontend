@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
 import { Eye, Trash2, PlayCircle, Plus } from 'lucide-react';
+import { ChunkDialog } from './chunk-dialog';
 
 interface ChunkedDocument {
   id: string;
@@ -12,6 +13,7 @@ interface ChunkedDocument {
 }
 
 const ChunkedPage: React.FC = () => {
+  const [showChunkDialog, setShowChunkDialog] = useState(false);
   const [documents] = useState<ChunkedDocument[]>([
     {
       id: '1',
@@ -46,11 +48,18 @@ const ChunkedPage: React.FC = () => {
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Chunked Data</h1>
-        <button className="flex items-center gap-1 px-3 py-2 text-sm text-white bg-black hover:bg-gray-800 rounded-md">
+        <button 
+          className="flex items-center gap-1 px-3 py-2 text-sm text-white bg-black hover:bg-gray-800 rounded-md"
+          onClick={() => setShowChunkDialog(true)}
+        >
           <Plus size={16} />
           New Chunk
         </button>
       </div>
+      <ChunkDialog
+        open={showChunkDialog}
+        onOpenChange={setShowChunkDialog}
+      />
       <div className="bg-white rounded-lg shadow">
         <Table aria-label="Chunked documents list">
           <TableHeader>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Button } from "@nextui-org/button";
 
 import {
   Dialog,
@@ -20,7 +21,6 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Button } from "@nextui-org/button";
 
 interface ParseDialogProps {
   open: boolean;
@@ -133,8 +133,8 @@ export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
         </div>
         <DialogFooter>
           <Button
-            type="submit"
             className="flex items-center gap-2 bg-black text-white hover:bg-gray-800"
+            type="submit"
             onClick={handleSubmit}
           >
             Start Parsing
