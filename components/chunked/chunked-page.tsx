@@ -1,33 +1,42 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
 import { Eye, Trash2, PlayCircle, Plus } from 'lucide-react';
+
 import { ChunkDialog } from './chunk-dialog';
+
+import { APIClient } from '@/lib/api-client';
 
 interface ChunkedDocument {
   id: string;
   name: string;
-  chunked_at: string;
-  method: string;
+  module_name: string;
+  module_params: string;
 }
 
-const ChunkedPage: React.FC = () => {
+const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
   const [showChunkDialog, setShowChunkDialog] = useState(false);
-  const [documents] = useState<ChunkedDocument[]>([
-    {
-      id: '1',
-      name: 'Lab Report Analysis',
-      chunked_at: '2024-03-15T10:30:00Z',
-      method: 'Sliding Window'
-    },
-    {
-      id: '2', 
-      name: 'Medical Research Paper',
-      chunked_at: '2024-03-15T11:45:00Z',
-      method: 'Paragraph'
-    }
-  ]);
+  const [documents, setChunkedDocuments] = useState<ChunkedDocument[]>([]);
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
+  useEffect(() => {
+    const fetchChunkedDocuments = async () => {
+      const res = await apiClient.getChunkedDocuments(project_id);
+      const chunkedDocuments = res.map((doc) => ({
+        id: doc.chunk_filepath,
+        name: doc.chunk_name,
+        module_name: doc.module_name,
+        module_params: doc.module_params
+      }));
+
+      setChunkedDocuments(chunkedDocuments);
+    };
+
+    fetchChunkedDocuments();
+  }, [project_id]);
+
+
 
   const handleDetails = (id: string) => {
     // Handle viewing details
@@ -64,16 +73,16 @@ const ChunkedPage: React.FC = () => {
         <Table aria-label="Chunked documents list">
           <TableHeader>
             <TableColumn>NAME</TableColumn>
-            <TableColumn>CHUNKED AT</TableColumn>
-            <TableColumn>METHOD</TableColumn>
+            <TableColumn>MODULE</TableColumn>
+            <TableColumn>PARAMETERS</TableColumn>
             <TableColumn>ACTIONS</TableColumn>
           </TableHeader>
           <TableBody>
             {documents.map((doc) => (
               <TableRow key={doc.id}>
                 <TableCell>{doc.name}</TableCell>
-                <TableCell>{new Date(doc.chunked_at).toLocaleString()}</TableCell>
-                <TableCell>{doc.method}</TableCell>
+                <TableCell>{doc.module_name}</TableCell>
+                <TableCell>{doc.module_params}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <button

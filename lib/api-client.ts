@@ -325,6 +325,17 @@ export interface EvaluateTrialOptions {
       });
     }
 
+    async getChunkedDocuments(projectId: string) {
+      return this.fetch<Array<{
+        chunk_filepath: string;
+        chunk_name: string;
+        module_name: string;
+        module_params: string;
+      }>>(`/projects/${projectId}/chunk`, {
+        method: 'GET'
+      });
+    }
+
     async createChunkTask(projectId: string, trialId: string, data: {
       name: string;
       config: {
