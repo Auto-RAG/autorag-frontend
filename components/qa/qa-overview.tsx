@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Eye, Play, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ interface QASet {
 
 export function QAOverview({ projectId }: { projectId: string }) {
   const [qaSets, setQASets] = useState<QASet[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     setQASets([
@@ -87,7 +89,7 @@ export function QAOverview({ projectId }: { projectId: string }) {
                     size="icon"
                     title="View Details"
                     variant="ghost"
-                    onClick={() => {}}
+                    onClick={() => router.push(`/projects/${projectId}/qa/${qaSet.id}`)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
