@@ -47,7 +47,7 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-[--radix-popper-anchor-width]">
                 <DropdownMenuItem asChild>
-                  <Link href="/">
+                  <Link href="/projects">
                     <Home className="mr-2 h-4 w-4" />
                     Go to Home
                   </Link>
