@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
 import { FileText, ChevronRight, Eye, Plus } from 'lucide-react';
+
 import DocumentParserInterface from './document-parser-ui';
+import { ParseDialog } from './parse-dialog';
 
 interface ParsedFile {
   id: string;
@@ -125,15 +126,24 @@ const ParseResultsContent: React.FC = () => {
 
 // Project Detail의 Parse 탭 내용 업데이트
 const ParseTabContent: React.FC = () => {
+  const [showParseDialog, setShowParseDialog] = useState(false);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Parsed Data</h1>
-        <button className="flex items-center gap-1 px-3 py-2 text-sm text-white bg-black hover:bg-gray-800 rounded-md">
+        <button 
+          className="flex items-center gap-1 px-3 py-2 text-sm text-white bg-black hover:bg-gray-800 rounded-md"
+          onClick={() => setShowParseDialog(true)}
+        >
           <Plus size={16} />
           New Parse
         </button>
       </div>
+      <ParseDialog
+        open={showParseDialog}
+        onOpenChange={setShowParseDialog}
+      />
       <ParseResultsContent />
     </div>
   );

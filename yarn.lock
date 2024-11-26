@@ -1719,6 +1719,32 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-checkbox@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "@radix-ui/react-checkbox@npm:1.1.2"
+  dependencies:
+    "@radix-ui/primitive": 1.1.0
+    "@radix-ui/react-compose-refs": 1.1.0
+    "@radix-ui/react-context": 1.1.1
+    "@radix-ui/react-presence": 1.1.1
+    "@radix-ui/react-primitive": 2.0.0
+    "@radix-ui/react-use-controllable-state": 1.1.0
+    "@radix-ui/react-use-previous": 1.1.0
+    "@radix-ui/react-use-size": 1.1.0
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: c59e1c74b8d2cb668aabba22b3e896ffef6c35435df3e83db9c04192e3d7b2bf7c69895b17da5bfaa6c704f369e8b3a6b226d542523b685940d20e9e096a1855
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-collapsible@npm:^1.1.1":
   version: 1.1.1
   resolution: "@radix-ui/react-collapsible@npm:1.1.1"
@@ -7072,6 +7098,7 @@ __metadata:
     "@nextui-org/system": 2.2.6
     "@nextui-org/table": ^2.0.40
     "@nextui-org/theme": 2.2.11
+    "@radix-ui/react-checkbox": ^1.1.2
     "@radix-ui/react-collapsible": ^1.1.1
     "@radix-ui/react-dialog": ^1.1.2
     "@radix-ui/react-dropdown-menu": ^2.1.2
