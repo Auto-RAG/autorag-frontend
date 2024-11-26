@@ -314,6 +314,17 @@ export interface EvaluateTrialOptions {
       return await response.json();
     }
 
+    async getParsedDocuments(projectId: string) {
+      return this.fetch<Array<{
+        parse_filepath: string;
+        parse_name: string;
+        module_name: string;
+        module_params: string;
+      }>>(`/projects/${projectId}/parse`, {
+        method: 'GET'
+      });
+    }
+
     async createChunkTask(projectId: string, trialId: string, data: {
       name: string;
       config: {

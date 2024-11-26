@@ -1,42 +1,43 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
 import { FileText, ChevronRight, Eye, Plus } from 'lucide-react';
 
 import DocumentParserInterface from './document-parser-ui';
 import { ParseDialog } from './parse-dialog';
 
+import { APIClient } from '@/lib/api-client';
+
 interface ParsedFile {
-  id: string;
-  filename: string;
-  status: 'completed' | 'failed' | 'in_progress';
-  parsed_at: string;
-  file_type: string;
-  file_size: string;
+  parse_filepath: string;
+  parse_name: string;
+  module_name: string;
+  module_params: string;
 }
 
-const ParseResultsContent: React.FC = () => {
+const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) => {
   const [selectedFile, setSelectedFile] = useState<ParsedFile | null>(null);
-  const [files] = useState<ParsedFile[]>([
-    {
-      id: '1',
-      filename: 'lab_report_001.pdf',
-      status: 'completed',
-      parsed_at: '2024-03-15T10:30:00Z',
-      file_type: 'PDF',
-      file_size: '1.2 MB'
-    },
-    {
-      id: '2',
-      filename: 'medical_test_002.pdf',
-      status: 'completed',
-      parsed_at: '2024-03-15T11:15:00Z',
-      file_type: 'PDF',
-      file_size: '890 KB'
-    },
-    // ... 더 많은 파일들
-  ]);
+  const [files, setFiles] = useState<ParsedFile[]>([]);
+
+  const [isLoading, setIsLoading] = useState(true);
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
+  useEffect(() => {
+    const fetchParsedDocuments = async () => {
+      try {
+        const parsedDocs = await apiClient.getParsedDocuments(project_id);
+        
+        setFiles(parsedDocs);
+      } catch (error) {
+        console.error('Failed to fetch parsed documents:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchParsedDocuments();
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -62,35 +63,25 @@ const ParseResultsContent: React.FC = () => {
           <Table aria-label="Parsed files list">
             <TableHeader>
               <TableColumn>FILENAME</TableColumn>
-              <TableColumn>TYPE</TableColumn>
-              <TableColumn>SIZE</TableColumn>
-              <TableColumn>STATUS</TableColumn>
-              <TableColumn>PARSED AT</TableColumn>
+              <TableColumn>MODULE</TableColumn>
+              <TableColumn>PARAMETERS</TableColumn>
               <TableColumn>ACTIONS</TableColumn>
             </TableHeader>
             <TableBody>
               {files.map((file) => (
-                <TableRow key={file.id}>
+                <TableRow key={file.parse_filepath}>
                   <TableCell>
                     <div className="flex items-center gap-2">
-                      <FileText size={16} className="text-gray-500" />
-                      {file.filename}
+                      <FileText className="text-gray-500" size={16} />
+                      {file.parse_name}
                     </div>
                   </TableCell>
-                  <TableCell>{file.file_type}</TableCell>
-                  <TableCell>{formatFileSize(file.file_size)}</TableCell>
-                  <TableCell>
-                    <span className={getStatusColor(file.status)}>
-                      {file.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(file.parsed_at).toLocaleString()}
-                  </TableCell>
+                  <TableCell>{file.module_name}</TableCell>
+                  <TableCell>{file.module_params}</TableCell>
                   <TableCell>
                     <button
-                      onClick={() => setSelectedFile(file)}
                       className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+                      onClick={() => setSelectedFile(file)}
                     >
                       <Eye size={14} />
                       View
@@ -105,15 +96,15 @@ const ParseResultsContent: React.FC = () => {
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <button
-              onClick={() => setSelectedFile(null)}
               className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
+              onClick={() => setSelectedFile(null)}
             >
-              <ChevronRight size={16} className="rotate-180" />
+              <ChevronRight className="rotate-180" size={16} />
               Back to list
             </button>
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <FileText size={16} />
-              {selectedFile.filename}
+              {selectedFile.parse_name}
             </div>
           </div>
           
@@ -125,7 +116,7 @@ const ParseResultsContent: React.FC = () => {
 };
 
 // Project Detail의 Parse 탭 내용 업데이트
-const ParseTabContent: React.FC = () => {
+const ParseTabContent: React.FC<{ project_id: string }> = ({ project_id }) => {
   const [showParseDialog, setShowParseDialog] = useState(false);
 
   return (
@@ -144,7 +135,7 @@ const ParseTabContent: React.FC = () => {
         open={showParseDialog}
         onOpenChange={setShowParseDialog}
       />
-      <ParseResultsContent />
+      <ParseResultsContent project_id={project_id} />
     </div>
   );
 };
