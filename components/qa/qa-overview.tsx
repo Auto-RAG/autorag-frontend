@@ -57,7 +57,7 @@ export function QAOverview({ projectId }: { projectId: string }) {
       }
     ]);
   }, []);
-  
+
   return (
     <div className="w-full">
       <div className="flex justify-end mb-4">
@@ -84,26 +84,26 @@ export function QAOverview({ projectId }: { projectId: string }) {
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
-                    variant="ghost"
                     size="icon"
-                    onClick={() => {}}
                     title="View Details"
+                    variant="ghost"
+                    onClick={() => {}}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant="ghost"
                     size="icon"
-                    onClick={() => {}}
                     title="Use in Trial"
+                    variant="ghost"
+                    onClick={() => {}}
                   >
                     <Play className="h-4 w-4" />
                   </Button>
                   <Button
-                    variant="ghost"
                     size="icon"
-                    onClick={() => {}}
                     title="Delete"
+                    variant="ghost"
+                    onClick={() => {}}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
