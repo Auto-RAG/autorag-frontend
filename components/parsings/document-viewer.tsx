@@ -8,7 +8,7 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js
 interface DocumentViewerProps {
-  file: string | File;  // PDF 파일 경로 또는 File 객체
+  file: string | File | Blob;  // PDF 파일 경로 또는 File 객체
 }
 
 const DocumentViewer: React.FC<DocumentViewerProps> = ({ file }) => {
@@ -49,26 +49,26 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ file }) => {
       <div className="flex items-center gap-4 mb-4">
         <div className="flex items-center gap-2">
           <button
-            onClick={zoomOut}
             className="p-1 hover:bg-gray-100 rounded"
             disabled={scale <= 0.5}
+            onClick={zoomOut}
           >
             <ZoomOut size={20} />
           </button>
           <span className="text-sm">{Math.round(scale * 100)}%</span>
           <button
-            onClick={zoomIn}
             className="p-1 hover:bg-gray-100 rounded"
             disabled={scale >= 2.0}
+            onClick={zoomIn}
           >
             <ZoomIn size={20} />
           </button>
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={previousPage}
             className="p-1 hover:bg-gray-100 rounded"
             disabled={pageNumber <= 1}
+            onClick={previousPage}
           >
             <ChevronLeft size={20} />
           </button>
@@ -76,9 +76,9 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ file }) => {
             Page {pageNumber} of {numPages || '--'}
           </span>
           <button
-            onClick={nextPage}
             className="p-1 hover:bg-gray-100 rounded"
             disabled={numPages === null || pageNumber >= numPages}
+            onClick={nextPage}
           >
             <ChevronRight size={20} />
           </button>
@@ -87,24 +87,24 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ file }) => {
 
       <div className="border rounded-lg overflow-auto max-h-[800px] bg-gray-50">
         <Document
-          file={file}
-          onLoadSuccess={onDocumentLoadSuccess}
-          loading={
-            <div className="flex items-center justify-center h-[800px]">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            </div>
-          }
           error={
             <div className="flex items-center justify-center h-[800px] text-red-500">
               Failed to load PDF document
             </div>
           }
+          file={file}
+          loading={
+            <div className="flex items-center justify-center h-[800px]">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+            </div>
+          }
+          onLoadSuccess={onDocumentLoadSuccess}
         >
           <Page
             pageNumber={pageNumber}
-            scale={scale}
             renderAnnotationLayer={false}
             renderTextLayer={false}
+            scale={scale}
           />
         </Document>
       </div>

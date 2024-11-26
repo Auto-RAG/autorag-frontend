@@ -148,15 +148,19 @@ export interface EvaluateTrialOptions {
     async getProject(projectId: string) {
       const response = await this.getProjects(1, 1);
       const project = response.data.find(p => p.id === projectId);
+
       if (!project) {
         throw new Error(`Project with ID ${projectId} not found`);
       }
+
       return project;
     }
 
     async getProjects(page = 1, limit = 10, status?: 'active' | 'archived') {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+
       if (status) params.append('status', status);
+
       return this.fetch<{ total: number; data: Project[] }>(`/projects?${params}`);
     }
   

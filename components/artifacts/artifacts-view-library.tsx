@@ -3,6 +3,7 @@ import { File, Folder } from 'lucide-react';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import Box from '@mui/material/Box';
+
 import DocumentViewer from '../parsings/document-viewer';
 
 interface FileNode {
@@ -98,18 +99,28 @@ const FileContents: React.FC<{ projectId: string;
 };
 
 const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
-  const [selectedFileContent, setSelectedFileContent] = useState<string | null>(null);
+  const [selectedFileContent, setSelectedFileContent] = useState<string | null | Blob>(null);
 
   const handleSelect = async (nodeId: string) => {
     if (nodeId.includes('.pdf')) {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/artifacts/content?path=${nodeId}`);
-        const content = await response.text();
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/artifacts/content?filename=${nodeId}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/pdf'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch file');
+          }
 
-        setSelectedFileContent(content);
+          const blob = await response.blob();
+          
+          setSelectedFileContent(blob);
+        
       } catch (error) {
-        console.error('Error fetching file content:', error);
-        setSelectedFileContent('Error loading file content');
+        console.error('Supporting only PDF file at viewer', error);
       }
     }
   };
