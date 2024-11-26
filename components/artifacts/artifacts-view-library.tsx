@@ -3,6 +3,7 @@ import { File, Folder } from 'lucide-react';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import Box from '@mui/material/Box';
+import DocumentViewer from '../parsings/document-viewer';
 
 interface FileNode {
   name: string;
@@ -123,7 +124,7 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
         </div>
         <div className="overflow-auto border rounded p-2">
           {selectedFileContent ? (
-            <pre className="text-sm whitespace-pre-wrap">{selectedFileContent}</pre>
+            <DocumentViewer file={selectedFileContent} />
           ) : (
             <div className="text-gray-500 text-sm">Select a file to view its contents</div>
           )}
