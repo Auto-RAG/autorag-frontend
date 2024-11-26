@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { LayoutDashboard, FileText, Play, ArrowLeft, Settings } from 'lucide-react'
+import { LayoutDashboard, FileText, ArrowLeft, Settings, MessageSquare } from 'lucide-react'
 
 import {
   Sidebar,
@@ -65,9 +65,9 @@ export function TrialSidebar({ project_id, trial_id }: TrialSidebarProps) {
 
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <Link href={`/projects/${project_id}/trials/${trial_id}/run`}>
-                    <Play className="mr-2 h-4 w-4" />
-                    Run
+                  <Link href={`/projects/${project_id}/trials/${trial_id}/chat`}>
+                    <MessageSquare className="mr-2 h-4 w-4" />
+                    Chat
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -11,9 +11,14 @@ import {
   XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import toast, { Toaster } from 'react-hot-toast';
+import { ChevronRight } from "lucide-react";
 
 import QADashboard from "../qacreations/qacreation-page";
-import toast, { Toaster } from 'react-hot-toast';
+import ParquetViewer from "../qacreations/qa-analysis-layout";
+
+import { ConfigEditor } from "./trials/configuration/config-editor";
+import { ConfigSelector } from "./trials/configuration/config-selector";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,10 +32,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ChevronRight } from "lucide-react";
-import ParquetViewer from "../qacreations/qa-analysis-layout";
-import { ConfigEditor } from "./trials/configuration/config-editor";
-import { ConfigSelector } from "./trials/configuration/config-selector";
 
 interface Task {
   task_id: string;
@@ -65,7 +66,42 @@ export function TrialDetail({
 }) {
   const [trialConfig, setTrialConfig] = useState<Trial | null>(null);
   const [trial, setTrial] = useState<Trial | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const mockTasks: Task[] = [
+    {
+      task_id: "task_001",
+      trial_id: trialId,
+      type: "parse",
+      status: "completed",
+      created_at: new Date().toISOString(),
+      name: "Parse Task"
+    },
+    {
+      task_id: "task_002", 
+      trial_id: trialId,
+      type: "chunk",
+      status: "in_progress",
+      created_at: new Date().toISOString(),
+      name: "Chunk Task"
+    },
+    {
+      task_id: "task_003",
+      trial_id: trialId,
+      type: "qa",
+      status: "not_started", 
+      created_at: new Date().toISOString(),
+      name: "QA Task"
+    },
+    {
+      task_id: "task_004",
+      trial_id: trialId,
+      type: "validate",
+      status: "failed",
+      error_message: "Validation failed",
+      created_at: new Date().toISOString(),
+      name: "Validate Task"
+    }
+  ];
+  const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [config, setConfig] = useState("");
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
@@ -176,6 +212,7 @@ export function TrialDetail({
         full_ingest: fullIngest,
         skip_validation: skipValidation
       });
+
       console.log(task);
       toast.success("Trial Started");
       fetchTasks();
@@ -191,6 +228,7 @@ export function TrialDetail({
     try {
       toast("Starting Validation");
       const task = await apiClient.validateTrial(projectId, trialId);
+
       console.log(task);
       toast.success("Validation Started");
       fetchTasks();
