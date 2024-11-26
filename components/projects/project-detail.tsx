@@ -46,11 +46,7 @@ interface Task {
 
 export function ProjectDetail({ projectId }: { projectId: string }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("upload");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [trials, setTrials] = useState<Trial[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [projectName, setProjectName] = useState("");
 
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
@@ -75,12 +71,8 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           
           return dateB.getTime() - dateA.getTime(); // Sort descending - newest first
         });
-        // @ts-ignore
-        setTrials(trials as Trial[]); // Type assertion to match the state type
-        setIsLoading(false);
       } catch (error) {
         console.error("Error fetching data:", error);
-        setIsLoading(false);
       }
     };
 
@@ -89,87 +81,53 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
 
   return (
     <div className="w-full space-y-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/">Home</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight className="h-4 w-4" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbPage><b>{projectName || "Project Details"}</b></BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="w-full space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold mt-2 font-ibm-bold">Project : <b>{projectName || "Project Details"}</b></h1>
-          </div>
-          <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <Dialog.Trigger asChild>
-              <Button color="primary" startContent={<Beaker size={16} />}>
-                New Trial
-              </Button>
-            </Dialog.Trigger>
+      <div className="flex flex-col gap-6">
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/">Home</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight className="h-4 w-4" />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator>
+              <ChevronRight className="h-4 w-4" />
+            </BreadcrumbSeparator>
+            <BreadcrumbItem>
+              <BreadcrumbPage><b>{projectName || "Project Details"}</b></BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
 
-            <Dialog.Portal>
-              <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+        <h1 className="text-2xl font-bold font-ibm-bold">Project : <b>{projectName || "Project Details"}</b></h1>
 
-              <CreateTrialDialog
-                isOpen={isDialogOpen}
-                projectId={projectId}
-                onOpenChange={setIsDialogOpen}
-                onTrialCreated={() => {
-                  setIsDialogOpen(false);
-                  router.refresh();
-                }}
-              />
-            </Dialog.Portal>
-          </Dialog.Root>
-        </div>
-        <Tabs className="w-full" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger className="flex items-center gap-2" value="upload">
-              <FileText className="h-4 w-4" />
-              Upload Files
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="artifacts">
-              <BarChart2 className="h-4 w-4" />
-              Documents
-            </TabsTrigger>
-            {/* <TabsTrigger className="flex items-center gap-2" value="parse">
-              <BarChart2 className="h-4 w-4" />
-              Parsed Data
-            </TabsTrigger> */}
-          </TabsList>
+        <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <Dialog.Trigger asChild>
+            <Button 
+              color="primary" 
+              className="w-full px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+              size="lg"
+            >
+              🚀 Quickstart New Trial
+            </Button>
+          </Dialog.Trigger>
 
-          <TabsContent value="upload">
-            <Card>
-              <CardHeader>
-                <CardTitle>Upload Files</CardTitle>
-              </CardHeader>
-              <CardContent>{<UploadFiles filesUploadedCallback={() => {
-                setActiveTab("artifacts");
-              }} projectId={projectId} />}</CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="artifacts">
-            <Card>
-              <CardHeader>
-                <CardTitle>Artifacts(RAW_DATA)</CardTitle>
-              </CardHeader>
-              <CardContent><ArtifactsView projectId={projectId} /></CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+          <Dialog.Portal>
+            <Dialog.Overlay className="fixed inset-0 bg-black/50" />
+            <CreateTrialDialog
+              isOpen={isDialogOpen}
+              projectId={projectId}
+              onOpenChange={setIsDialogOpen}
+              onTrialCreated={() => {
+                setIsDialogOpen(false);
+                router.refresh();
+              }}
+            />
+          </Dialog.Portal>
+        </Dialog.Root>
       </div>
     </div>
   );
