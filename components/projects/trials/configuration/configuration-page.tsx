@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { ConfigSelector } from "../config-selector";
-import { ConfigEditor } from "../config-editor";
+import { ConfigSelector } from "./config-selector";
+import { ConfigEditor } from "./config-editor";
 
 import { Button } from "@/components/ui/button";
 

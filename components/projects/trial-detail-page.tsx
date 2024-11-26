@@ -29,8 +29,8 @@ import {
 } from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react";
 import ParquetViewer from "../qacreations/qa-analysis-layout";
-import { ConfigEditor } from "./trials/config-editor";
-import { ConfigSelector } from "./trials/config-selector";
+import { ConfigEditor } from "./trials/configuration/config-editor";
+import { ConfigSelector } from "./trials/configuration/config-selector";
 
 interface Task {
   task_id: string;
