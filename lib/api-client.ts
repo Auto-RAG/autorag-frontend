@@ -336,24 +336,19 @@ export interface EvaluateTrialOptions {
       });
     }
 
-    async createChunkTask(projectId: string, trialId: string, data: {
-      name: string;
+    async createChunkTask(projectId: string, data: {
+      name?: string;
+      parsed_data_path: string;
       config: {
-        modules: Array<{
-          module_type: string;
-          chunk_method: string[];
-          chunk_size?: number;
-          chunk_overlap?: number;
-        }>;
+        modules: Array<Record<string, any>>;
       };
     }) {
       const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/chunk`,
+        `${this.baseUrl}/projects/${projectId}/chunk`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` }),
           },
           body: JSON.stringify(data),
         }

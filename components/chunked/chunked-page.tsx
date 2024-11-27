@@ -67,6 +67,7 @@ const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
       </div>
       <ChunkDialog
         open={showChunkDialog}
+        project_id={project_id}
         onOpenChange={setShowChunkDialog}
       />
       <div className="bg-white rounded-lg shadow">
