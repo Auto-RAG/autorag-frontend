@@ -12,20 +12,19 @@ import {
   SidebarMenuItem,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarGroup,
-  SidebarRail,
+  SidebarGroup
 } from '@/components/ui/sidebar'
 import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-  } from "@/components/ui/collapsible"
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-  } from "@/components/ui/dropdown-menu"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 interface ProjectSidebarProps {
   projectId: string
@@ -128,7 +127,6 @@ export function ProjectSidebar({ projectId }: ProjectSidebarProps) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
-      <SidebarRail />
     </Sidebar>
   )
 }
