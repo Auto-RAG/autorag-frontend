@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
-import { Eye, Trash2, PlayCircle, Plus } from 'lucide-react';
+import { Eye, Trash2, Plus, Copy } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import { ChunkDialog } from './chunk-dialog';
 
@@ -46,11 +47,6 @@ const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
   const handleDelete = (id: string) => {
     // Handle deletion
     console.log('Delete:', id);
-  };
-
-  const handleUseInTrial = (id: string) => {
-    // Handle using in trial
-    console.log('Use in trial:', id);
   };
 
   return (
@@ -101,11 +97,14 @@ const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
                       <Trash2 size={18} />
                     </button>
                     <button
-                      className="p-1 text-green-600 hover:bg-green-50 rounded"
-                      title="Use in Trial"
-                      onClick={() => handleUseInTrial(doc.id)}
+                      className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                      title="Copy Name"
+                      onClick={() => {
+                        navigator.clipboard.writeText(doc.name);
+                        toast.success("Chunk name copied to clipboard.\nPaste it in the qa dialog to create a QA dataset.");
+                      }}
                     >
-                      <PlayCircle size={18} />
+                      <Copy size={18} />
                     </button>
                   </div>
                 </TableCell>

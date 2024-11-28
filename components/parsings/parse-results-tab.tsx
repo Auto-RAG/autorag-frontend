@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
-import { FileText, ChevronRight, Eye, Plus } from 'lucide-react';
+import { FileText, ChevronRight, Eye, Plus, Copy } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import DocumentParserInterface from './document-parser-ui';
 import { ParseDialog } from './parse-dialog';
@@ -38,23 +39,6 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
 
     fetchParsedDocuments();
   }, []);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'completed':
-        return 'text-green-500';
-      case 'in_progress':
-        return 'text-blue-500';
-      case 'failed':
-        return 'text-red-500';
-      default:
-        return 'text-gray-500';
-    }
-  };
-
-  const formatFileSize = (size: string) => {
-    return size;
-  };
   
   return (
     <div className="space-y-4">
@@ -62,9 +46,9 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
         <div className="bg-white rounded-lg shadow">
           <Table aria-label="Parsed files list">
             <TableHeader>
-              <TableColumn>FILENAME</TableColumn>
+              <TableColumn>NAME</TableColumn>
               <TableColumn>MODULE</TableColumn>
-              <TableColumn>PARAMETERS</TableColumn>
+              <TableColumn>PARAMS</TableColumn>
               <TableColumn>ACTIONS</TableColumn>
             </TableHeader>
             <TableBody>
@@ -79,13 +63,25 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
                   <TableCell>{file.module_name}</TableCell>
                   <TableCell>{file.module_params}</TableCell>
                   <TableCell>
-                    <button
-                      className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
-                      onClick={() => setSelectedFile(file)}
-                    >
-                      <Eye size={14} />
-                      View
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-gray-600 hover:bg-gray-50 rounded"
+                        onClick={() => {
+                          navigator.clipboard.writeText(file.parse_name);
+                          toast.success("Parse name copied to the clipboard.\nPaste it in the chunk dialog to create a chunk.");
+                        }}
+                      >
+                        <Copy size={14} />
+                        Copy
+                      </button>
+                      <button
+                        className="flex items-center gap-1 px-2 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
+                        onClick={() => setSelectedFile(file)}
+                      >
+                        <Eye size={14} />
+                        View
+                      </button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
