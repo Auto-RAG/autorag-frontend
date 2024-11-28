@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Table,
@@ -12,15 +12,10 @@ import {
 } from "@nextui-org/table";
 import { LineChart, Line, ResponsiveContainer, YAxis, Tooltip } from "recharts";
 import {
-  PlusIcon,
-  Beaker,
-  Clock,
-  CheckCircle2,
+  PlusIcon, CheckCircle2,
   AlertCircle,
   XCircle,
-  PlayCircle,
-  MessageSquare,
-  TrendingUp,
+  PlayCircle, TrendingUp
 } from "lucide-react";
 
 import { CreateProjectDialog } from "./create-project-dialog";
@@ -34,54 +29,19 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-;
-import { 
+import {
   APIClient,
   Project,
-  PerformancePoint, 
+  PerformancePoint,
   ProjectStats,
   ProjectList
 } from '@/lib/api-client';
+;
 interface PreparationStatus {
   parse: "not_started" | "in_progress" | "completed" | "failed";
   chunk: "not_started" | "in_progress" | "completed" | "failed";
   qa: "not_started" | "in_progress" | "completed" | "failed";
 }
-
-// interface Project {
-//   id: string;
-//   name: string;
-//   description: string;
-//   status: 'active' | 'archived';
-//   created_at: string;
-//   updated_at: string;
-//   trials_count: number;
-//   active_trials: number;
-//   total_qa_pairs: number;
-//   preparation_status: PreparationStatus;
-//   last_activity: string;
-// }
-
-// interface PerformancePoint {
-//   date: string;
-//   score: number;
-// }
-
-// interface Project {
-//   id: string;
-//   name: string;
-//   description: string;
-//   status: "active" | "archived";
-//   created_at: string;
-//   updated_at: string;
-//   trials_count: number;
-//   active_trials: number;
-//   total_qa_pairs: number;
-//   preparation_status: PreparationStatus;
-//   last_activity: string;
-//   performance_history: PerformancePoint[];
-//   current_performance: number;
-// }
 
 // 목업 데이터에 성능 이력 추가
 const mockProjects: ProjectList = {
@@ -138,95 +98,6 @@ const mockProjects: ProjectList = {
   },
   // ... 다른 프로젝트들에 대해서도 비슷한 패턴으로 performance_history 추가 ...
 ]};
-
-// // 목업 데이터
-// const mockProjects: Project[] = [
-//   {
-//     id: '1',
-//     name: 'Research Papers QA',
-//     description: 'QA system for academic papers',
-//     status: 'active',
-//     created_at: '2024-01-01T00:00:00Z',
-//     updated_at: '2024-02-15T00:00:00Z',
-//     trials_count: 5,
-//     active_trials: 2,
-//     total_qa_pairs: 1250,
-//     preparation_status: {
-//       parse: 'completed',
-//       chunk: 'completed',
-//       qa: 'in_progress'
-//     },
-//     last_activity: '2024-03-10T15:30:00Z'
-//   },
-//   {
-//     id: '2',
-//     name: 'Medical Documentation',
-//     description: 'Medical records analysis system',
-//     status: 'active',
-//     created_at: '2024-01-15T00:00:00Z',
-//     updated_at: '2024-03-01T00:00:00Z',
-//     trials_count: 3,
-//     active_trials: 1,
-//     total_qa_pairs: 850,
-//     preparation_status: {
-//       parse: 'completed',
-//       chunk: 'completed',
-//       qa: 'completed'
-//     },
-//     last_activity: '2024-03-11T09:15:00Z'
-//   },
-//   {
-//     id: '3',
-//     name: 'Legal Contract Analysis',
-//     description: 'Contract review and QA generation',
-//     status: 'archived',
-//     created_at: '2023-12-01T00:00:00Z',
-//     updated_at: '2024-01-30T00:00:00Z',
-//     trials_count: 7,
-//     active_trials: 0,
-//     total_qa_pairs: 2100,
-//     preparation_status: {
-//       parse: 'completed',
-//       chunk: 'failed',
-//       qa: 'not_started'
-//     },
-//     last_activity: '2024-03-09T11:45:00Z'
-//   },
-//   {
-//     id: '4',
-//     name: 'Technical Documentation',
-//     description: 'API documentation QA system',
-//     status: 'active',
-//     created_at: '2024-02-01T00:00:00Z',
-//     updated_at: '2024-03-05T00:00:00Z',
-//     trials_count: 2,
-//     active_trials: 2,
-//     total_qa_pairs: 450,
-//     preparation_status: {
-//       parse: 'completed',
-//       chunk: 'completed',
-//       qa: 'completed'
-//     },
-//     last_activity: '2024-03-11T14:20:00Z'
-//   },
-//   {
-//     id: '5',
-//     name: 'Educational Content',
-//     description: 'Learning materials QA generator',
-//     status: 'active',
-//     created_at: '2024-02-15T00:00:00Z',
-//     updated_at: '2024-03-10T00:00:00Z',
-//     trials_count: 4,
-//     active_trials: 1,
-//     total_qa_pairs: 750,
-//     preparation_status: {
-//       parse: 'in_progress',
-//       chunk: 'not_started',
-//       qa: 'not_started'
-//     },
-//     last_activity: '2024-03-11T16:30:00Z'
-//   }
-// ];
 
 const StatusIcon = ({ status }: { status?: string }) => {
   if (!status) {
@@ -328,6 +199,7 @@ export function Projects() {
 
   useEffect(() => {
     const newStats = calculateProjectStats(projectList?.data || []);
+
     setStats(newStats);
   }, [projectList?.data]);
 
@@ -335,6 +207,7 @@ export function Projects() {
     try {
       setLoading(true);
       const response = await apiClient.getProjects(page);
+
       console.log('API Response:', response);
       
       // Ensure consistent data structure
@@ -375,12 +248,15 @@ export function Projects() {
 
       if (seconds < 3600) {
         const minutes = Math.floor(seconds / 60);
+
         return minutes <= 0 ? 'Just now' : `${minutes}m ago`;
       } else if (seconds < 86400) {
         const hours = Math.floor(seconds / 3600);
+
         return `${hours}h ago`;
       } else {
         const days = Math.floor(seconds / 86400);
+
         return `${days}d ago`;
       }
     } catch {
@@ -406,63 +282,6 @@ export function Projects() {
           <PlusIcon className="h-4 w-4 mr-2" />
           New Project
         </Button>
-      </div>
-
-      {/* Stats Overview */}
-      <div className="grid gap-4 md:grid-cols-5">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Projects
-            </CardTitle>
-            <Beaker className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total_projects}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Projects
-            </CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.active_projects}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Trials</CardTitle>
-            <Beaker className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total_trials}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total QA Pairs
-            </CardTitle>
-            <MessageSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {stats.total_qa_pairs}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Archived</CardTitle>
-            <CheckCircle2 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.total_projects - stats.active_projects}</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Projects Table */}

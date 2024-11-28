@@ -93,6 +93,7 @@ export function QAOverview({ projectId }: { projectId: string }) {
       </div>
       <QADialog
         open={showQADialog}
+        projectId={projectId}
         onOpenChange={setShowQADialog}
       />
       <Table>

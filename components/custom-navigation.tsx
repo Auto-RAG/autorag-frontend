@@ -32,6 +32,14 @@ export function CustomNavigation() {
             <Button
               size="sm"
               variant="ghost"
+              onClick={() => router.push("/service")}
+            >
+              <Home className="h-5 w-5 mr-2" />
+              Service
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={() => router.push("/projects")}
             >
               <Home className="h-5 w-5 mr-2" />
