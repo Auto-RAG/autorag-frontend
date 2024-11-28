@@ -148,15 +148,19 @@ export interface EvaluateTrialOptions {
     async getProject(projectId: string) {
       const response = await this.getProjects(1, 1);
       const project = response.data.find(p => p.id === projectId);
+
       if (!project) {
         throw new Error(`Project with ID ${projectId} not found`);
       }
+
       return project;
     }
 
     async getProjects(page = 1, limit = 10, status?: 'active' | 'archived') {
       const params = new URLSearchParams({ page: String(page), limit: String(limit) });
+
       if (status) params.append('status', status);
+
       return this.fetch<{ total: number; data: Project[] }>(`/projects?${params}`);
     }
   
@@ -281,87 +285,112 @@ export interface EvaluateTrialOptions {
       });
     }
 
-    async createParseTask(projectId: string, trialId: string, data: {
+    async createParseTask(projectId: string, data: {
       name: string;
-      path: string;
+      extension: string;
       config: {
         modules: Array<{
           module_type: string;
-          parse_method: string[];
+          parse_method: string;
         }>;
       };
     }) {
       const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/parse`,
+        `${this.baseUrl}/projects/${projectId}/parse`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` }),
           },
           body: JSON.stringify(data),
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 400) {
+        return {error: "The parse name is duplicated.", status: 400};
+      } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       return await response.json();
     }
 
-    async createChunkTask(projectId: string, trialId: string, data: {
+    async getParsedDocuments(projectId: string) {
+      return this.fetch<Array<{
+        parse_filepath: string;
+        parse_name: string;
+        module_name: string;
+        module_params: string;
+      }>>(`/projects/${projectId}/parse`, {
+        method: 'GET'
+      });
+    }
+
+    async getChunkedDocuments(projectId: string) {
+      return this.fetch<Array<{
+        chunk_filepath: string;
+        chunk_name: string;
+        module_name: string;
+        module_params: string;
+      }>>(`/projects/${projectId}/chunk`, {
+        method: 'GET'
+      });
+    }
+
+    async createChunkTask(projectId: string, data: {
       name: string;
+      parsed_name: string;
       config: {
-        modules: Array<{
-          module_type: string;
-          chunk_method: string[];
-          chunk_size?: number;
-          chunk_overlap?: number;
-        }>;
+        modules: Array<Record<string, any>>;
       };
     }) {
       const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/chunk`,
+        `${this.baseUrl}/projects/${projectId}/chunk`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` }),
           },
           body: JSON.stringify(data),
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 400) {
+        return {error: "The parse name is duplicated.", status: 400};
+      } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       return await response.json();
     }
 
-    async createQATask(projectId: string, trialId: string, data: {
+    async createQATask(projectId: string, data: {
       preset: string;
       name: string;
+      chunked_name: string;
       qa_num: number;
       llm_config: {
         llm_name: string;
+        llm_params: Record<string, any>;
       };
       lang: string;
     }) {
       const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/qa`,
+        `${this.baseUrl}/projects/${projectId}/qa`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` }),
           },
           body: JSON.stringify(data),
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 400) {
+        return {error: "The QA name is duplicated.", status: 400};
+      } else if (response.status === 401) {
+        return {error: "The chunked name is not found.", status: 401};
+      }else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

@@ -1,33 +1,43 @@
 "use client";
 
-import React, { useState } from 'react';
-import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
-import { Eye, Trash2, PlayCircle, Plus } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Eye, Trash2, Plus, Copy } from 'lucide-react';
+import toast from 'react-hot-toast';
+
 import { ChunkDialog } from './chunk-dialog';
+
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
+import { APIClient } from '@/lib/api-client';
 
 interface ChunkedDocument {
   id: string;
   name: string;
-  chunked_at: string;
-  method: string;
+  module_name: string;
+  module_params: string;
 }
 
-const ChunkedPage: React.FC = () => {
+const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
   const [showChunkDialog, setShowChunkDialog] = useState(false);
-  const [documents] = useState<ChunkedDocument[]>([
-    {
-      id: '1',
-      name: 'Lab Report Analysis',
-      chunked_at: '2024-03-15T10:30:00Z',
-      method: 'Sliding Window'
-    },
-    {
-      id: '2', 
-      name: 'Medical Research Paper',
-      chunked_at: '2024-03-15T11:45:00Z',
-      method: 'Paragraph'
-    }
-  ]);
+  const [documents, setChunkedDocuments] = useState<ChunkedDocument[]>([]);
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
+  useEffect(() => {
+    const fetchChunkedDocuments = async () => {
+      const res = await apiClient.getChunkedDocuments(project_id);
+      const chunkedDocuments = res.map((doc) => ({
+        id: doc.chunk_filepath,
+        name: doc.chunk_name,
+        module_name: doc.module_name,
+        module_params: doc.module_params
+      }));
+
+      setChunkedDocuments(chunkedDocuments);
+    };
+
+    fetchChunkedDocuments();
+  }, [project_id]);
+
+
 
   const handleDetails = (id: string) => {
     // Handle viewing details
@@ -37,11 +47,6 @@ const ChunkedPage: React.FC = () => {
   const handleDelete = (id: string) => {
     // Handle deletion
     console.log('Delete:', id);
-  };
-
-  const handleUseInTrial = (id: string) => {
-    // Handle using in trial
-    console.log('Use in trial:', id);
   };
 
   return (
@@ -58,22 +63,24 @@ const ChunkedPage: React.FC = () => {
       </div>
       <ChunkDialog
         open={showChunkDialog}
+        project_id={project_id}
         onOpenChange={setShowChunkDialog}
       />
-      <div className="bg-white rounded-lg shadow">
         <Table aria-label="Chunked documents list">
           <TableHeader>
-            <TableColumn>NAME</TableColumn>
-            <TableColumn>CHUNKED AT</TableColumn>
-            <TableColumn>METHOD</TableColumn>
-            <TableColumn>ACTIONS</TableColumn>
+            <TableRow>
+              <TableHead>NAME</TableHead>
+              <TableHead>MODULE</TableHead>
+              <TableHead>PARAMETERS</TableHead>
+              <TableHead>ACTIONS</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {documents.map((doc) => (
               <TableRow key={doc.id}>
                 <TableCell>{doc.name}</TableCell>
-                <TableCell>{new Date(doc.chunked_at).toLocaleString()}</TableCell>
-                <TableCell>{doc.method}</TableCell>
+                <TableCell>{doc.module_name}</TableCell>
+                <TableCell>{doc.module_params}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <button
@@ -91,19 +98,21 @@ const ChunkedPage: React.FC = () => {
                       <Trash2 size={18} />
                     </button>
                     <button
-                      className="p-1 text-green-600 hover:bg-green-50 rounded"
-                      title="Use in Trial"
-                      onClick={() => handleUseInTrial(doc.id)}
+                      className="p-1 text-gray-600 hover:bg-gray-50 rounded"
+                      title="Copy Name"
+                      onClick={() => {
+                        navigator.clipboard.writeText(doc.name);
+                        toast.success("Chunk name copied to clipboard.\nPaste it in the qa dialog to create a QA dataset.");
+                      }}
                     >
-                      <PlayCircle size={18} />
+                      <Copy size={18} />
                     </button>
                   </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
-        </Table>
-      </div>
+      </Table>
     </div>
   );
 };

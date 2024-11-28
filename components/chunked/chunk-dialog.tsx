@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@nextui-org/button";
+import toast from "react-hot-toast";
 
 import {
   Dialog,
@@ -21,6 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { APIClient } from "@/lib/api-client";
+import { Input } from "@/components/ui/input";
 
 interface ChunkDialogProps {
   open: boolean;
@@ -32,17 +34,58 @@ interface ParsedData {
   filename: string;
 }
 
-export function ChunkDialog({ open, onOpenChange }: ChunkDialogProps) {
+interface ChunkConfig {
+  module_type: string;
+  chunk_method: string;
+  chunk_size?: number;
+  chunk_overlap?: number;
+  embed_model?: string;
+  add_file_name: string;
+}
+
+const tokenConfig: ChunkConfig = {
+  "module_type": "llama_index_chunk",
+  "chunk_method": "Token",
+  "chunk_size": 512,
+  "chunk_overlap": 128,
+  "add_file_name": "en",
+}
+
+const recursiveConfig: ChunkConfig = {
+  "module_type": "langchain_chunk",
+  "chunk_method": "recursivecharacter",
+  "chunk_size": 512,
+  "chunk_overlap": 128,
+  "add_file_name": "en",
+}
+
+const semanticConfig: ChunkConfig = {
+  "module_type": "llama_index_chunk",
+  "chunk_method": "Semantic_llama_index",
+  "embed_model": "openai",
+  "add_file_name": "en",
+}
+
+export function ChunkDialog({ open, onOpenChange, project_id }: ChunkDialogProps & { project_id: string }) {
   const [parsedData, setParsedData] = useState<ParsedData[]>([]);
   const [selectedData, setSelectedData] = useState("");
   const [chunkMethod, setChunkMethod] = useState("token");
   const [embeddingModel, setEmbeddingModel] = useState("openai");
-
+  const [config, setConfig] = useState(tokenConfig);
+  const [chunkName, setChunkName] = useState("");
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+  
   useEffect(() => {
     const fetchParsedData = async () => {
       try {
-        // const response = await APIClient.get("/api/parsed-data");
-        // setParsedData(response.data);
+        const response = await apiClient.getParsedDocuments(project_id);
+
+        console.log("Parsed GET response: ", response);
+
+        setParsedData(response.map((item) => ({
+          id: item.parse_filepath,
+          filename: item.parse_name,
+        })));
         console.log("fetchParsedData");
       } catch (error) {
         console.error("Failed to fetch parsed data:", error);
@@ -54,17 +97,50 @@ export function ChunkDialog({ open, onOpenChange }: ChunkDialogProps) {
     }
   }, [open]);
 
-  const handleSubmit = () => {
-    const config = {
-      parsedDataId: selectedData,
-      chunkMethod,
-      settings: {
-        embeddingModel: chunkMethod === 'semantic' ? embeddingModel : undefined
+  const handleSubmit = async () => {
+    try {
+      console.log('Chunk method:', chunkMethod);
+      if (chunkMethod == "token") {
+        setConfig(tokenConfig);
+      } else if (chunkMethod == "recursive") {
+        setConfig(recursiveConfig);
+      } else if (chunkMethod == "semantic") {
+        setConfig(semanticConfig);
       }
-    };
 
-    console.log('Chunk config:', config);
-    onOpenChange(false);
+      if (Object.keys(config).length === 0) {
+        toast.error('Please select a valid chunk method');
+
+        return;
+      }
+
+      if (selectedData == "") {
+        toast.error('Please select a valid parsed data');
+
+        return;
+      }
+
+      const response = await apiClient.createChunkTask(project_id, {"name": chunkName, 
+        "parsed_name": selectedData,
+        "config": {"modules": [config]}});
+      
+      if (response.status === 400) {
+        toast.error("The chunk name is duplicated.");
+       
+        return;
+      } else if (response.status === 500) {
+        toast.error("Internal server error.");
+
+        return;
+      }
+
+      console.log('Chunk response:', response);
+      toast.success('Successfully started chunk task.');
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Failed to create chunk task:', error);
+      toast.error('Failed to create chunk task');
+    }
   };
 
   return (
@@ -76,6 +152,17 @@ export function ChunkDialog({ open, onOpenChange }: ChunkDialogProps) {
             Create new chunks from your parsed data using various chunking methods.
           </DialogDescription>
         </DialogHeader>
+
+          <div className="grid gap-2">
+            <Label htmlFor="chunk-name">Chunk Name</Label>
+            <Input
+              className="col-span-3"
+              id="chunk-name"
+              placeholder="Enter chunk name"
+              value={chunkName}
+              onChange={(e) => setChunkName(e.target.value)}
+            />
+          </div>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -98,15 +185,15 @@ export function ChunkDialog({ open, onOpenChange }: ChunkDialogProps) {
             <Label>Chunk Method</Label>
             <RadioGroup value={chunkMethod} onValueChange={setChunkMethod}>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="token" id="token" />
+                <RadioGroupItem id="token" value="token" />
                 <Label htmlFor="token">Token</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="recursive" id="recursive" />
+                <RadioGroupItem id="recursive" value="recursive" />
                 <Label htmlFor="recursive">Recursive</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="semantic" id="semantic" />
+                <RadioGroupItem id="semantic" value="semantic" />
                 <Label htmlFor="semantic">Semantic</Label>
               </div>
             </RadioGroup>
@@ -121,8 +208,6 @@ export function ChunkDialog({ open, onOpenChange }: ChunkDialogProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="openai">OpenAI</SelectItem>
-                  <SelectItem value="cohere">Cohere</SelectItem>
-                  <SelectItem value="huggingface">HuggingFace</SelectItem>
                 </SelectContent>
               </Select>
             </div>
