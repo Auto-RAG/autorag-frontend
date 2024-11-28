@@ -285,29 +285,30 @@ export interface EvaluateTrialOptions {
       });
     }
 
-    async createParseTask(projectId: string, trialId: string, data: {
+    async createParseTask(projectId: string, data: {
       name: string;
-      path: string;
+      extension: string;
       config: {
         modules: Array<{
           module_type: string;
-          parse_method: string[];
+          parse_method: string;
         }>;
       };
     }) {
       const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/parse`,
+        `${this.baseUrl}/projects/${projectId}/parse`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` }),
           },
           body: JSON.stringify(data),
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 400) {
+        return {error: "The parse name is duplicated.", status: 400};
+      } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
@@ -337,8 +338,8 @@ export interface EvaluateTrialOptions {
     }
 
     async createChunkTask(projectId: string, data: {
-      name?: string;
-      parsed_data_path: string;
+      name: string;
+      parsed_name: string;
       config: {
         modules: Array<Record<string, any>>;
       };
@@ -354,7 +355,9 @@ export interface EvaluateTrialOptions {
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 400) {
+        return {error: "The parse name is duplicated.", status: 400};
+      } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

@@ -133,6 +133,7 @@ const ParseTabContent: React.FC<{ project_id: string }> = ({ project_id }) => {
       </div>
       <ParseDialog
         open={showParseDialog}
+        projectId={project_id}
         onOpenChange={setShowParseDialog}
       />
       <ParseResultsContent project_id={project_id} />

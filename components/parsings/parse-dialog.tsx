@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@nextui-org/button";
+import toast from "react-hot-toast";
 
 import {
   Dialog,
@@ -18,35 +19,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { APIClient } from "@/lib/api-client";
 
 interface ParseDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  projectId: string;
 }
 
-export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
-  const [fileType, setFileType] = useState("all");
-  const [isMultiModal, setIsMultiModal] = useState(false);
-  const [parserType, setParserType] = useState("pdf-reader");
+export function ParseDialog({ open, onOpenChange, projectId }: ParseDialogProps) {
+  const [fileType, setFileType] = useState("*");
+  // const [isMultiModal, setIsMultiModal] = useState(false);
+  // const [parserType, setParserType] = useState("pdf-reader");
   const [pdfReader, setPdfReader] = useState("pypdf");
-  const [ocrModel, setOcrModel] = useState("tesseract");
+  // const [ocrModel, setOcrModel] = useState("tesseract");
+  const [parseName, setParseName] = useState("");
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
-  const handleSubmit = () => {
-    const config = {
-      fileType,
-      isMultiModal,
-      parserType,
-      settings: {
-        pdfReader: parserType === 'pdf-reader' ? pdfReader : undefined,
-        ocrModel: parserType === 'ocr' ? ocrModel : undefined
-      }
-    };
+  const handleSubmit = async () => {
+    const parseConfig = {modules: [{
+      module_type: "langchain_parse",
+      parse_method: pdfReader
+    }]}
 
-    // TODO: Submit parse configuration
-    console.log('Parse config:', config);
+    const response = await apiClient.createParseTask(projectId, {
+      name: parseName,
+      extension: fileType,
+      config: parseConfig
+    });
+
+    if (response.status === 400) {
+      toast.error("The parse name is duplicated.");
+      
+      return;
+    } else if (response.status === 500) {
+      toast.error("Internal server error.");
+      
+      return;
+    }
+
+    toast.success("Parse started successfully.");
     onOpenChange(false);
   };
 
@@ -68,7 +82,7 @@ export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
                 <SelectValue placeholder="Select file type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Supported Types</SelectItem>
+                <SelectItem value="*">All Supported Types</SelectItem>
                 <SelectItem value="pdf">PDF</SelectItem>
                 <SelectItem value="csv">CSV</SelectItem>
                 <SelectItem value="docx">DOCX</SelectItem>
@@ -76,16 +90,27 @@ export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
             </Select>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="grid gap-2">
+            <Label htmlFor="parse-name">Parse Name</Label>
+            <Input
+              className="col-span-3"
+              id="parse-name" 
+              placeholder="Enter parse name"
+              value={parseName}
+              onChange={(e) => setParseName(e.target.value)}
+            />
+          </div>
+
+          {/* <div className="flex items-center space-x-2">
             <Checkbox
               id="multimodal"
               checked={isMultiModal}
               onCheckedChange={(checked) => setIsMultiModal(checked as boolean)}
             />
             <Label htmlFor="multimodal">Enable Multi-modal Processing</Label>
-          </div>
+          </div> */}
 
-          <div className="grid gap-2">
+          {/* <div className="grid gap-2">
             <Label>Parser Type</Label>
             <RadioGroup value={parserType} onValueChange={setParserType}>
               <div className="flex items-center space-x-2">
@@ -97,9 +122,9 @@ export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
                 <Label htmlFor="ocr">OCR</Label>
               </div>
             </RadioGroup>
-          </div>
+          </div> */}
 
-          {parserType === "pdf-reader" && (
+          {/* {parserType === "pdf-reader" && ( */}
             <div className="grid gap-2">
               <Label htmlFor="pdf-reader-select">PDF Reader</Label>
               <Select value={pdfReader} onValueChange={setPdfReader}>
@@ -107,15 +132,18 @@ export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
                   <SelectValue placeholder="Select PDF reader" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pypdf">PyPDF</SelectItem>
-                  <SelectItem value="pdfplumber">PDF Plumber</SelectItem>
                   <SelectItem value="pdfminer">PDFMiner</SelectItem>
+                  <SelectItem value="pdfplumber">PDF Plumber</SelectItem>
+                  <SelectItem value="pypdfium2">PyPDFium2</SelectItem>
+                  <SelectItem value="pypdf">PyPDF</SelectItem>
+                  <SelectItem value="pymupdf">PyMuPDF</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          )}
+            
+          {/* )} */}
 
-          {parserType === "ocr" && (
+          {/* {parserType === "ocr" && (
             <div className="grid gap-2">
               <Label htmlFor="ocr-model">OCR Model</Label>
               <Select value={ocrModel} onValueChange={setOcrModel}>
@@ -129,7 +157,7 @@ export function ParseDialog({ open, onOpenChange }: ParseDialogProps) {
                 </SelectContent>
               </Select>
             </div>
-          )}
+          )} */}
         </div>
         <DialogFooter>
           <Button

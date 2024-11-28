@@ -22,6 +22,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { APIClient } from "@/lib/api-client";
+import { Input } from "@/components/ui/input";
 
 interface ChunkDialogProps {
   open: boolean;
@@ -71,6 +72,7 @@ export function ChunkDialog({ open, onOpenChange, project_id }: ChunkDialogProps
   const [chunkMethod, setChunkMethod] = useState("token");
   const [embeddingModel, setEmbeddingModel] = useState("openai");
   const [config, setConfig] = useState(tokenConfig);
+  const [chunkName, setChunkName] = useState("");
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
   
   useEffect(() => {
@@ -118,12 +120,22 @@ export function ChunkDialog({ open, onOpenChange, project_id }: ChunkDialogProps
         return;
       }
 
-      const response = await apiClient.createChunkTask(project_id, {"name": "chunk_task", 
-        "parsed_data_path": selectedData,
+      const response = await apiClient.createChunkTask(project_id, {"name": chunkName, 
+        "parsed_name": selectedData,
         "config": {"modules": [config]}});
+      
+      if (response.status === 400) {
+        toast.error("The chunk name is duplicated.");
+       
+        return;
+      } else if (response.status === 500) {
+        toast.error("Internal server error.");
+
+        return;
+      }
 
       console.log('Chunk response:', response);
-      toast.success('Successfully created chunk task');
+      toast.success('Successfully started chunk task.');
       onOpenChange(false);
     } catch (error) {
       console.error('Failed to create chunk task:', error);
@@ -140,6 +152,17 @@ export function ChunkDialog({ open, onOpenChange, project_id }: ChunkDialogProps
             Create new chunks from your parsed data using various chunking methods.
           </DialogDescription>
         </DialogHeader>
+
+          <div className="grid gap-2">
+            <Label htmlFor="chunk-name">Chunk Name</Label>
+            <Input
+              className="col-span-3"
+              id="chunk-name"
+              placeholder="Enter chunk name"
+              value={chunkName}
+              onChange={(e) => setChunkName(e.target.value)}
+            />
+          </div>
 
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">

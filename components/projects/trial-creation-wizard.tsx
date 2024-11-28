@@ -1,6 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from 'next/navigation';
+import toast, { Toaster } from 'react-hot-toast';
+
 import { APIClient } from "@/lib/api-client";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -9,11 +12,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
+  DialogTitle, DialogDescription
 } from "@/components/ui/dialog";
-import { FileUpload } from "@/components/ui/file-upload";
 import {
   Select,
   SelectContent,
@@ -30,8 +30,6 @@ import {
 import { Steps } from "@/components/ui/steps";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-import { useRouter } from 'next/navigation';
-import toast, { Toaster } from 'react-hot-toast';
 
 interface TrialFormData {
   name: string;
@@ -92,6 +90,7 @@ export function CreateTrialDialog({
   // Add this function to generate default trial name
   const generateDefaultTrialName = () => {
     const now = new Date();
+
     return `Trial_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
   };
 
@@ -182,16 +181,16 @@ export function CreateTrialDialog({
         const trialResponse = await apiClient.createTrial(projectId, {
           name: formData.name
         });
+
         trial_id = trialResponse.id;
         console.log(`trial_id: ${trial_id}`);
         // Step 2: Parse
         console.log("Starting Parse step...");
         await updateStep(0, 'in-progress');
 
-        console.log(`formData.config?.modules[0].glob_path: ${formData.config?.modules[0].glob_path}`);
-        const parseResponse = await apiClient.createParseTask(projectId, trial_id, {
+        const parseResponse = await apiClient.createParseTask(projectId, {
           name: `parse_${trial_id}`,
-          path: formData.config?.modules[0].glob_path || '',
+          extension: 'pdf',
           config: {
             modules: [{
               module_type: "langchain_parse",
@@ -199,12 +198,14 @@ export function CreateTrialDialog({
             }]
           }
         });
+
         toast.success('Parse task created successfully');
         console.log(`parseResponse: ${JSON.stringify(parseResponse)}`);
         // 에러 응답 처리
         if (parseResponse.status !== 'started') {
           toast.error(parseResponse.data);
           await updateStep(0, 'error');
+
           return;
         }
         console.log(`parseResponse.task_id: ${parseResponse.task_id}`);
@@ -297,6 +298,7 @@ export function CreateTrialDialog({
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const response = await apiClient.getTask(projectId, taskId);
+
       console.log(`response: ${JSON.stringify(response)}`);
       if (response.status === 'SUCCESS') {
         return response;
@@ -325,8 +327,8 @@ export function CreateTrialDialog({
 
         <div className="space-y-6">
           <Steps
-            steps={steps}
             currentStep={currentStep}
+            steps={steps}
           />
 
           <Card className="p-6">
@@ -338,21 +340,23 @@ export function CreateTrialDialog({
                 <div className="space-y-2">
                   <Label htmlFor="trialName">Trial Name</Label>
                   <Input
+                    required
                     id="trialName"
+                    placeholder="Enter trial name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
                       name: e.target.value
                     }))}
-                    placeholder="Enter trial name"
-                    required
                   />
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="filePath">Document Path</Label>
                   <Input
+                    required
                     id="filePath"
+                    placeholder="./raw_data/*.*"
                     value={formData.config?.modules[0].glob_path || './raw_data/*.*'}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
@@ -363,8 +367,6 @@ export function CreateTrialDialog({
                         }]
                       }
                     }))}
-                    placeholder="./raw_data/*.*"
-                    required
                   />
                   <p className="text-sm text-muted-foreground">
                     Default path: ./raw_data/*.*
@@ -465,7 +467,9 @@ export function CreateTrialDialog({
                   <div className="space-y-2">
                     <Label htmlFor="jqSchema">JQ Schema</Label>
                     <Input
+                      required
                       id="jqSchema"
+                      placeholder="Enter JQ schema (e.g., .messages[].content)"
                       value={formData.config?.modules[0].jq_schema}
                       onChange={(e) => setFormData(prev => ({
                         ...prev,
@@ -478,24 +482,22 @@ export function CreateTrialDialog({
                           ]
                         }
                       }))}
-                      placeholder="Enter JQ schema (e.g., .messages[].content)"
-                      required
                     />
                   </div>
                 )}
 
                 <div className="flex justify-end space-x-2 pt-4">
                   <Button
+                    disabled={isProcessing}
                     type="button"
                     variant="outline"
                     onClick={() => onOpenChange(false)}
-                    disabled={isProcessing}
                   >
                     Cancel
                   </Button>
                   <Button
-                    type="submit"
                     disabled={isProcessing}
+                    type="submit"
                   >
                     {isProcessing ? (
                       <>
