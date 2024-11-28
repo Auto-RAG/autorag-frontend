@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Eye, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { QADialog } from "./qa-dialog";
+
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { QADialog } from "./qa-dialog";
+
 
 
 interface QASet {

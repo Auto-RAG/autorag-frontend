@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
 import { FileText, ChevronRight, Eye, Plus, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import DocumentParserInterface from './document-parser-ui';
 import { ParseDialog } from './parse-dialog';
 
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
 import { APIClient } from '@/lib/api-client';
 
 interface ParsedFile {
@@ -43,13 +43,14 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
   return (
     <div className="space-y-4">
       {!selectedFile ? (
-        <div className="bg-white rounded-lg shadow">
-          <Table aria-label="Parsed files list">
+          <Table>
             <TableHeader>
-              <TableColumn>NAME</TableColumn>
-              <TableColumn>MODULE</TableColumn>
-              <TableColumn>PARAMS</TableColumn>
-              <TableColumn>ACTIONS</TableColumn>
+              <TableRow>
+                <TableHead>NAME</TableHead>
+                <TableHead>MODULE</TableHead>
+                <TableHead>PARAMS</TableHead>
+                <TableHead>ACTIONS</TableHead>
+              </TableRow>
             </TableHeader>
             <TableBody>
               {files.map((file) => (
@@ -86,8 +87,7 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
                 </TableRow>
               ))}
             </TableBody>
-          </Table>
-        </div>
+        </Table>
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">

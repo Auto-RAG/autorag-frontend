@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Table, TableHeader, TableBody, TableColumn, TableRow, TableCell } from '@nextui-org/table';
 import { Eye, Trash2, Plus, Copy } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 import { ChunkDialog } from './chunk-dialog';
 
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableHead } from "@/components/ui/table";
 import { APIClient } from '@/lib/api-client';
 
 interface ChunkedDocument {
@@ -66,13 +66,14 @@ const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
         project_id={project_id}
         onOpenChange={setShowChunkDialog}
       />
-      <div className="bg-white rounded-lg shadow">
         <Table aria-label="Chunked documents list">
           <TableHeader>
-            <TableColumn>NAME</TableColumn>
-            <TableColumn>MODULE</TableColumn>
-            <TableColumn>PARAMETERS</TableColumn>
-            <TableColumn>ACTIONS</TableColumn>
+            <TableRow>
+              <TableHead>NAME</TableHead>
+              <TableHead>MODULE</TableHead>
+              <TableHead>PARAMETERS</TableHead>
+              <TableHead>ACTIONS</TableHead>
+            </TableRow>
           </TableHeader>
           <TableBody>
             {documents.map((doc) => (
@@ -111,8 +112,7 @@ const ChunkedPage: React.FC<{ project_id: string }> = ({ project_id }) => {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
-      </div>
+      </Table>
     </div>
   );
 };
