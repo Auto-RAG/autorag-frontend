@@ -364,28 +364,33 @@ export interface EvaluateTrialOptions {
       return await response.json();
     }
 
-    async createQATask(projectId: string, trialId: string, data: {
+    async createQATask(projectId: string, data: {
       preset: string;
       name: string;
+      chunked_name: string;
       qa_num: number;
       llm_config: {
         llm_name: string;
+        llm_params: Record<string, any>;
       };
       lang: string;
     }) {
       const response = await fetch(
-        `${this.baseUrl}/projects/${projectId}/trials/${trialId}/qa`,
+        `${this.baseUrl}/projects/${projectId}/qa`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            ...(this.token && { Authorization: `Bearer ${this.token}` }),
           },
           body: JSON.stringify(data),
         }
       );
 
-      if (!response.ok) {
+      if (response.status === 400) {
+        return {error: "The QA name is duplicated.", status: 400};
+      } else if (response.status === 401) {
+        return {error: "The chunked name is not found.", status: 401};
+      }else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 

@@ -19,11 +19,15 @@ import {
 
 
 interface QASet {
-  id: string;
   name: string;
-  qaPairs: number;
+  chunked_name: string;
+  qa_num: number;
   preset: string;
-  llm: string;
+  llm_config: {
+    llm_name: string;
+    llm_params: Record<string, any>;
+  };
+  lang: string;
 }
 
 export function QAOverview({ projectId }: { projectId: string }) {
@@ -34,32 +38,48 @@ export function QAOverview({ projectId }: { projectId: string }) {
   useEffect(() => {
     setQASets([
       {
-        id: "1",
         name: "Basic Comprehension",
-        qaPairs: 25,
+        chunked_name: "basic_comp_chunks",
+        qa_num: 25,
         preset: "General Knowledge",
-        llm: "GPT-4"
+        llm_config: {
+          llm_name: "gpt-4",
+          llm_params: {}
+        },
+        lang: "en"
       },
       {
-        id: "2", 
-        name: "Technical Questions",
-        qaPairs: 50,
+        name: "Technical Questions", 
+        chunked_name: "tech_chunks",
+        qa_num: 50,
         preset: "Programming",
-        llm: "Claude-2"
+        llm_config: {
+          llm_name: "claude-2",
+          llm_params: {}
+        },
+        lang: "en"
       },
       {
-        id: "3",
         name: "Customer Support",
-        qaPairs: 100,
+        chunked_name: "support_chunks",
+        qa_num: 100,
         preset: "Support",
-        llm: "GPT-3.5"
+        llm_config: {
+          llm_name: "gpt-3.5-turbo",
+          llm_params: {}
+        },
+        lang: "en"
       },
       {
-        id: "4",
         name: "Product Testing",
-        qaPairs: 75,
+        chunked_name: "product_chunks", 
+        qa_num: 75,
         preset: "Product",
-        llm: "GPT-4"
+        llm_config: {
+          llm_name: "gpt-4",
+          llm_params: {}
+        },
+        lang: "en"
       }
     ]);
   }, []);
@@ -87,24 +107,24 @@ export function QAOverview({ projectId }: { projectId: string }) {
         </TableHeader>
         <TableBody>
           {qaSets.map((qaSet) => (
-            <TableRow key={qaSet.id}>
+            <TableRow key={qaSet.name}>
               <TableCell>{qaSet.name}</TableCell>
-              <TableCell>{qaSet.qaPairs}</TableCell>
+              <TableCell>{qaSet.qa_num}</TableCell>
               <TableCell>{qaSet.preset}</TableCell>
-              <TableCell>{qaSet.llm}</TableCell>
+              <TableCell>{qaSet.llm_config.llm_name}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
                   <Button
                     size="icon"
                     title="View Details"
                     variant="ghost"
-                    onClick={() => router.push(`/projects/${projectId}/qa/${qaSet.id}`)}
+                    onClick={() => router.push(`/projects/${projectId}/qa/${qaSet.name}`)}
                   >
                     <Eye className="h-4 w-4" />
                   </Button>
                   <Button
                     size="icon"
-                    title="Use in Trial"
+                    title="Copy"
                     variant="ghost"
                     onClick={() => {}}
                   >
