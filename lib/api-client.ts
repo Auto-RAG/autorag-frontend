@@ -226,16 +226,6 @@ export interface EvaluateTrialOptions {
       });
     }
     
-    async uploadFiles(projectId: string, formData: FormData) {
-      return this.fetch<{ response: Object }>(
-        `/projects/${projectId}/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-    }
-
     async validateTrial(projectId: string, trialId: string) {
       return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/validate`, {
         method: 'POST',
