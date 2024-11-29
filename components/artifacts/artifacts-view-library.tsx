@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { File, Folder } from 'lucide-react';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
