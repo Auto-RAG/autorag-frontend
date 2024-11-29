@@ -20,7 +20,7 @@ export default function SettingsPage() {
             <div>
               <h2 className="text-xl font-semibold mb-4">Profile Settings</h2>
               <div className="space-y-4">
-                {/* Add profile settings here */}
+                
                 <p className="text-gray-600">Profile settings coming soon...</p>
               </div>
             </div>
