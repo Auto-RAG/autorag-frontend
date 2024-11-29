@@ -10,7 +10,7 @@ export default async function VersionDetailPage({ params }: PageProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Trial Details</h1>
+      <h1 className="text-2xl font-bold tracking-tight">Optimization Details</h1>
       {/* Add trial details content here */}
     </div>
   );

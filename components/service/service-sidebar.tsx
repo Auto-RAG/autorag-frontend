@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BookOpen, GitBranch, Database, Brain, Home } from "lucide-react";
+import { BookOpen, GitBranch, Database, Home } from "lucide-react";
 
 import {
   Sidebar,
@@ -56,21 +56,9 @@ export function ServiceSidebar({ project_id }: ServiceSidebarProps) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => handleNavigation('version')}>
+            <SidebarMenuButton onClick={() => handleNavigation('optimization')}>
               <GitBranch className="mr-2 h-4 w-4" />
-              Version
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => handleNavigation('embedding')}>
-              <Database className="mr-2 h-4 w-4" />
-              Embedding Model
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => handleNavigation('llm')}>
-              <Brain className="mr-2 h-4 w-4" />
-              LLM Model
+              Optimization
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
