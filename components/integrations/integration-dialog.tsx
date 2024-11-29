@@ -42,6 +42,7 @@ export function IntegrationDialog({ integration, setup }: IntegrationDialogProps
       toast.error("Connection test failed: " + error);
     } finally {
       setIsLoading(false);
+      setOpen(false);
     }
   };
 

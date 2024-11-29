@@ -25,7 +25,12 @@ export async function POST(request: Request) {
       })
     });
 
-    await response.json();
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: `Failed to test OpenAI connection: ${response.statusText}`, status: "error" },
+        { status: response.status }
+      );
+    }
 
     return NextResponse.json({ status: "success" });
   } catch (error) {
