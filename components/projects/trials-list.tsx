@@ -108,7 +108,7 @@ export function TrialsList({
                   size="sm"
                   variant="default"
                   onClick={() =>
-                    router.push(`/projects/${projectId}/${isTrial ? 'trials' : 'version'}/${trial.id}`)
+                    router.push(`/${isTrial ? 'projects' : 'service'}/${projectId}/${isTrial ? 'trials' : 'version'}/${trial.id}`)
                   }
                 >
                   View Details

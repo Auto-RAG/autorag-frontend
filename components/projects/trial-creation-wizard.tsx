@@ -12,7 +12,8 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle, DialogDescription
+  DialogTitle, DialogDescription,
+  DialogTrigger
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -75,17 +76,12 @@ const getParserFromFilePath = (filePath: string): string => {
 };
 
 export function CreateTrialDialog({
-  isOpen,
-  onOpenChange,
   projectId,
-  onTrialCreated,
 }: {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   projectId: string;
-  onTrialCreated: () => void;
 }) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   // Add this function to generate default trial name
   const generateDefaultTrialName = () => {
@@ -107,7 +103,6 @@ export function CreateTrialDialog({
       ]
     }
   });
-  const [isLoading, setIsLoading] = useState(false);
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const [currentStep, setCurrentStep] = useState(0);
@@ -176,14 +171,6 @@ export function CreateTrialDialog({
     try {
       try {
         setIsProcessing(true);
-
-        // Step 1: Create Trial
-        const trialResponse = await apiClient.createTrial(projectId, {
-          name: formData.name
-        });
-
-        trial_id = trialResponse.id;
-        console.log(`trial_id: ${trial_id}`);
         // Step 2: Parse
         console.log("Starting Parse step...");
         await updateStep(0, 'in-progress');
@@ -277,6 +264,11 @@ export function CreateTrialDialog({
         throw error;
       }
 
+      // Step 4: Create Trial
+      const trialResponse = await apiClient.createTrial(projectId, {
+        name: formData.name
+      }); // TODO: add all QA, chunk, and parse
+
 
       // Trial detail 페이지로 0.5초 후 이동
       setTimeout(() => {
@@ -316,7 +308,12 @@ export function CreateTrialDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">
+          Create Trial
+        </Button>
+      </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Create New Trial</DialogTitle>
@@ -491,7 +488,7 @@ export function CreateTrialDialog({
                     disabled={isProcessing}
                     type="button"
                     variant="outline"
-                    onClick={() => onOpenChange(false)}
+                    onClick={() => setOpen(false)}
                   >
                     Cancel
                   </Button>
@@ -515,7 +512,6 @@ export function CreateTrialDialog({
         </div>
       </DialogContent>
       <Toaster />
-
     </Dialog>
   );
 }
