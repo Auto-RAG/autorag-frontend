@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
+import { APIClient } from "@/lib/api-client";
 
 interface IntegrationDialogProps {
   integration: IntegrationInfo;
@@ -25,24 +26,37 @@ interface IntegrationDialogProps {
 
 export function IntegrationDialog({ integration, setup }: IntegrationDialogProps) {
   const [open, setOpen] = useState(false);
-  const [setupValues, setSetupValues] = useState(setup.setups.map(s => ({ ...s, value: "" })));
+  const [setupValues, setSetupValues] = useState(Object.fromEntries(setup.setups.map(s => [s.apiKey, ""])));
   const [isLoading, setIsLoading] = useState(false);
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+
+  const registerApiKey = async (apiKey: string, value: string) => {
+    await apiClient.setEnv({ key: apiKey, value: value });
+  }
 
   const handleTest = async () => {
     try {
       setIsLoading(true);
-      const result = await setup.onClickTest(setup.setups);
+      const result = await setup.onClickTest(setupValues);
       
       if (result.status === "success") {
         toast.success("Connection test successful!");
       } else {
         toast.error("Connection test failed: " + result.error);
+
+        return;
       }
+
+      setup.setups.forEach(setup => {
+        registerApiKey(setup.apiKey, setupValues[setup.apiKey]);
+      });
+
+      setOpen(false);
     } catch (error) {
       toast.error("Connection test failed: " + error);
+      setOpen(true);
     } finally {
       setIsLoading(false);
-      setOpen(false);
     }
   };
 
@@ -89,10 +103,7 @@ export function IntegrationDialog({ integration, setup }: IntegrationDialogProps
                 placeholder={setup.description}
                 type="password"
                 onChange={(e) => {
-                  const newSetupValues = [...setupValues];
-
-                  newSetupValues[index].value = e.target.value;
-                  setSetupValues(newSetupValues);
+                  setSetupValues({ ...setupValues, [setup.apiKey]: e.target.value });
                 }}
               />
             </div>
@@ -106,7 +117,7 @@ export function IntegrationDialog({ integration, setup }: IntegrationDialogProps
             Cancel
           </Button>
           <Button
-            disabled={isLoading || setupValues.some(s => !s.value)}
+            disabled={isLoading || Object.values(setupValues).some(value => !value)}
             onClick={handleTest}
           >
             {isLoading ? "Testing..." : "Test Connection"}

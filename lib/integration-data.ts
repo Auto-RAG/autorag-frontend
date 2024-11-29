@@ -12,11 +12,7 @@ export interface IntegrationSetup {
         name: string;
         description: string;
     }[];
-    onClickTest: (setups: {
-        apiKey: string;
-        name: string;
-        description: string;
-    }[]) => Record<string, any>;
+    onClickTest: (requestBody: Record<string, any>) => Promise<Record<string, any>>; // RequestBody will be "API Key": value
 }
 
 export const integrations: Record<string, IntegrationInfo> = {
@@ -45,14 +41,10 @@ export const integrationSetups: Record<string, IntegrationSetup> = {
                 description: "Input your OpenAI API key.",
             }
         ],
-        onClickTest: async (setups: {
-            apiKey: string;
-            name: string;
-            description: string;
-        }[]) => {
+        onClickTest: async (requestBody: Record<string, any>) => {
             const response = await fetch("/api/test/openai", {
                 method: "POST",
-                body: JSON.stringify({ api_key: setups[0].apiKey }),
+                body: JSON.stringify({ api_key: requestBody["OPENAI_API_KEY"] }),
             });
 
             return await response.json();
@@ -70,13 +62,9 @@ export const integrationSetups: Record<string, IntegrationSetup> = {
                 description: "Input your base API URL.",
             }
         ],
-        onClickTest: async (setups: {
-            apiKey: string;
-            name: string;
-            description: string;
-        }[]) => {
-            const api_key = setups[0].apiKey;
-            const base_api = setups[1].apiKey;
+        onClickTest: async (requestBody: Record<string, any>) => {
+            const api_key = requestBody["OPENAI_API_KEY"];
+            const base_api = requestBody["OPENAI_BASE_API"];
 
             const response = await fetch("/api/test/openailike", {
                 method: "POST",
