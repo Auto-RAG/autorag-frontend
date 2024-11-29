@@ -15,6 +15,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface IntegrationDialogProps {
   integration: IntegrationInfo;
@@ -46,27 +47,29 @@ export function IntegrationDialog({ integration, setup }: IntegrationDialogProps
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full" variant="outline">
-          <div className="flex flex-col w-full">
-            <div className="flex items-center space-x-2">
-              <Image
-                alt={integration.name}
-                className="rounded"
-                height={24}
-                src={integration.imagePath}
-                width={24}
-              />
-              <div className="flex flex-col">
-                <span className="font-medium">{integration.name}</span>
-                <span className="text-sm text-gray-500">by {integration.author}</span>
+        <Card className="w-full hover:bg-accent cursor-pointer transition-colors">
+          <CardContent className="pt-6">
+            <div className="flex flex-col w-full">
+              <div className="flex items-center space-x-2">
+                <Image
+                  alt={integration.name}
+                  className="rounded"
+                  height={24}
+                  src={integration.imagePath}
+                  width={24}
+                />
+                <div className="flex flex-col">
+                  <span className="font-medium">{integration.name}</span>
+                  <span className="text-sm text-gray-500">by {integration.author}</span>
+                </div>
+              </div>
+              <p className="mt-2 text-sm text-gray-600">{integration.description}</p>
+              <div className="mt-2">
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{integration.tag}</span>
               </div>
             </div>
-            <p className="mt-2 text-sm text-gray-600">{integration.description}</p>
-            <div className="mt-2">
-              <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{integration.tag}</span>
-            </div>
-          </div>
-        </Button>
+          </CardContent>
+        </Card>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

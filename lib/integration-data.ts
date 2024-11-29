@@ -23,7 +23,7 @@ export const integrations: Record<string, IntegrationInfo> = {
     "openai": {
         name: "OpenAI",
         author: "AutoRAG",
-        imagePath: "/integrations/openai.png",
+        imagePath: "/integrations/openai-logo.webp",
         description: "OpenAI is one of the most popular LLM & Embedding model providers.",
         tag: "LLM, Embedding"
     }
@@ -47,7 +47,7 @@ export const integrationSetups: Record<string, IntegrationSetup> = {
                 method: "POST",
                 body: JSON.stringify({ api_key: setups[0].apiKey }),
             });
-            
+
             return await response.json();
         }
     }
