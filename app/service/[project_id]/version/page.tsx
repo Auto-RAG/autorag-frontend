@@ -10,7 +10,7 @@ export default async function VersionPage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold tracking-tight">Version</h1>
-      <TrialsList projectId={project_id} />
+      <TrialsList isTrial={false} projectId={project_id} />
     </div>
   );
 }
