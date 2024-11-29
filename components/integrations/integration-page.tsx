@@ -6,16 +6,18 @@ import { integrations, integrationSetups } from "@/lib/integration-data";
 export default function IntegrationPage() {
   return (
     <div className="container mx-auto py-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">Integrations</h1>
         
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="space-y-6">
-            <IntegrationDialog 
-              integration={integrations["openai"]} 
-              setup={integrationSetups["openai"]} 
-            />
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Object.entries(integrations).map(([key, integration]) => (
+            <div key={key}>
+              <IntegrationDialog
+                integration={integration}
+                setup={integrationSetups[key]}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

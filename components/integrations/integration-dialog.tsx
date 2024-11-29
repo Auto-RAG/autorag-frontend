@@ -3,6 +3,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import Image from "next/image";
+import { TagIcon } from "lucide-react";
 
 import { IntegrationInfo, IntegrationSetup } from "@/lib/integration-data";
 import { Button } from "@/components/ui/button";
@@ -47,9 +48,9 @@ export function IntegrationDialog({ integration, setup }: IntegrationDialogProps
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Card className="w-full hover:bg-accent cursor-pointer transition-colors">
+        <Card className="w-full h-48 hover:bg-accent cursor-pointer transition-colors relative">
           <CardContent className="pt-6">
-            <div className="flex flex-col w-full">
+            <div className="flex flex-col w-full h-full">
               <div className="flex items-center space-x-2">
                 <Image
                   alt={integration.name}
@@ -64,8 +65,11 @@ export function IntegrationDialog({ integration, setup }: IntegrationDialogProps
                 </div>
               </div>
               <p className="mt-2 text-sm text-gray-600">{integration.description}</p>
-              <div className="mt-2">
-                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">{integration.tag}</span>
+              <div className="absolute bottom-4 left-6">
+                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded flex items-center gap-1">
+                  <TagIcon className="w-3 h-3" />
+                  {integration.tag}
+                </span>
               </div>
             </div>
           </CardContent>
