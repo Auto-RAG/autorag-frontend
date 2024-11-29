@@ -1,3 +1,5 @@
+import OptimizationPage from "@/components/service/optimization/optimization-page";
+
 type PageProps = {
   params: Promise<{ 
     project_id: string;
@@ -9,9 +11,6 @@ export default async function VersionDetailPage({ params }: PageProps) {
   const { project_id, trial_id } = await params;
 
   return (
-    <div className="flex flex-col gap-4">
-      <h1 className="text-2xl font-bold tracking-tight">Optimization Details</h1>
-      {/* Add trial details content here */}
-    </div>
+    <OptimizationPage projectId={project_id} trialId={trial_id} />
   );
 }

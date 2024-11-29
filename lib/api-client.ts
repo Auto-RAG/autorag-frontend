@@ -404,6 +404,12 @@ export interface EvaluateTrialOptions {
       return await response.json();
     }
 
+    async openReport(projectId: string, trialId: string) {
+      return this.fetch<{ url: string }>(`/projects/${projectId}/trials/${trialId}/report/open`, {
+        method: 'GET',
+      });
+    }
+
     async setEnv(request: SetEnvRequest) {
       return this.fetch<Trial>(`/env`, {
         method: 'POST',

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
+import { APIClient } from "@/lib/api-client";
 
 
 
@@ -16,13 +17,12 @@ export function ReportPage({
 }) {
   const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const startDashboard = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/projects/${project_id}/trials/${trial_id}/dashboard/start`, {
-        method: 'POST'
-      });
+      const response = await apiClient.openReport(project_id, trial_id);
       
       if (!response.ok) {
         throw new Error('Failed to start dashboard');
