@@ -11,8 +11,11 @@ export default async function VersionPage({ params }: PageProps) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold tracking-tight">Version</h1>
-        <CreateTrialDialog projectId={project_id} />
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight">Optimization</h1>
+          <p className="text-sm text-muted-foreground">Ask to the AutoRAG developer to make a new optimization</p>
+        </div>
+        <CreateTrialDialog disabled={true} projectId={project_id} />
       </div>
       <TrialsList isTrial={false} projectId={project_id} />
     </div>

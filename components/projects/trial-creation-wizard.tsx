@@ -77,8 +77,10 @@ const getParserFromFilePath = (filePath: string): string => {
 
 export function CreateTrialDialog({
   projectId,
+  disabled = false
 }: {
   projectId: string;
+  disabled?: boolean;
 }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -310,7 +312,7 @@ export function CreateTrialDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">
+        <Button disabled={disabled} variant="outline">
           Create Trial
         </Button>
       </DialogTrigger>
