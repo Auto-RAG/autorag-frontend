@@ -5,7 +5,7 @@ type PageProps = {
   params: Promise<{ project_id: string }>;
 }
 
-export default async function VersionPage({ params }: PageProps) {
+export default async function OptimizationPage({ params }: PageProps) {
   const { project_id } = await params;
 
   return (
@@ -15,7 +15,7 @@ export default async function VersionPage({ params }: PageProps) {
           <h1 className="text-2xl font-bold tracking-tight">Optimization</h1>
           <p className="text-sm text-muted-foreground">Ask to the AutoRAG developer to make a new optimization</p>
         </div>
-        <CreateTrialDialog disabled={true} projectId={project_id} />
+        <CreateTrialDialog disabled={false} projectId={project_id} />
       </div>
       <TrialsList isTrial={false} projectId={project_id} />
     </div>

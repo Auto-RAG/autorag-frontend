@@ -7,7 +7,7 @@ type PageProps = {
   }>;
 }
 
-export default async function VersionDetailPage({ params }: PageProps) {
+export default async function OptimizationDetailPage({ params }: PageProps) {
   const { project_id, trial_id } = await params;
 
   return (

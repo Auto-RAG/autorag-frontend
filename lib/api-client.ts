@@ -58,21 +58,20 @@ export interface PreparationStatus {
     created_at: string;
     report_task_id?: string;
     chat_task_id?: string;
-    corpus_path?: string;
-    qa_path?: string;
   }
 
   export interface TrialConfig {
-    raw_path?: string;
-    corpus_path?: string;
-    qa_path?: string;
+    project_id: string;
+    trial_id: string;
+    corpus_name?: string;
+    qa_name?: string;
     config?: unknown;
     metadata?: Record<string, any>;
   }
   
   export interface CreateTrialRequest {
     name: string;
-    config?: Record<string, any>;
+    config?: TrialConfig;
   }
 
   export interface SetEnvRequest {
@@ -278,12 +277,7 @@ export interface EvaluateTrialOptions {
     async createParseTask(projectId: string, data: {
       name: string;
       extension: string;
-      config: {
-        modules: Array<{
-          module_type: string;
-          parse_method: string;
-        }>;
-      };
+      config: Record<string, any>;
     }) {
       const response = await fetch(
         `${this.baseUrl}/projects/${projectId}/parse`,
