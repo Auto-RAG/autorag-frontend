@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { File, Folder } from 'lucide-react';
+import { File, Folder, X } from 'lucide-react';
 import { TreeItem } from '@mui/x-tree-view/TreeItem';
 import { SimpleTreeView } from '@mui/x-tree-view/SimpleTreeView';
 import Box from '@mui/material/Box';
+import { toast } from 'react-hot-toast';
 
 import DocumentViewer from '../parsings/document-viewer';
 
@@ -24,9 +25,11 @@ interface TreeItem {
   isFolder: boolean;
 }
 
-const FileContents: React.FC<{ projectId: string;
+const FileContents: React.FC<{ 
+  projectId: string;
   onSelect: (nodeId: string) => void;
- }> = ({ projectId, onSelect }) => {
+  onDelete?: (filename: string) => void;
+}> = ({ projectId, onSelect, onDelete }) => {
   const [treeContent, setTreeContent] = useState<React.ReactNode>(null);
 
   useEffect(() => {
@@ -84,18 +87,30 @@ const FileContents: React.FC<{ projectId: string;
           key={node.name}
           itemId={node.name}
           label={
-            <div className="flex items-center gap-2 py-1">
-              <File className="h-4 w-4 text-gray-500" />
-              <span className="text-sm">{node.name}</span>
+            <div className="flex items-center justify-between gap-2 py-1 group">
+              <div className="flex items-center gap-2" onClick={() => onSelect(node.name)}>
+                <File className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">{node.name}</span>
+              </div>
+              {onDelete && (
+                <button
+                  className="hidden group-hover:block text-red-500 hover:text-red-700 px-2"
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent file selection when clicking delete
+                    onDelete(node.name);
+                  }}
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
             </div>
           }
-          onClick={() => onSelect(node.name)}
         />
       );
     };
 
     fetchContents();
-  }, [projectId, onSelect]);
+  }, [projectId, onSelect, onDelete]);
 
   return treeContent;
 };
@@ -127,12 +142,42 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
     }
   };
 
+  const handleDelete = async (filename: string) => {
+    if (confirm(`Are you sure you want to delete ${filename}?`)) {
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/artifacts/content?filename=${filename}`,
+          {
+            method: 'DELETE',
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error('Failed to delete file');
+        }
+
+        // Refresh the file list or update state as needed
+        // You might want to implement a refresh mechanism here
+        
+
+        // Show success message
+        toast.success("File deleted");
+      } catch (error) {
+        console.error('Error deleting file:', error);
+      }
+    }
+  };
+
   return (
     <div className="h-[500px] bg-white rounded-lg shadow-sm border p-4">
       <div className="grid grid-cols-2 gap-4 h-full">
         <div className="overflow-auto border rounded p-2">
           <Box sx={{ minHeight: 352, minWidth: 250 }}>
-           <FileContents projectId={projectId} onSelect={handleSelect} />
+            <FileContents 
+              projectId={projectId} 
+              onDelete={handleDelete} 
+              onSelect={handleSelect}
+            />
           </Box>
         </div>
         <div className="overflow-auto border rounded p-2">
