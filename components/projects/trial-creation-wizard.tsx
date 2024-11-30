@@ -285,7 +285,7 @@ export function CreateTrialDialog({
           Create Trial
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Create New Trial</DialogTitle>
           <DialogDescription>
@@ -293,13 +293,14 @@ export function CreateTrialDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <Steps
-            currentStep={currentStep}
-            steps={steps}
-          />
-
-          <Card className="p-6">
+        <div className="flex gap-6">
+        <div className="w-[350px]">
+            <Steps
+              currentStep={currentStep}
+              steps={steps}
+            />
+          </div>
+          <Card className="p-6 w-[350px]">
             <form onSubmit={(e) => {
               e.preventDefault();
               handleCreateTrial();
@@ -397,35 +398,36 @@ export function CreateTrialDialog({
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button
-                    disabled={isProcessing}
-                    type="button"
-                    variant="outline"
-                    onClick={() => setOpen(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    disabled={isProcessing}
-                    type="submit"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        Processing...
-                      </>
-                    ) : (
-                      'Create Trial'
-                    )}
-                  </Button>
-                </div>
               </div>
             </form>
           </Card>
+
+          
         </div>
-        
+
+        <div className="flex justify-center space-x-2 mt-6">
+          <Button
+            disabled={isProcessing}
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={isProcessing}
+            onClick={handleCreateTrial}
+          >
+            {isProcessing ? (
+              <>
+                <Spinner className="mr-2" />
+                Processing...
+              </>
+            ) : (
+              'Create Trial'
+            )}
+          </Button>
+        </div>
       </DialogContent>
       <Toaster />
     </Dialog>
