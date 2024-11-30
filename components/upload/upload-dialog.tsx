@@ -17,8 +17,13 @@ export function UploadDialog({ projectId }: { projectId: string }) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     
+    if (files) {
+      Array.from(files).forEach(file => {
+        console.log('Filename:', file.name);
+      });
+    }
+    
     setFiles(files);
-
     toast.success(`Selected ${files?.length} files`);
   };
 
@@ -53,6 +58,7 @@ export function UploadDialog({ projectId }: { projectId: string }) {
           <Label htmlFor="files">Files</Label>
           <Input
             multiple
+            accept="*/*"
             className="cursor-pointer"
             id="files"
             type="file"

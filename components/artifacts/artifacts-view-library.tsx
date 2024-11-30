@@ -156,12 +156,8 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
           throw new Error('Failed to delete file');
         }
 
-        // Refresh the file list or update state as needed
-        // You might want to implement a refresh mechanism here
-        
-
         // Show success message
-        toast.success("File deleted");
+        toast.success("File deleted. Please refresh.");
       } catch (error) {
         console.error('Error deleting file:', error);
       }

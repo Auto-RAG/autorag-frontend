@@ -47,6 +47,9 @@ export async function uploadFiles(projectId: string, files: FileList, successCal
     for (let i = 0; i < files.length; i++) {
         formData.append('files', files[i]);
     }
+    const filenames = Array.from(files).map(file => file.name);
+
+    formData.append('filenames', JSON.stringify(filenames));
 
     const options = {
         method: 'POST',
