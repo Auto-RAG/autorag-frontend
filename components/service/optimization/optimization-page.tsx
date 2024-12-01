@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReportPage } from "@/components/projects/trials/report/report-page";
 import { Card, CardContent } from "@/components/ui/card";
+import { ChatPage } from "@/components/projects/trials/chat/chat-page";
 
 interface OptimizationPageProps {
   projectId: string;
@@ -60,7 +61,7 @@ export default function OptimizationPage({ projectId, trialId }: OptimizationPag
           </TabsContent>
           
           <TabsContent className="h-full" value="chat">
-            {/* Chat content will go here */}
+            <ChatPage project_id={projectId} trial_id={trialId} />
           </TabsContent>
         </Tabs>
       </div>

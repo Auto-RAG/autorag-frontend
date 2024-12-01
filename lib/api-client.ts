@@ -418,6 +418,18 @@ export interface EvaluateTrialOptions {
       });
     }
 
+    async openChat(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/chat/open`, {
+        method: 'GET',
+      });
+    }
+
+    async closeChat(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/chat/close`, {
+        method: 'GET',
+      });
+    }
+
     async setEnv(request: SetEnvRequest) {
       return this.fetch<Trial>(`/env`, {
         method: 'POST',
