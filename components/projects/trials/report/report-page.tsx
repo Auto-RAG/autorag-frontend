@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
+import { CircleStop, Play, RefreshCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { APIClient } from "@/lib/api-client";
 
 
+const DASHBOARD_URL = "http://localhost:7690";
 
 export function ReportPage({
   project_id,
@@ -15,8 +17,8 @@ export function ReportPage({
   project_id: string;
   trial_id: string;
 }) {
-  const [dashboardUrl, setDashboardUrl] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [key, setKey] = useState(0);
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   const startDashboard = async () => {
@@ -24,16 +26,14 @@ export function ReportPage({
       setIsLoading(true);
       const response = await apiClient.openReport(project_id, trial_id);
       
-      if (!response.ok) {
+      if (response.status !== 'running') {
         throw new Error('Failed to start dashboard');
       }
 
-      const data = await response.json();
-
-      setDashboardUrl(data.url);
+      toast.success("Report started. Press refresh to see the report.");
     } catch (error) {
       console.error('Error starting dashboard:', error);
-      toast.error("Failed to start dashboard");
+      toast.error("The report already started");
     } finally {
       setIsLoading(false);
     }
@@ -41,23 +41,21 @@ export function ReportPage({
 
   const stopDashboard = async () => {
     try {
-      await fetch(`/api/projects/${project_id}/trials/${trial_id}/dashboard/stop`, {
-        method: 'POST'
-      });
-      setDashboardUrl(null);
+      const response = await apiClient.closeReport(project_id, trial_id);
+      
+      if (response.status !== 'terminated') {
+        throw new Error('Failed to stop dashboard');
+      }
+      toast.success("Report stopped");
     } catch (error) {
       console.error('Error stopping dashboard:', error);
-      toast.error("Failed to stop dashboard");
+      toast.error("The report already stopped or not started");
     }
   };
 
-  useEffect(() => {
-    startDashboard();
-
-    return () => {
-      stopDashboard();
+    const refreshIframe = () => {
+        setKey(prevKey => prevKey + 1); // Increment key to force re-render
     };
-  }, [project_id, trial_id]);
 
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading dashboard...</div>;
@@ -65,22 +63,36 @@ export function ReportPage({
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <div className="flex justify-end p-4">
+      <div className="flex justify-end p-6 space-x-2">
         <Button 
-          disabled={!dashboardUrl}
-          variant="destructive"
+          className="p-4 text-green-500 bg-transparent"
+          disabled={isLoading}
+          onClick={startDashboard}
+        >
+          <Play className="w-4 h-4" />
+          Start
+        </Button>
+        <Button 
+          className="p-4 text-red-500 bg-transparent"
           onClick={stopDashboard}
         >
-          Stop Dashboard
+          <CircleStop className="w-4 h-4" />
+          Stop
+        </Button>
+        <Button 
+          className="p-4 text-blue-500 bg-transparent"
+          onClick={refreshIframe}
+        >
+          <RefreshCcw className="w-4 h-4" />
+          Refresh
         </Button>
       </div>
-      {dashboardUrl && (
-        <iframe
-          className="flex-1 w-full border-none"
-          src={dashboardUrl}
-          title="Trial Dashboard"
+      <iframe
+        key={key}
+        className="flex-1 w-full border-none"
+        src={DASHBOARD_URL}
+        title="Trial Dashboard"
         />
-      )}
     </div>
   );
 }

@@ -407,7 +407,13 @@ export interface EvaluateTrialOptions {
     }
 
     async openReport(projectId: string, trialId: string) {
-      return this.fetch<{ url: string }>(`/projects/${projectId}/trials/${trialId}/report/open`, {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/report/open`, {
+        method: 'GET',
+      });
+    }
+
+    async closeReport(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/report/close`, {
         method: 'GET',
       });
     }
