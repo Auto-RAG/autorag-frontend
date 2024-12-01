@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 
 import RectangleRadioGroup from "../rectangle-radio-group";
@@ -35,6 +36,7 @@ export function CreateTrialDialog({
   projectId: string;
   disabled?: boolean;
 }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   // Add this function to generate default trial name
@@ -73,11 +75,6 @@ export function CreateTrialDialog({
     {
       title: "Initialize Optimization",
       description: "Initialize optimization process",
-      status: 'pending'
-    },
-    {
-      title: "Validate System",
-      description: "Validate system setups and configurations",
       status: 'pending'
     },
     {
@@ -149,8 +146,6 @@ export function CreateTrialDialog({
           config: getParseConfig(presetOption as ParseOptionEnum, "en")
         });
 
-        toast.success('Parse task created successfully');
-        console.log(`parseResponse: ${JSON.stringify(parseResponse)}`);
         // 에러 응답 처리
         if (parseResponse.status !== 'started') {
           toast.error(parseResponse.data);
@@ -158,7 +153,6 @@ export function CreateTrialDialog({
 
           return;
         }
-        console.log(`parseResponse.task_id: ${parseResponse.task_id}`);
         await waitForTask(projectId, parseResponse.task_id);
 
         await updateStep(0, 'completed');
@@ -201,12 +195,12 @@ export function CreateTrialDialog({
         await updateStep(2, 'in-progress');
 
         const qaResponse = await apiClient.createQATask(projectId, {
-          preset: presetOption === 'cheap' ? 'basic' : presetOption === 'expensive' ? 'advanced' : '',
+          preset: presetOption === 'cheap' ? 'simple' : presetOption === 'expensive' ? 'advanced' : '',
           name: `${trialName}`,
           qa_num: 5,
           llm_config: {
-            llm_name: "mock",
-            llm_params: {}
+            llm_name: "openai",
+            llm_params: {model: "gpt-4o-mini"}
           },
           lang: lang,
           chunked_name: `${trialName}`
@@ -236,7 +230,6 @@ export function CreateTrialDialog({
 
         const newTrialConfig: TrialConfig = {
           project_id: projectId,
-          trial_id: trialName,
           corpus_name: trialName,
           qa_name: trialName,
           config: configContent.content
@@ -261,27 +254,27 @@ export function CreateTrialDialog({
         throw error;
       }
 
-      // Step 5: Validate System
+      // Step 5: Run Optimization
       try {
-        console.log("Starting validate system...");
+        console.log("Starting run optimization...");
         await updateStep(4, 'in-progress');
 
-        const validateResponse = await apiClient.validateTrial(projectId, newTrialId);
-        const validateTaskId = validateResponse.task_id;
+        const evaluateResponse = await apiClient.evaluateTrial(projectId, newTrialId);
+        const evaluateTaskId = evaluateResponse.task_id;
 
-        await waitForTask(projectId, validateTaskId);
+        await waitForTask(projectId, evaluateTaskId);
         await updateStep(4, 'completed');
-        console.log("Validate system completed");
+        console.log("Run optimization completed");
       } catch (error) {
-        console.error('Error in validate system:', error);
-        toast.error(`Error in validate system: ${error}`);
+        console.error('Error in run optimization:', error);
+        toast.error(`Error in run optimization: ${error}`);
         await updateStep(4, 'error');
         throw error;
       }
 
-      // Step 6: Run Optimization
-      
-
+      setOpen(false);
+      // Route to the trial detail page
+      router.push(`/service/${projectId}/optimization/${newTrialId}`);
 
     } catch (error: any) {
       console.error('Error in trial creation process:', error);
@@ -292,7 +285,7 @@ export function CreateTrialDialog({
   };
 
   const waitForTask = async (projectId: string, taskId: string) => {
-    const maxAttempts = 60;  // 최대 시도 횟수 (5분)
+    const maxAttempts = 80;  // 최대 시도 횟수 (5분)
     const delayMs = 5000;    // 5초마다 확인
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {

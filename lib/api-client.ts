@@ -62,7 +62,7 @@ export interface PreparationStatus {
 
   export interface TrialConfig {
     project_id: string;
-    trial_id: string;
+    trial_id?: string;
     corpus_name?: string;
     qa_name?: string;
     config?: unknown;
@@ -241,7 +241,7 @@ export interface EvaluateTrialOptions {
     }
 
     async evaluateTrial(projectId: string, trialId: string, options: EvaluateTrialOptions = {}) {
-      return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/evaluate`, {
+      const response = await fetch(`${this.baseUrl}/projects/${projectId}/trials/${trialId}/evaluate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -252,6 +252,12 @@ export interface EvaluateTrialOptions {
           ...options
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     }
   
     async setTrialConfig(projectId: string, trialId: string, trialConfig: TrialConfig) {
