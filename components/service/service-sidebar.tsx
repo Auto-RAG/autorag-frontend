@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BookOpen, GitBranch, Database, Home } from "lucide-react";
+import { BookOpen, GitBranch, Home } from "lucide-react";
 
 import {
   Sidebar,
@@ -40,14 +40,6 @@ export function ServiceSidebar({ project_id }: ServiceSidebarProps) {
         <Separator className="my-2" />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={() => handleNavigation('')}>
-              <Database className="mr-2 h-4 w-4" />
-              Overview
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton onClick={() => handleNavigation('knowledge')}>

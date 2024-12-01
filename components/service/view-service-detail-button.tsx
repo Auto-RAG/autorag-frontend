@@ -13,7 +13,7 @@ export function ViewServiceDetailButton({ service_id }: ViewServiceDetailButtonP
   const router = useRouter();
 
   const handleViewDetails = () => {
-    router.push(`/service/${service_id}`);
+    router.push(`/service/${service_id}/knowledge`);
     
     console.log(`Viewing details for service: ${service_id}`);
   };
