@@ -430,6 +430,18 @@ export interface EvaluateTrialOptions {
       });
     }
 
+    async openApiServer(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/api/open`, {
+        method: 'GET',
+      });
+    }
+
+    async closeApiServer(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/api/close`, {
+        method: 'GET',
+      });
+    }
+
     async setEnv(request: SetEnvRequest) {
       return this.fetch<Trial>(`/env`, {
         method: 'POST',

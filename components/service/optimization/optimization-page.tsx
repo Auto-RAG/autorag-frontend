@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReportPage } from "@/components/projects/trials/report/report-page";
 import { ChatPage } from "@/components/projects/trials/chat/chat-page";
+import { ApiServerButtonGroup } from "@/components/projects/trials/api/api-start-stop";
 
 interface OptimizationPageProps {
   projectId: string;
@@ -48,7 +49,12 @@ export default function OptimizationPage({ projectId, trialId }: OptimizationPag
           </TabsList>
           
           <TabsContent className="h-full" value="api">
-            {/* API content will go here */}
+            <div className="flex justify-between items-start">
+              <div>
+                {/* Documentation component for API server usage will be added here */}
+              </div>
+              <ApiServerButtonGroup project_id={projectId} trial_id={trialId} />
+            </div>
           </TabsContent>
           
           <TabsContent className="h-full" value="report">
