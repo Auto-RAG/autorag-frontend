@@ -2,13 +2,13 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
 import clsx from "clsx";
+import { Toaster } from "react-hot-toast";
 
 import { Providers } from "./providers";
 
 import { siteConfig } from "@/config/site";
 // import { fontSans } from "@/config/fonts";
 import { CustomNavigation } from "@/components/custom-navigation";
-import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: {
@@ -34,13 +34,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html suppressHydrationWarning lang="en">
       <head />
+        <meta charSet="UTF-8" />
       <body 
+        suppressHydrationWarning
         className={clsx(
           "min-h-screen bg-background font-sans antialiased"
         )}
-        suppressHydrationWarning
       >
         <Providers themeProps={{ attribute: "class", defaultTheme: "light", enableSystem: false }}>
           <div className="relative flex flex-col h-screen font-ibm-bold">

@@ -1,71 +1,103 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react';
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { CircleStop, Play, RefreshCcw } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
-import { APIClient } from '@/lib/api-client';
+import { Button } from "@/components/ui/button";
+import { APIClient } from "@/lib/api-client";
 
-interface ChatPageProps {
+
+const DASHBOARD_URL = "http://localhost:8501";
+
+export function ChatPage({
+  project_id,
+  trial_id
+}: {
   project_id: string;
   trial_id: string;
-}
-
-export function ChatPage({ project_id, trial_id }: ChatPageProps) {
-  const [isRunning, setIsRunning] = useState(false);
+}) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [key, setKey] = useState(0);
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
-  const startChat = async () => {
+  const startChatServer = async () => {
     try {
-    //   await apiClient.startChat(projectId, trialId);
-      setIsRunning(true);
-      toast.success('Chat started successfully');
+      setIsLoading(true);
+      const response = await apiClient.openChat(project_id, trial_id);
+      
+      if (response.status !== 'running') {
+        throw new Error('Failed to start chat server');
+      }
+
+      toast.success("Chat server started. Press refresh to see the chat.");
     } catch (error) {
-      console.error('Failed to start chat:', error);
-      toast.error('Failed to start chat');
+      console.error('Error starting chat server:', error);
+      toast.error("The chat server already started");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const stopChat = async () => {
+  const stopChatServer = async () => {
     try {
-    //   await apiClient.stopChat(projectId, trialId);
-      setIsRunning(false);
-      toast.success('Chat stopped successfully');
+      const response = await apiClient.closeChat(project_id, trial_id);
+      
+      if (response.status !== 'terminated') {
+        throw new Error('Failed to stop chat server');
+      }
+      toast.success("Report stopped");
     } catch (error) {
-      console.error('Failed to stop chat:', error);
-      toast.error('Failed to stop chat');
+      console.error('Error stopping chat server:', error);
+      toast.error("The chat server already stopped or not started");
     }
   };
 
-  useEffect(() => {
-    // Start chat when component mounts
-    startChat();
-
-    // Stop chat when component unmounts or user navigates away
-    return () => {
-      stopChat();
+    const refreshIframe = () => {
+        setKey(prevKey => prevKey + 1); // Increment key to force re-render
     };
-  }, []);
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading dashboard...</div>;
+  }
 
   return (
-    <div className="flex flex-col h-full gap-4">
-      <div className="flex justify-end">
-        <Button 
-          disabled={!isRunning} 
-          variant="destructive"
-          onClick={stopChat}
-        >
-          Stop Chat
-        </Button>
+    <div className="w-full h-screen flex flex-col">
+      <div className="flex justify-between items-center p-6">
+        <div className="text-sm text-muted-foreground">
+          Please press the stop button when you move to another page to ensure the chat server is properly terminated.
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            className="p-4 text-green-500 bg-transparent"
+            disabled={isLoading}
+            onClick={startChatServer}
+          >
+            <Play className="w-4 h-4" />
+            Start
+          </Button>
+          <Button 
+            className="p-4 text-red-500 bg-transparent"
+            onClick={stopChatServer}
+          >
+            <CircleStop className="w-4 h-4" />
+            Stop
+          </Button>
+          <Button 
+            className="p-4 text-blue-500 bg-transparent"
+            onClick={refreshIframe}
+          >
+            <RefreshCcw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
-      
-      <div className="flex-1 border rounded-lg overflow-hidden">
-        <iframe
-          className="w-full h-full"
-          src={`${process.env.NEXT_PUBLIC_API_URL}/chat/${project_id}/${trial_id}`}
-          title="Chat Interface"
+      <iframe
+        key={key}
+        className="flex-1 w-full border-none"
+        src={DASHBOARD_URL}
+        title="Trial Dashboard"
         />
-      </div>
     </div>
   );
 }

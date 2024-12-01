@@ -58,21 +58,20 @@ export interface PreparationStatus {
     created_at: string;
     report_task_id?: string;
     chat_task_id?: string;
-    corpus_path?: string;
-    qa_path?: string;
   }
 
   export interface TrialConfig {
-    raw_path?: string;
-    corpus_path?: string;
-    qa_path?: string;
+    project_id: string;
+    trial_id?: string;
+    corpus_name?: string;
+    qa_name?: string;
     config?: unknown;
     metadata?: Record<string, any>;
   }
   
   export interface CreateTrialRequest {
     name: string;
-    config?: Record<string, any>;
+    config?: TrialConfig;
   }
 
   export interface SetEnvRequest {
@@ -226,41 +225,39 @@ export interface EvaluateTrialOptions {
       });
     }
     
-    async uploadFiles(projectId: string, formData: FormData) {
-      return this.fetch<{ response: Object }>(
-        `/projects/${projectId}/upload`,
-        {
-          method: 'POST',
-          body: formData,
-        }
-      );
-    }
-
     async validateTrial(projectId: string, trialId: string) {
-      return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/validate`, {
+      const response = await fetch(`${this.baseUrl}/projects/${projectId}/trials/${trialId}/validate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          full_ingest: false,
-          skip_validation: false
-        }),
+        }
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     }
 
     async evaluateTrial(projectId: string, trialId: string, options: EvaluateTrialOptions = {}) {
-      return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/evaluate`, {
+      const response = await fetch(`${this.baseUrl}/projects/${projectId}/trials/${trialId}/evaluate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           full_ingest: true,
-          skip_validation: false,
+          skip_validation: true,
           ...options
         }),
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     }
   
     async setTrialConfig(projectId: string, trialId: string, trialConfig: TrialConfig) {
@@ -288,12 +285,7 @@ export interface EvaluateTrialOptions {
     async createParseTask(projectId: string, data: {
       name: string;
       extension: string;
-      config: {
-        modules: Array<{
-          module_type: string;
-          parse_method: string;
-        }>;
-      };
+      config: Record<string, any>;
     }) {
       const response = await fetch(
         `${this.baseUrl}/projects/${projectId}/parse`,
@@ -412,6 +404,42 @@ export interface EvaluateTrialOptions {
       }
 
       return await response.json();
+    }
+
+    async openReport(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/report/open`, {
+        method: 'GET',
+      });
+    }
+
+    async closeReport(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/report/close`, {
+        method: 'GET',
+      });
+    }
+
+    async openChat(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/chat/open`, {
+        method: 'GET',
+      });
+    }
+
+    async closeChat(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/chat/close`, {
+        method: 'GET',
+      });
+    }
+
+    async openApiServer(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/api/open`, {
+        method: 'GET',
+      });
+    }
+
+    async closeApiServer(projectId: string, trialId: string) {
+      return this.fetch<{ task_id: string, status: string }>(`/projects/${projectId}/trials/${trialId}/api/close`, {
+        method: 'GET',
+      });
     }
 
     async setEnv(request: SetEnvRequest) {

@@ -42,8 +42,8 @@ async function fetchTrials(project_id: string) {
 }
 
 export function TrialsList({
-  projectId,
-}: {projectId: string}) {
+  projectId, isTrial = true
+}: {projectId: string, isTrial?: boolean}) {
   const router = useRouter();
 
   const [trials, setTrials] = useState<Trial[]>([]);
@@ -108,7 +108,7 @@ export function TrialsList({
                   size="sm"
                   variant="default"
                   onClick={() =>
-                    router.push(`/projects/${projectId}/trials/${trial.id}`)
+                    router.push(`/${isTrial ? 'projects' : 'service'}/${projectId}/${isTrial ? 'trials' : 'optimization'}/${trial.id}`)
                   }
                 >
                   View Details

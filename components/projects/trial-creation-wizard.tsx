@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
 
-import { APIClient } from "@/lib/api-client";
+import RectangleRadioGroup from "../rectangle-radio-group";
+
+import { APIClient, CreateTrialRequest } from "@/lib/api-client";
+import { TrialConfig } from "@/lib/api-client";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -12,37 +15,13 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
-  DialogTitle, DialogDescription
+  DialogTitle, DialogDescription,
+  DialogTrigger
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Steps } from "@/components/ui/steps";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
-
-interface TrialFormData {
-  name: string;
-  config?: {
-    modules: Array<{
-      module_type: string;
-      parse_method: string[];
-      jq_schema?: string;
-      auto_detect?: boolean;
-      glob_path?: string;
-    }>;
-  };
-}
+import { ChunkOptionEnum, getChunkConfig, getParseConfig, ParseOptionEnum } from "@/lib/trial-creation-wizard";
 
 interface WizardStep {
   title: string;
@@ -50,42 +29,15 @@ interface WizardStep {
   status: 'pending' | 'in-progress' | 'completed' | 'error';
 }
 
-// Add this function at the top of the file
-const getParserFromFilePath = (filePath: string): string => {
-  const extension = filePath.split('.').pop()?.toLowerCase() || '';
-
-  const extensionToParser: { [key: string]: string } = {
-    'pdf': 'pdfminer',
-    'csv': 'csv',
-    'md': 'unstructuredmarkdown',
-    'markdown': 'unstructuredmarkdown',
-    'html': 'bshtml',
-    'htm': 'bshtml',
-    'xml': 'unstructuredxml',
-    'json': 'json',
-    // '*': 'auto'  // Default for glob patterns
-  };
-
-  // // If the path contains a wildcard, return 'auto'
-  // if (filePath.includes('*')) {
-  //   return 'auto';
-  // }
-
-  return extensionToParser[extension]; // || 'auto';
-};
-
 export function CreateTrialDialog({
-  isOpen,
-  onOpenChange,
   projectId,
-  onTrialCreated,
+  disabled = false
 }: {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
   projectId: string;
-  onTrialCreated: () => void;
+  disabled?: boolean;
 }) {
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   // Add this function to generate default trial name
   const generateDefaultTrialName = () => {
@@ -94,22 +46,14 @@ export function CreateTrialDialog({
     return `Trial_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}_${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
   };
 
-  const [formData, setFormData] = useState<TrialFormData>({
-    name: generateDefaultTrialName(),
-    config: {
-      modules: [
-        {
-          module_type: "langchain_parse",
-          parse_method: ["pdfminer"],
-          auto_detect: false,
-          glob_path: "./raw_data/*.pdf"
-        }
-      ]
-    }
-  });
-  const [isLoading, setIsLoading] = useState(false);
+  const [trialName, setTrialName] = useState(generateDefaultTrialName());
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
+  // The each option states will be selected.
+  const [presetOption, setPresetOption] = useState("");
+  const [lang, setLang] = useState("en");
+  const [speedFirst, setSpeedFirst] = useState(false);
+  const [trialId, setTrialId] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [steps, setSteps] = useState<WizardStep[]>([
@@ -126,6 +70,16 @@ export function CreateTrialDialog({
     {
       title: "Generate QA",
       description: "Create question-answer pairs",
+      status: 'pending'
+    },
+    {
+      title: "Initialize Optimization",
+      description: "Initialize optimization process",
+      status: 'pending'
+    },
+    {
+      title: "Run Optimization",
+      description: "Run optimization",
       status: 'pending'
     }
   ]);
@@ -170,37 +124,28 @@ export function CreateTrialDialog({
     console.log(`[Effect] Steps updated:`, steps);
   }, [steps]);
 
-  const handleCreateTrial = async () => {
-    let trial_id = '';
+  useEffect(() => {
+    console.log(`[Effect] Speed first changed to: ${speedFirst}`);
+  }, [speedFirst]);
 
+  useEffect(() => {
+    console.log(`[Effect] Trial ID changed to: ${trialId}`);
+  }, [trialId]);
+
+  const handleCreateTrial = async () => {
     try {
       try {
         setIsProcessing(true);
-
-        // Step 1: Create Trial
-        const trialResponse = await apiClient.createTrial(projectId, {
-          name: formData.name
-        });
-
-        trial_id = trialResponse.id;
-        console.log(`trial_id: ${trial_id}`);
-        // Step 2: Parse
+        // Step 1: Parse
         console.log("Starting Parse step...");
         await updateStep(0, 'in-progress');
 
         const parseResponse = await apiClient.createParseTask(projectId, {
-          name: `parse_${trial_id}`,
-          extension: 'pdf',
-          config: {
-            modules: [{
-              module_type: "langchain_parse",
-              parse_method: [getParserFromFilePath(formData.config?.modules[0].glob_path || 'csv')]
-            }]
-          }
+          name: `${trialName}`,
+          extension: '*',
+          config: getParseConfig(presetOption as ParseOptionEnum, "en")
         });
 
-        toast.success('Parse task created successfully');
-        console.log(`parseResponse: ${JSON.stringify(parseResponse)}`);
         // 에러 응답 처리
         if (parseResponse.status !== 'started') {
           toast.error(parseResponse.data);
@@ -208,7 +153,6 @@ export function CreateTrialDialog({
 
           return;
         }
-        console.log(`parseResponse.task_id: ${parseResponse.task_id}`);
         await waitForTask(projectId, parseResponse.task_id);
 
         await updateStep(0, 'completed');
@@ -227,16 +171,10 @@ export function CreateTrialDialog({
         await updateStep(1, 'in-progress');
 
 
-        const chunkResponse = await apiClient.createChunkTask(projectId, trial_id, {
-          name: `chunk_${trial_id}`,
-          config: {
-            modules: [{
-              module_type: "llama_index_chunk",
-              chunk_method: ["Token"],
-              chunk_size: 512,
-              chunk_overlap: 50
-            }]
-          }
+        const chunkResponse = await apiClient.createChunkTask(projectId, {
+          name: `${trialName}`,
+          parsed_name: `${trialName}`,
+          config: getChunkConfig(presetOption as ChunkOptionEnum, lang)
         });
 
         await waitForTask(projectId, chunkResponse.task_id);
@@ -256,14 +194,16 @@ export function CreateTrialDialog({
         console.log("Starting QA step...");
         await updateStep(2, 'in-progress');
 
-        const qaResponse = await apiClient.createQATask(projectId, trial_id, {
-          preset: "simple",
-          name: `qa_${trial_id}`,
+        const qaResponse = await apiClient.createQATask(projectId, {
+          preset: presetOption === 'cheap' ? 'simple' : presetOption === 'expensive' ? 'advanced' : '',
+          name: `${trialName}`,
           qa_num: 5,
           llm_config: {
-            llm_name: "mock"
+            llm_name: "openai",
+            llm_params: {model: "gpt-4o-mini"}
           },
-          lang: "ko"
+          lang: lang,
+          chunked_name: `${trialName}`
         });
 
         await waitForTask(projectId, qaResponse.task_id);
@@ -277,12 +217,64 @@ export function CreateTrialDialog({
         throw error;
       }
 
+      const key = `${presetOption === 'cheap' ? 'compact' : 'half'}-${lang}-only_api`;
+      const trialConfigResponse = await fetch(`/api/sample/config/${key}`);
+      const configContent = await trialConfigResponse.json();
 
-      // Trial detail 페이지로 0.5초 후 이동
-      setTimeout(() => {
-        router.push(`/projects/${projectId}/trials/${trial_id}`);
-      }, 500);
+      let newTrialId = "";
 
+      // Step 4: Initialize Optimization
+      try {
+        console.log("Starting trial creation...");
+        await updateStep(3, 'in-progress');
+
+        const newTrialConfig: TrialConfig = {
+          project_id: projectId,
+          corpus_name: trialName,
+          qa_name: trialName,
+          config: configContent.content
+        }
+        const newTrial: CreateTrialRequest = {
+          name: trialName,
+          config: newTrialConfig
+        }
+
+        const trialResponse = await apiClient.createTrial(projectId, newTrial);
+
+        newTrialId = trialResponse.id;
+        setTrialId(trialResponse.id);
+
+        await updateStep(3, 'completed');
+        console.log("Trial creation completed");
+
+      } catch (error) {
+        console.error('Error in trial creation:', error);
+        toast.error(`Error in trial creation: ${error}`);
+        await updateStep(3, 'error');
+        throw error;
+      }
+
+      // Step 5: Run Optimization
+      try {
+        console.log("Starting run optimization...");
+        await updateStep(4, 'in-progress');
+
+        const evaluateResponse = await apiClient.evaluateTrial(projectId, newTrialId);
+        const evaluateTaskId = evaluateResponse.task_id;
+
+        await waitForTask(projectId, evaluateTaskId);
+        await updateStep(4, 'completed');
+        console.log("Run optimization completed");
+      } catch (error) {
+        console.error('Error in run optimization:', error);
+        toast.error(`Error in run optimization: ${error}`);
+        await updateStep(4, 'error');
+        throw error;
+      }
+
+      setOpen(false);
+      // Route to the trial detail page
+      router.push(`/service/${projectId}/optimization/${newTrialId}`);
 
     } catch (error: any) {
       console.error('Error in trial creation process:', error);
@@ -293,7 +285,7 @@ export function CreateTrialDialog({
   };
 
   const waitForTask = async (projectId: string, taskId: string) => {
-    const maxAttempts = 60;  // 최대 시도 횟수 (5분)
+    const maxAttempts = 80;  // 최대 시도 횟수 (5분)
     const delayMs = 5000;    // 5초마다 확인
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -316,8 +308,13 @@ export function CreateTrialDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button disabled={disabled} variant="outline">
+          Create Trial
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Create New Trial</DialogTitle>
           <DialogDescription>
@@ -325,13 +322,14 @@ export function CreateTrialDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <Steps
-            currentStep={currentStep}
-            steps={steps}
-          />
-
-          <Card className="p-6">
+        <div className="flex gap-6">
+        <div className="w-[350px]">
+            <Steps
+              currentStep={currentStep}
+              steps={steps}
+            />
+          </div>
+          <Card className="p-6 w-[350px]">
             <form onSubmit={(e) => {
               e.preventDefault();
               handleCreateTrial();
@@ -343,179 +341,71 @@ export function CreateTrialDialog({
                     required
                     id="trialName"
                     placeholder="Enter trial name"
-                    value={formData.name}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      name: e.target.value
-                    }))}
+                    value={trialName}
+                    onChange={(e) => setTrialName(e.target.value)}
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="filePath">Document Path</Label>
-                  <Input
-                    required
-                    id="filePath"
-                    placeholder="./raw_data/*.*"
-                    value={formData.config?.modules[0].glob_path || './raw_data/*.*'}
-                    onChange={(e) => setFormData(prev => ({
-                      ...prev,
-                      config: {
-                        modules: [{
-                          ...prev.config!.modules[0],
-                          glob_path: e.target.value
-                        }]
-                      }
-                    }))}
+                  <RectangleRadioGroup
+                    label="Preset"
+                    options={[
+                      { value: "cheap", label: "Cheap" },
+                      { value: "expensive", label: "Expensive" }
+                    ]}
+                    onValueChange={(value) => setPresetOption(value)}
                   />
-                  <p className="text-sm text-muted-foreground">
-                    Default path: ./raw_data/*.*
-                  </p>
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="parseMethod">Parse Method</Label>
-                  <Select
-                    value={formData.config?.modules[0].auto_detect ? "csv" : formData.config?.modules[0].parse_method[0]}
-                    onValueChange={(value) => setFormData(prev => ({
-                      ...prev,
-                      config: {
-                        modules: [
-                          {
-                            ...prev.config!.modules[0],
-                            parse_method: value === "auto" ? ["auto"] : [value],
-                            auto_detect: value === "auto",
-                            ...(value !== "json" && { jq_schema: undefined })
-                          }
-                        ]
-                      }
-                    }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select parse method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <TooltipProvider>
-                        {/* <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="auto">Auto Detect</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Automatically detect appropriate parser based on file type</p>
-                          </TooltipContent>
-                        </Tooltip> */}
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="pdfminer">PDFMiner</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Extract text content from PDF files</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="csv">CSV</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Parse CSV (Comma-Separated Values) files</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="unstructuredmarkdown">Markdown</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Parse Markdown formatted text files</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="bshtml">HTML</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Extract content from HTML documents using BeautifulSoup</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="unstructuredxml">XML</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Parse XML documents and extract structured content</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value="json">JSON</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Parse JSON files using JQ schema for content extraction</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </SelectContent>
-                  </Select>
+                  <RectangleRadioGroup
+                    label="Language"
+                    options={[
+                      { value: "en", label: "English" },
+                      { value: "ko", label: "Korean" }
+                    ]}
+                    onValueChange={(value) => setLang(value)}
+                  />
                 </div>
-
-                {formData.config?.modules[0].parse_method[0] === "json" && (
-                  <div className="space-y-2">
-                    <Label htmlFor="jqSchema">JQ Schema</Label>
-                    <Input
-                      required
-                      id="jqSchema"
-                      placeholder="Enter JQ schema (e.g., .messages[].content)"
-                      value={formData.config?.modules[0].jq_schema}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        config: {
-                          modules: [
-                            {
-                              ...prev.config!.modules[0],
-                              jq_schema: e.target.value
-                            }
-                          ]
-                        }
-                      }))}
-                    />
-                  </div>
-                )}
-
-                <div className="flex justify-end space-x-2 pt-4">
-                  <Button
-                    disabled={isProcessing}
-                    type="button"
-                    variant="outline"
-                    onClick={() => onOpenChange(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    disabled={isProcessing}
-                    type="submit"
-                  >
-                    {isProcessing ? (
-                      <>
-                        <Spinner className="mr-2" />
-                        Processing...
-                      </>
-                    ) : (
-                      'Create Trial'
-                    )}
-                  </Button>
+                <div className="space-y-2"> 
+                  <RectangleRadioGroup
+                    label="Priority"
+                    options={[
+                      { value: "quality", label: "Answer Quality"},
+                      { value: "speed", label: "Speed"}
+                    ]}
+                      onValueChange={(value) => setSpeedFirst(value === "speed")}
+                  />
                 </div>
               </div>
             </form>
-          </Card>
+          </Card> 
+        </div>
+
+        <div className="flex justify-center space-x-2 mt-6">
+          <Button
+            disabled={isProcessing}
+            type="button"
+            variant="outline"
+            onClick={() => setOpen(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            disabled={isProcessing}
+            onClick={handleCreateTrial}
+          >
+            {isProcessing ? (
+              <>
+                <Spinner className="mr-2" />
+                Processing...
+              </>
+            ) : (
+              'Create Trial'
+            )}
+          </Button>
         </div>
       </DialogContent>
       <Toaster />
-
     </Dialog>
   );
 }
