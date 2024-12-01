@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReportPage } from "@/components/projects/trials/report/report-page";
 import { ChatPage } from "@/components/projects/trials/chat/chat-page";
 import { ApiServerButtonGroup } from "@/components/projects/trials/api/api-start-stop";
+import ApiDocumentation from "@/components/projects/trials/api/api-documentation";
 
 interface OptimizationPageProps {
   projectId: string;
@@ -49,11 +50,13 @@ export default function OptimizationPage({ projectId, trialId }: OptimizationPag
           </TabsList>
           
           <TabsContent className="h-full" value="api">
-            <div className="flex justify-between items-start">
-              <div>
-                {/* Documentation component for API server usage will be added here */}
-              </div>
+            <div className="flex flex-col items-center bg-blue-100 p-4 rounded-md shadow-md">
+              <h2 className="text-xl font-semibold mb-2">API Server Controls</h2>
               <ApiServerButtonGroup project_id={projectId} trial_id={trialId} />
+              <p className="text-sm text-gray-600 mt-2">Use the buttons above to start or stop the API server.</p>
+            </div>
+            <div className="mt-4">
+              <ApiDocumentation host={"http://localhost:8100"}/>
             </div>
           </TabsContent>
           
