@@ -6,9 +6,9 @@ export default function ServicePage() {
     <div className="container mx-auto py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
+          <h1 className="text-3xl font-bold">AutoRAG Projects</h1>
           <p className="text-muted-foreground mt-1">
-            Manage your AutoRAG projects and monitor their performance
+            Your optimized RAG is only few clicks away
           </p>
         </div>
         <div>
