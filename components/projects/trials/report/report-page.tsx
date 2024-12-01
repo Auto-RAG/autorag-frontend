@@ -63,29 +63,34 @@ export function ReportPage({
 
   return (
     <div className="w-full h-screen flex flex-col">
-      <div className="flex justify-end p-6 space-x-2">
-        <Button 
-          className="p-4 text-green-500 bg-transparent"
+      <div className="flex justify-between items-center p-6">
+        <div className="text-sm text-muted-foreground">
+          Please press the stop button when you move to another page to ensure the report is properly terminated.
+        </div>
+        <div className="flex space-x-2">
+          <Button 
+            className="p-4 text-green-500 bg-transparent"
           disabled={isLoading}
           onClick={startDashboard}
         >
           <Play className="w-4 h-4" />
-          Start
-        </Button>
-        <Button 
-          className="p-4 text-red-500 bg-transparent"
+            Start
+          </Button>
+          <Button 
+            className="p-4 text-red-500 bg-transparent"
           onClick={stopDashboard}
         >
           <CircleStop className="w-4 h-4" />
           Stop
-        </Button>
-        <Button 
-          className="p-4 text-blue-500 bg-transparent"
-          onClick={refreshIframe}
-        >
-          <RefreshCcw className="w-4 h-4" />
-          Refresh
-        </Button>
+          </Button>
+          <Button 
+            className="p-4 text-blue-500 bg-transparent"
+            onClick={refreshIframe}
+          >
+            <RefreshCcw className="w-4 h-4" />
+            Refresh
+          </Button>
+        </div>
       </div>
       <iframe
         key={key}

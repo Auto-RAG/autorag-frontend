@@ -6,7 +6,6 @@ import { useState } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReportPage } from "@/components/projects/trials/report/report-page";
-import { Card, CardContent } from "@/components/ui/card";
 import { ChatPage } from "@/components/projects/trials/chat/chat-page";
 
 interface OptimizationPageProps {
@@ -53,11 +52,7 @@ export default function OptimizationPage({ projectId, trialId }: OptimizationPag
           </TabsContent>
           
           <TabsContent className="h-full" value="report">
-            <Card>
-              <CardContent>
-                <ReportPage project_id={projectId} trial_id={trialId} />
-              </CardContent>
-            </Card>
+            <ReportPage project_id={projectId} trial_id={trialId} />
           </TabsContent>
           
           <TabsContent className="h-full" value="chat">
