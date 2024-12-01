@@ -226,16 +226,18 @@ export interface EvaluateTrialOptions {
     }
     
     async validateTrial(projectId: string, trialId: string) {
-      return this.fetch<Task>(`/projects/${projectId}/trials/${trialId}/validate`, {
+      const response = await fetch(`${this.baseUrl}/projects/${projectId}/trials/${trialId}/validate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          full_ingest: false,
-          skip_validation: false
-        }),
+        }
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
     }
 
     async evaluateTrial(projectId: string, trialId: string, options: EvaluateTrialOptions = {}) {
@@ -246,7 +248,7 @@ export interface EvaluateTrialOptions {
         },
         body: JSON.stringify({
           full_ingest: true,
-          skip_validation: false,
+          skip_validation: true,
           ...options
         }),
       });

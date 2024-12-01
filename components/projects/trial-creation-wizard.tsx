@@ -1,8 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from 'next/navigation';
 import toast, { Toaster } from 'react-hot-toast';
+
+import RectangleRadioGroup from "../rectangle-radio-group";
 
 import { APIClient, CreateTrialRequest } from "@/lib/api-client";
 import { TrialConfig } from "@/lib/api-client";
@@ -16,19 +17,6 @@ import {
   DialogTitle, DialogDescription,
   DialogTrigger
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Steps } from "@/components/ui/steps";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -47,7 +35,6 @@ export function CreateTrialDialog({
   projectId: string;
   disabled?: boolean;
 }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
 
   // Add this function to generate default trial name
@@ -61,10 +48,10 @@ export function CreateTrialDialog({
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
   // The each option states will be selected.
-  const [parseOption, setParseOption] = useState(ParseOptionEnum.DEFAULT);
-  const [chunkOption, setChunkOption] = useState(ChunkOptionEnum.DEFAULT);
+  const [presetOption, setPresetOption] = useState("");
   const [lang, setLang] = useState("en");
-
+  const [speedFirst, setSpeedFirst] = useState(false);
+  const [trialId, setTrialId] = useState("");
   const [currentStep, setCurrentStep] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
   const [steps, setSteps] = useState<WizardStep[]>([
@@ -81,6 +68,16 @@ export function CreateTrialDialog({
     {
       title: "Generate QA",
       description: "Create question-answer pairs",
+      status: 'pending'
+    },
+    {
+      title: "Initialize Optimization",
+      description: "Initialize optimization process",
+      status: 'pending'
+    },
+    {
+      title: "Validate System",
+      description: "Validate system setups and configurations",
       status: 'pending'
     },
     {
@@ -130,6 +127,14 @@ export function CreateTrialDialog({
     console.log(`[Effect] Steps updated:`, steps);
   }, [steps]);
 
+  useEffect(() => {
+    console.log(`[Effect] Speed first changed to: ${speedFirst}`);
+  }, [speedFirst]);
+
+  useEffect(() => {
+    console.log(`[Effect] Trial ID changed to: ${trialId}`);
+  }, [trialId]);
+
   const handleCreateTrial = async () => {
     try {
       try {
@@ -141,7 +146,7 @@ export function CreateTrialDialog({
         const parseResponse = await apiClient.createParseTask(projectId, {
           name: `${trialName}`,
           extension: '*',
-          config: getParseConfig(parseOption, "en")
+          config: getParseConfig(presetOption as ParseOptionEnum, "en")
         });
 
         toast.success('Parse task created successfully');
@@ -175,7 +180,7 @@ export function CreateTrialDialog({
         const chunkResponse = await apiClient.createChunkTask(projectId, {
           name: `${trialName}`,
           parsed_name: `${trialName}`,
-          config: getChunkConfig(chunkOption, lang)
+          config: getChunkConfig(presetOption as ChunkOptionEnum, lang)
         });
 
         await waitForTask(projectId, chunkResponse.task_id);
@@ -196,7 +201,7 @@ export function CreateTrialDialog({
         await updateStep(2, 'in-progress');
 
         const qaResponse = await apiClient.createQATask(projectId, {
-          preset: "default",
+          preset: presetOption === 'cheap' ? 'basic' : presetOption === 'expensive' ? 'advanced' : '',
           name: `${trialName}`,
           qa_num: 5,
           llm_config: {
@@ -218,33 +223,64 @@ export function CreateTrialDialog({
         throw error;
       }
 
-      const key = 'compact-english-none';
+      const key = `${presetOption === 'cheap' ? 'compact' : 'half'}-${lang}-only_api`;
       const trialConfigResponse = await fetch(`/api/sample/config/${key}`);
       const configContent = await trialConfigResponse.json();
-      // Step 4: Create Trial
-      const newTrialConfig: TrialConfig = {
-        project_id: projectId,
-        trial_id: trialName,
-        corpus_name: trialName,
-        qa_name: trialName,
-        config: configContent.content
+
+      let newTrialId = "";
+
+      // Step 4: Initialize Optimization
+      try {
+        console.log("Starting trial creation...");
+        await updateStep(3, 'in-progress');
+
+        const newTrialConfig: TrialConfig = {
+          project_id: projectId,
+          trial_id: trialName,
+          corpus_name: trialName,
+          qa_name: trialName,
+          config: configContent.content
+        }
+        const newTrial: CreateTrialRequest = {
+          name: trialName,
+          config: newTrialConfig
+        }
+
+        const trialResponse = await apiClient.createTrial(projectId, newTrial);
+
+        newTrialId = trialResponse.id;
+        setTrialId(trialResponse.id);
+
+        await updateStep(3, 'completed');
+        console.log("Trial creation completed");
+
+      } catch (error) {
+        console.error('Error in trial creation:', error);
+        toast.error(`Error in trial creation: ${error}`);
+        await updateStep(3, 'error');
+        throw error;
       }
-      const newTrial: CreateTrialRequest = {
-        name: trialName,
-        config: newTrialConfig
+
+      // Step 5: Validate System
+      try {
+        console.log("Starting validate system...");
+        await updateStep(4, 'in-progress');
+
+        const validateResponse = await apiClient.validateTrial(projectId, newTrialId);
+        const validateTaskId = validateResponse.task_id;
+
+        await waitForTask(projectId, validateTaskId);
+        await updateStep(4, 'completed');
+        console.log("Validate system completed");
+      } catch (error) {
+        console.error('Error in validate system:', error);
+        toast.error(`Error in validate system: ${error}`);
+        await updateStep(4, 'error');
+        throw error;
       }
 
-      const trialResponse = await apiClient.createTrial(projectId, newTrial);
-      const trialId = trialResponse.id;
-
-      if (!trialId) {
-        toast.error('Failed to create trial');
-
-        return;
-      }
-
-      // Step 5: Start the optimization
-
+      // Step 6: Run Optimization
+      
 
 
     } catch (error: any) {
@@ -318,91 +354,38 @@ export function CreateTrialDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="parseMethod">Parse Method</Label>
-                  <Select
-                    value={parseOption}
-                    onValueChange={(value) => setParseOption(value as ParseOptionEnum)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select parse method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value={ParseOptionEnum.DEFAULT}>PDFMiner</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Extract text from PDF files, super cheap.</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value={ParseOptionEnum.LLAMA_PARSE}>Llama Parse</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Use Llama Parse to extract text and images.</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </SelectContent>
-                  </Select>
+                  <RectangleRadioGroup
+                    label="Preset"
+                    options={[
+                      { value: "cheap", label: "Cheap" },
+                      { value: "expensive", label: "Expensive" }
+                    ]}
+                    onValueChange={(value) => setPresetOption(value)}
+                  />
                 </div>
-
                 <div className="space-y-2">
-                  <Label htmlFor="chunkMethod">Chunk Method</Label>
-                  <Select
-                    value={chunkOption}
-                    onValueChange={(value) => setChunkOption(value as ChunkOptionEnum)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select chunk method" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value={ChunkOptionEnum.DEFAULT}>Default</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>token-based. Almost free.</p>
-                          </TooltipContent>
-                        </Tooltip>
-
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <SelectItem value={ChunkOptionEnum.SEMANTIC}>Semantic</SelectItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Use embedding model. It will take some time and little bit of dollar</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="language">Language</Label>
-                  <Select
-                    value={lang}
+                  <RectangleRadioGroup
+                    label="Language"
+                    options={[
+                      { value: "en", label: "English" },
+                      { value: "ko", label: "Korean" }
+                    ]}
                     onValueChange={(value) => setLang(value)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="en">English</SelectItem>
-                      <SelectItem value="ko">Korean</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  />
+                </div>
+                <div className="space-y-2"> 
+                  <RectangleRadioGroup
+                    label="Priority"
+                    options={[
+                      { value: "quality", label: "Answer Quality"},
+                      { value: "speed", label: "Speed"}
+                    ]}
+                      onValueChange={(value) => setSpeedFirst(value === "speed")}
+                  />
                 </div>
               </div>
             </form>
-          </Card>
-
-          
+          </Card> 
         </div>
 
         <div className="flex justify-center space-x-2 mt-6">
