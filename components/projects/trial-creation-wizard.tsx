@@ -329,6 +329,7 @@ export function CreateTrialDialog({
               steps={steps}
             />
           </div>
+          {/* <EnvChecker envVariables={targetEnvVariables}/> */}
           <Card className="p-6 w-[350px]">
             <form onSubmit={(e) => {
               e.preventDefault();
