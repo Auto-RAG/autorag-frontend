@@ -1,12 +1,10 @@
 import { QAOverview } from "@/components/qa/qa-overview"
 
-interface QAPageProps {
-  params: {
-    project_id: string
-  }
+type PageProps = {
+  params: Promise<{ project_id: string }>;
 }
 
-export default async function QAPage({ params }: QAPageProps) {
+export default async function Page({ params }: PageProps) {
   const { project_id } = await params;
 
   return (
