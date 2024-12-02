@@ -217,7 +217,7 @@ export function CreateTrialDialog({
         throw error;
       }
 
-      const key = `${presetOption === 'cheap' ? 'compact' : 'half'}-${lang}-only_api`;
+      const key = `${presetOption === 'cheap' ? 'cheap' : 'expensive'}-${speedFirst ? 'speed' : 'answer'}-${lang}`;
       const trialConfigResponse = await fetch(`/api/sample/config/${key}`);
       const configContent = await trialConfigResponse.json();
 

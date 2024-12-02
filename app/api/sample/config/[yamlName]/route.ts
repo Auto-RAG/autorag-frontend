@@ -26,6 +26,8 @@ const getTargetEnvKeys = (yamlName: string) => {
         return ["OPENAI_API_KEY", "COHERE_API_KEY", "JINAAI_API_KEY", "MXBAI_API_KEY", "VOYAGE_API_KEY"];
     } else if (yamlName.includes("only_api")) {
         return ["OPENAI_API_KEY"];
+    } else if (yamlName.includes("cheap") || yamlName.includes("expensive")) {
+        return ["OPENAI_API_KEY"];
     } else {
         return [];
     }
