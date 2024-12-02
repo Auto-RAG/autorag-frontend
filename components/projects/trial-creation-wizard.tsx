@@ -285,7 +285,7 @@ export function CreateTrialDialog({
   };
 
   const waitForTask = async (projectId: string, taskId: string) => {
-    const maxAttempts = 80;  // 최대 시도 횟수 (5분)
+    const maxAttempts = 720;  // 최대 시도 횟수 (1시간)
     const delayMs = 5000;    // 5초마다 확인
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
