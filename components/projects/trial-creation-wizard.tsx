@@ -197,10 +197,10 @@ export function CreateTrialDialog({
         const qaResponse = await apiClient.createQATask(projectId, {
           preset: presetOption === 'cheap' ? 'simple' : presetOption === 'expensive' ? 'advanced' : '',
           name: `${trialName}`,
-          qa_num: 5,
+          qa_num: presetOption === 'cheap' ? 70 : presetOption === 'expensive' ? 100 : 10,
           llm_config: {
             llm_name: "openai",
-            llm_params: {model: "gpt-4o-mini"}
+            llm_params: {model: presetOption === 'cheap' ? "gpt-4o-mini" : presetOption === 'expensive' ? "gpt-4o" : "gpt-4o-mini"} 
           },
           lang: lang,
           chunked_name: `${trialName}`
