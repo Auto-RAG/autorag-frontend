@@ -33,6 +33,7 @@ node_lines:
           mode: both
     - node_type: passage_reranker
       modules:
+        - module_type: pass_reranker
         - module_type: cohere_reranker  # Set Environment Variable: COHERE_API_KEY
       strategy:
         metrics: [ retrieval_f1, retrieval_recall, retrieval_precision,
