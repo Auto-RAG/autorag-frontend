@@ -13,7 +13,7 @@ export default async function OptimizationPage({ params }: PageProps) {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Optimization</h1>
-          <p className="text-sm text-muted-foreground">Ask to the AutoRAG developer to make a new optimization</p>
+          <p className="text-sm text-muted-foreground">Quickly make an optimized RAG</p>
         </div>
         <CreateTrialDialog disabled={false} projectId={project_id} />
       </div>

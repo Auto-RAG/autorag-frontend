@@ -18,17 +18,17 @@ export function CustomNavigation() {
               <Button
                 className="text-xl font-ibm font-extrabold -ml-4 "
                 variant="ghost"
-                onClick={() => router.push("/")}
+                onClick={() => router.push("/service")}
               >
                 AutoRAG Cloud
               </Button>
             </div>
           </div>
           <div className="flex items-center space-x-4">
-            <Button size="sm" variant="ghost" onClick={() => router.push("/")}>
+            {/* <Button size="sm" variant="ghost" onClick={() => router.push("/")}>
               <Home className="h-5 w-5 mr-2" />
               Home
-            </Button>
+            </Button> */}
             <Button
               size="sm"
               variant="ghost"

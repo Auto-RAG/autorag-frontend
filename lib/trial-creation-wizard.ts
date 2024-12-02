@@ -83,17 +83,19 @@ export const getChunkConfig = (chunkOption: ChunkOptionEnum, lang: string) => {
           cheap: {
             modules: [{
               module_type: "llama_index_chunk",
-              chunk_method: "Token",
-              chunk_size: 512,
-              chunk_overlap: 50
+              chunk_method: "SentenceWindow",
+              window_size: 3,
+              sentence_splitter: "kiwi",
+              add_file_name: lang,
             }]
           },
           expensive: {
             modules: [{
               module_type: "llama_index_chunk",
-              chunk_method: "Token",
-              chunk_size: 512,
-              chunk_overlap: 50
+              chunk_method: "Semantic_llama_index",
+              embed_model: "openai",
+              sentence_splitter: "kiwi",
+              add_file_name: lang,
             }]
           }
     }

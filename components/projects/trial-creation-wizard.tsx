@@ -197,10 +197,10 @@ export function CreateTrialDialog({
         const qaResponse = await apiClient.createQATask(projectId, {
           preset: presetOption === 'cheap' ? 'simple' : presetOption === 'expensive' ? 'advanced' : '',
           name: `${trialName}`,
-          qa_num: 5,
+          qa_num: presetOption === 'cheap' ? 70 : presetOption === 'expensive' ? 100 : 10,
           llm_config: {
             llm_name: "openai",
-            llm_params: {model: "gpt-4o-mini"}
+            llm_params: {model: presetOption === 'cheap' ? "gpt-4o-mini" : presetOption === 'expensive' ? "gpt-4o" : "gpt-4o-mini"} 
           },
           lang: lang,
           chunked_name: `${trialName}`
@@ -217,7 +217,7 @@ export function CreateTrialDialog({
         throw error;
       }
 
-      const key = `${presetOption === 'cheap' ? 'compact' : 'half'}-${lang}-only_api`;
+      const key = `${presetOption === 'cheap' ? 'cheap' : 'expensive'}-${speedFirst ? 'speed' : 'answer'}-${lang}`;
       const trialConfigResponse = await fetch(`/api/sample/config/${key}`);
       const configContent = await trialConfigResponse.json();
 
@@ -285,7 +285,7 @@ export function CreateTrialDialog({
   };
 
   const waitForTask = async (projectId: string, taskId: string) => {
-    const maxAttempts = 80;  // 최대 시도 횟수 (5분)
+    const maxAttempts = 720;  // 최대 시도 횟수 (1시간)
     const delayMs = 5000;    // 5초마다 확인
 
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
@@ -329,6 +329,7 @@ export function CreateTrialDialog({
               steps={steps}
             />
           </div>
+          {/* <EnvChecker envVariables={targetEnvVariables}/> */}
           <Card className="p-6 w-[350px]">
             <form onSubmit={(e) => {
               e.preventDefault();
