@@ -3,14 +3,13 @@
 
 import { useState } from "react";
 import * as RadioGroup from "@radix-ui/react-radio-group";
-import { XCircle } from "lucide-react";
-import { CheckCircle2 } from "lucide-react";
+
+import { EnvChecker } from "./env-checker";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { APIClient } from "@/lib/api-client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ConfigSelectorProps {
   onConfigSelect: (config: string) => void;
@@ -19,54 +18,6 @@ interface ConfigSelectorProps {
 interface Config{
     config: Object;
     config_string: string;
-}
-
-export function EnvChecker({ envVariables }: { envVariables: { key: string; value?: string }[] }) {
-  return (
-  <div className="w-full">
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Environment Variables Status</CardTitle>
-            <CardDescription>Required environment variables for optimization</CardDescription>
-          </div>
-          <Button
-            size="sm"
-            variant="outline" 
-            onClick={() => window.location.href = '/settings'}
-          >
-            Configure
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {envVariables?.length === 0 ? (
-          <div className="text-sm text-gray-500">No need to configure environment variables</div>
-        ) : (
-          envVariables.map((env) => (
-            <div 
-              key={env.key} 
-              className={cn(
-                "rounded-lg border p-4",
-                env.value ? "border-gray-200 bg-white" : "border-red-200 bg-red-50"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                {env.value ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                ) : (
-                  <XCircle className="h-4 w-4 text-destructive" />
-                )}
-                <span className="font-mono">{env.key}</span>
-              </div>
-            </div>
-          ))
-        )}
-      </CardContent>
-    </Card>
-  </div>
-  );
 }
 
 export function ConfigSelector({ onConfigSelect }: ConfigSelectorProps) {
@@ -124,16 +75,16 @@ export function ConfigSelector({ onConfigSelect }: ConfigSelectorProps) {
             ].map((option) => (
               <RadioGroup.Item
                 key={option.value}
-                value={option.value}
-                id={option.value}
                 className={cn(
                   "peer relative w-full rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 )}
+                id={option.value}
+                value={option.value}
               >
                 <Label
-                  htmlFor={option.value}
                   className="flex items-center justify-between"
+                  htmlFor={option.value}
                 >
                   <div className="flex items-center gap-2">
                     <div className="flex h-4 w-4 items-center justify-center rounded-full border border-primary">
@@ -160,16 +111,16 @@ export function ConfigSelector({ onConfigSelect }: ConfigSelectorProps) {
             ].map((option) => (
               <RadioGroup.Item
                 key={option.value}
-                value={option.value}
-                id={option.value}
                 className={cn(
                   "peer relative w-full rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 )}
+                id={option.value}
+                value={option.value}
               >
                 <Label
-                  htmlFor={option.value}
                   className="flex items-center justify-between"
+                  htmlFor={option.value}
                 >
                   <div className="flex items-center gap-2">
                     <div className="flex h-4 w-4 items-center justify-center rounded-full border border-primary">
@@ -197,16 +148,16 @@ export function ConfigSelector({ onConfigSelect }: ConfigSelectorProps) {
             ].map((option) => (
               <RadioGroup.Item
                 key={option.value}
-                value={option.value}
-                id={option.value}
                 className={cn(
                   "peer relative w-full rounded-lg border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary",
                   "focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
                 )}
+                id={option.value}
+                value={option.value}
               >
                 <Label
-                  htmlFor={option.value}
                   className="flex items-center justify-between"
+                  htmlFor={option.value}
                 >
                   <div className="flex items-center gap-2">
                     <div className="flex h-4 w-4 items-center justify-center rounded-full border border-primary">
