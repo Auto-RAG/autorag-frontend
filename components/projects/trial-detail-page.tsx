@@ -4,11 +4,9 @@ import { useState, useEffect } from "react";
 import { Button } from "@nextui-org/button";
 import {
   Settings2,
-  PlayCircle,
-  FileText,
-  AlertCircle,
+  PlayCircle, AlertCircle,
   CheckCircle2,
-  XCircle,
+  XCircle
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from 'react-hot-toast';
@@ -23,7 +21,7 @@ import { ConfigSelector } from "./trials/configuration/config-selector";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { APIClient, TrialConfig } from "@/lib/api-client";
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,7 +29,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 
 interface Task {
   task_id: string;
@@ -64,7 +62,9 @@ export function TrialDetail({
   projectId: string;
   trialId: string;
 }) {
-  const [trialConfig, setTrialConfig] = useState<Trial | null>(null);
+  const [trialConfig, setTrialConfig] = useState<TrialConfig>({
+    project_id: ""
+  });
   const [trial, setTrial] = useState<Trial | null>(null);
   const mockTasks: Task[] = [
     {
@@ -186,9 +186,6 @@ export function TrialDetail({
     });
 
     const parsedConfig = await response.json();
-    const trialConfig = {
-      config: parsedConfig.data
-    }
 
     try {
       const response = await apiClient.setTrialConfig(projectId, trialId, trialConfig);

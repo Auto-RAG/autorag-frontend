@@ -1,13 +1,8 @@
-import { QAOverview } from "@/components/qa/qa-overview"
+import { QAOverview } from "@/components/qa/qa-overview";
 
-interface QAPageProps {
-  params: {
-    project_id: string
-  }
-}
 
-export default async function QAPage({ params }: QAPageProps) {
-  const { project_id } = await params;
+export default async function QAPage({ params }: {params: Promise<{project_id: string}>}) {
+  const project_id = (await params).project_id;
 
   return (
     <div className="flex flex-col gap-4 p-6">

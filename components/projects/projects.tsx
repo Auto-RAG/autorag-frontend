@@ -233,10 +233,10 @@ export function Projects() {
     }
   };
 
-  const handleProjectCreated = (project: Project) => {
-    setProjectList(prev => ({ ...prev, data: [project, ...prev.data] }));
-    setIsCreateOpen(false);
-  };
+  // const handleProjectCreated = (project: Project) => {
+  //   setProjectList(prev => ({ ...prev, data: [project, ...prev.data] }));
+  //   setIsCreateOpen(false);
+  // };
 
   const getTimeAgo = (dateString: string) => {
     if (typeof window === 'undefined') return ''; // 서버 사이드에서는 빈 문자열 반환
@@ -398,13 +398,14 @@ export function Projects() {
       <CreateProjectDialog
         open={isCreateOpen}
         onOpenChange={setIsCreateOpen}
-        onProjectCreated={(project) => {
-          setProjectList(prev => ({
-            total: prev.total + 1,
-            data: [...prev.data, project]
-          }));
-          setIsCreateOpen(false);
-        }}
+        // onProjectCreated={(project) => {
+        //   setProjectList(prev => ({
+        //     total: prev.total + 1,
+        //     data: [...prev.data, project]
+        //   }));
+        //   setIsCreateOpen(false);
+        // }}
+        onProjectCreated={(project) => {}}
       />
     </div>
   );
