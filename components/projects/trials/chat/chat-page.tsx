@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { APIClient } from "@/lib/api-client";
 
 
-const DASHBOARD_URL = "http://localhost:8501";
-
 export function ChatPage({
   project_id,
-  trial_id
+  trial_id,
+  chat_url,
 }: {
   project_id: string;
   trial_id: string;
+  chat_url: string;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [key, setKey] = useState(0);
@@ -95,7 +95,7 @@ export function ChatPage({
       <iframe
         key={key}
         className="flex-1 w-full border-none"
-        src={DASHBOARD_URL}
+        src={chat_url}
         title="Trial Dashboard"
         />
     </div>
