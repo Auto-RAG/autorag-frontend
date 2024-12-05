@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 
 import ApiKeyView from "@/components/settings/ApiKeyView";
+import HostSetting from "@/components/settings/host-setting";
 
 
 export const metadata: Metadata = {
@@ -18,10 +19,9 @@ export default function SettingsPage() {
           <div className="space-y-6">
             {/* Profile Section */}
             <div>
-              <h2 className="text-xl font-semibold mb-4">Profile Settings</h2>
+              <h2 className="text-xl font-semibold mb-4">Host Settings</h2>
               <div className="space-y-4">
-                
-                <p className="text-gray-600">Profile settings coming soon...</p>
+                <HostSetting />
               </div>
             </div>
 
