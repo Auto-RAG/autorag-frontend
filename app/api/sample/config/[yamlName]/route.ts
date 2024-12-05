@@ -4,12 +4,12 @@ import path from 'path';
 import yaml from 'js-yaml';
 import { NextRequest, NextResponse } from 'next/server';
 
+
 export async function GET(
     request: NextRequest,
-    context: { params: { yamlName: string } }
+    { params }: { params: Promise<{ yamlName: string}>}
 ) {
-    const params = await context.params;
-    const { yamlName } = params;
+    const yamlName = (await params).yamlName;
     
     try {
         const fullPath = path.join(process.cwd(), 'sample_configs', `${yamlName}.yaml`);

@@ -2,28 +2,14 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-} from "@nextui-org/table";
 import { Button } from "@nextui-org/button";
 import * as Dialog from "@radix-ui/react-dialog";
-import { Beaker, BarChart2, FileText } from "lucide-react";
-import { format } from 'timeago.js';
 import { ChevronRight } from "lucide-react";
 
-import ArtifactsView from "../artifacts/artifacts-view-library";
 
 import { CreateTrialDialog } from "./trial-creation-wizard";
-import { UploadFiles } from "./upload-files";
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { APIClient, Trial } from "@/lib/api-client";
+import { APIClient } from "@/lib/api-client";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -31,7 +17,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb";
 
 interface Task {
   id: string;
@@ -107,8 +93,8 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
         <Dialog.Root open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <Dialog.Trigger asChild>
             <Button 
-              color="primary" 
-              className="w-full px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="w-full px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all" 
+              color="primary"
               size="lg"
             >
               🚀 Quickstart New Trial
@@ -118,13 +104,7 @@ export function ProjectDetail({ projectId }: { projectId: string }) {
           <Dialog.Portal>
             <Dialog.Overlay className="fixed inset-0 bg-black/50" />
             <CreateTrialDialog
-              isOpen={isDialogOpen}
               projectId={projectId}
-              onOpenChange={setIsDialogOpen}
-              onTrialCreated={() => {
-                setIsDialogOpen(false);
-                router.refresh();
-              }}
             />
           </Dialog.Portal>
         </Dialog.Root>

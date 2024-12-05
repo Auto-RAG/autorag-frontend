@@ -3,9 +3,9 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface ServiceLayoutProps {
   children: React.ReactNode;
-  params: {
+  params: Promise<{
     project_id: string;
-  };
+  }>;
 }
 
 export default async function ServiceLayout({ children, params }: ServiceLayoutProps) {
