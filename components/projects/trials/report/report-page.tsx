@@ -8,14 +8,14 @@ import { Button } from "@/components/ui/button";
 import { APIClient } from "@/lib/api-client";
 
 
-const DASHBOARD_URL = "http://localhost:7690";
-
 export function ReportPage({
   project_id,
-  trial_id
+  trial_id,
+  dashboard_url,
 }: {
   project_id: string;
   trial_id: string;
+  dashboard_url: string;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [key, setKey] = useState(0);
@@ -95,7 +95,7 @@ export function ReportPage({
       <iframe
         key={key}
         className="flex-1 w-full border-none"
-        src={DASHBOARD_URL}
+        src={dashboard_url}
         title="Trial Dashboard"
         />
     </div>

@@ -17,6 +17,11 @@ interface OptimizationPageProps {
 
 export default function OptimizationPage({ projectId, trialId }: OptimizationPageProps) {
     const [activeTab, setActiveTab] = useState("api");
+    let hostUrl = process.env.NEXT_PUBLIC_HOST_URL;
+
+    if (!hostUrl) {
+        hostUrl = "http://localhost";
+    }
 
   return (
     <div className="container mx-auto py-1">
@@ -56,16 +61,16 @@ export default function OptimizationPage({ projectId, trialId }: OptimizationPag
               <p className="text-sm text-gray-600 mt-2">Use the buttons above to start or stop the API server.</p>
             </div>
             <div className="mt-4">
-              <ApiDocumentation host={"http://localhost:8100"}/>
+              <ApiDocumentation host={`${hostUrl}:8100`}/>
             </div>
           </TabsContent>
           
           <TabsContent className="h-full" value="report">
-            <ReportPage project_id={projectId} trial_id={trialId} />
+            <ReportPage dashboard_url={`${hostUrl}:7690`} project_id={projectId} trial_id={trialId}/>
           </TabsContent>
           
           <TabsContent className="h-full" value="chat">
-            <ChatPage project_id={projectId} trial_id={trialId} />
+            <ChatPage chat_url={`${hostUrl}:8501`} project_id={projectId} trial_id={trialId} />
           </TabsContent>
         </Tabs>
       </div>
