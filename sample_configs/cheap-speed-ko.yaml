@@ -48,8 +48,6 @@ node_lines:
     - node_type: prompt_maker
       strategy:
         metrics:
-          - metric_name: bleu
-          - metric_name: meteor
           - metric_name: rouge
           - metric_name: sem_score
             embedding_model: openai
