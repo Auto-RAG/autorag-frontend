@@ -466,4 +466,16 @@ export interface EvaluateTrialOptions {
         method: 'DELETE',
       });
     }
+
+    async getQALength(projectId: string, qaName: string) {
+      const response = await fetch(`${this.baseUrl}/projects/${projectId}/qa/${qaName}/lengths`, {
+        method: 'GET',
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
   }
