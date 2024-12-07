@@ -19,7 +19,8 @@ interface QAOneRowProps {
 const QAOneRow: React.FC<QAOneRowProps> = ({ project_id, qa_name }) => {
   const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
   const [question, setQuestion] = useState("question" || '');
-  const [generationGT, setGenerationGT] = useState("generation_gt" || '');
+//   const [generationGT, setGenerationGT] = useState(["generation_gt"]);
+//   const [retrievalGT, setRetrievalGT] = useState([["retrieval_gt"]]);
   const [totalPage, setTotalPage] = useState(1);
 
   useEffect(() => {
@@ -44,12 +45,17 @@ const QAOneRow: React.FC<QAOneRowProps> = ({ project_id, qa_name }) => {
   };
 
   const handleGenerationGTChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setGenerationGT(e.target.value);
+    // setGenerationGT(e.target.value);
   };
 
-  const loadNewPage = (page_number: number,) => {
+  const loadNewPage = async (page_number: number,) => {
     const idx = page_number - 1;
-    
+
+    const pageResponse = await apiClient.getQARow(project_id, qa_name, idx);
+
+    setQuestion(pageResponse.query);
+    // setGenerationGT(pageResponse.generation_gt);
+
   }
 
   return (
@@ -57,7 +63,7 @@ const QAOneRow: React.FC<QAOneRowProps> = ({ project_id, qa_name }) => {
       <div className="flex flex-col">
         <div className="flex justify-between items-center mb-4 w-full">
           <div className="flex-1">
-            <Pagination totalPages={totalPage} onPageChange={() => {}} />
+            <Pagination totalPages={totalPage} onPageChange={loadNewPage} />
           </div>
           <div className="flex space-x-4">
             <Button
@@ -88,7 +94,7 @@ const QAOneRow: React.FC<QAOneRowProps> = ({ project_id, qa_name }) => {
           <div className="retrieval-gt-section mt-4">
             <Label>Retrieval GT</Label>
             <div className="p-2 border rounded bg-gray-100">
-              {"Havertz"}
+              {"retrievalGT"}
             </div>
           </div>
 
@@ -96,7 +102,7 @@ const QAOneRow: React.FC<QAOneRowProps> = ({ project_id, qa_name }) => {
             <Label>Generation GT</Label>
             <Textarea
               className="w-full"
-              value={generationGT}
+              value={"generationGT"}
               onChange={handleGenerationGTChange}
             />
           </div>
