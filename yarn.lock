@@ -2207,6 +2207,33 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@radix-ui/react-scroll-area@npm:^1.2.1":
+  version: 1.2.1
+  resolution: "@radix-ui/react-scroll-area@npm:1.2.1"
+  dependencies:
+    "@radix-ui/number": 1.1.0
+    "@radix-ui/primitive": 1.1.0
+    "@radix-ui/react-compose-refs": 1.1.0
+    "@radix-ui/react-context": 1.1.1
+    "@radix-ui/react-direction": 1.1.0
+    "@radix-ui/react-presence": 1.1.1
+    "@radix-ui/react-primitive": 2.0.0
+    "@radix-ui/react-use-callback-ref": 1.1.0
+    "@radix-ui/react-use-layout-effect": 1.1.0
+  peerDependencies:
+    "@types/react": "*"
+    "@types/react-dom": "*"
+    react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+    react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+    "@types/react-dom":
+      optional: true
+  checksum: f22d0a96f27802c37ed3bebc2b737661d5d8abb927c8f68d7a293b5da52b8d4bafac5b7dede2ecf908c9846bae043e13806ef32642774edcc8982a6d182c3cb3
+  languageName: node
+  linkType: hard
+
 "@radix-ui/react-select@npm:^2.1.2":
   version: 2.1.2
   resolution: "@radix-ui/react-select@npm:2.1.2"
@@ -3686,6 +3713,15 @@ __metadata:
   dependencies:
     "@types/react": "*"
   checksum: a0cd9b1b815a6abd2a367a9eabdd8df8dd8f13f95897b2f9e1359ea3ac6619f957c1432ece004af7d95e2a7caddbba19faa045f831f32d6263483fc5404a7596
+  languageName: node
+  linkType: hard
+
+"@types/react-syntax-highlighter@npm:^15.5.13":
+  version: 15.5.13
+  resolution: "@types/react-syntax-highlighter@npm:15.5.13"
+  dependencies:
+    "@types/react": "*"
+  checksum: 55f751c140eb6641b16a5644af3b6fc25223957141085758ae6898948e70eaca33d8276e86e75d5d60939aff63af1d20278aba0d3a25483266f9deee1eb468e3
   languageName: node
   linkType: hard
 
@@ -7297,6 +7333,7 @@ __metadata:
     "@radix-ui/react-icons": ^1.3.1
     "@radix-ui/react-label": ^2.1.0
     "@radix-ui/react-radio-group": ^1.2.1
+    "@radix-ui/react-scroll-area": ^1.2.1
     "@radix-ui/react-select": ^2.1.2
     "@radix-ui/react-separator": ^1.1.0
     "@radix-ui/react-slider": ^1.2.1
@@ -7311,6 +7348,7 @@ __metadata:
     "@types/node": 20.5.7
     "@types/react": 18.3.3
     "@types/react-dom": 18.3.0
+    "@types/react-syntax-highlighter": ^15.5.13
     "@typescript-eslint/eslint-plugin": 8.11.0
     "@typescript-eslint/parser": 8.11.0
     apache-arrow: ^18.0.0
@@ -7347,6 +7385,7 @@ __metadata:
     react-dropzone: ^14.3.5
     react-hot-toast: ^2.4.1
     react-pdf: ^9.1.1
+    react-resizable-panels: ^2.1.7
     react-router-dom: ^6.27.0
     react-syntax-highlighter: ^15.6.1
     recharts: ^2.13.3
@@ -8140,6 +8179,16 @@ __metadata:
     "@types/react":
       optional: true
   checksum: e7ad2383ce20d63cf28f3ed14e63f684e139301fc4a5c1573da330d4465b733e6084c33b2bfcaee448c9b1df0e37993a15d6cba8a1dd80fe631f803e48e9f798
+  languageName: node
+  linkType: hard
+
+"react-resizable-panels@npm:^2.1.7":
+  version: 2.1.7
+  resolution: "react-resizable-panels@npm:2.1.7"
+  peerDependencies:
+    react: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+    react-dom: ^16.14.0 || ^17.0.0 || ^18.0.0 || ^19.0.0 || ^19.0.0-rc
+  checksum: 019fcc6adae1c27a39477dc16767ffd69c61cd508b0db7460ffc529805fcab3bd9673ab68e26bdb9a2d47c71934f65bf765b19f4da6d133daba1ea18eba99458
   languageName: node
   linkType: hard
 

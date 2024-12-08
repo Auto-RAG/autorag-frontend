@@ -25,7 +25,7 @@ interface TreeItem {
   isFolder: boolean;
 }
 
-const FileContents: React.FC<{ 
+export const FileContents: React.FC<{
   projectId: string;
   onSelect: (nodeId: string) => void;
   onDelete?: (filename: string) => void;
@@ -169,7 +169,7 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
       <div className="grid grid-cols-2 gap-4 h-full">
         <div className="overflow-auto border rounded p-2">
           <Box sx={{ minHeight: 352, minWidth: 250 }}>
-            <FileContents 
+            <FileContents
               projectId={projectId} 
               onDelete={handleDelete} 
               onSelect={handleSelect}
@@ -178,7 +178,7 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
         </div>
         <div className="overflow-auto border rounded p-2">
           {selectedFileContent ? (
-            <DocumentViewer file={selectedFileContent} />
+            <DocumentViewer file={selectedFileContent} onPageChange={() => {}}/>
           ) : (
             <div className="text-gray-500 text-sm">Select a file to view its contents</div>
           )}

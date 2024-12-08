@@ -8,16 +8,18 @@ import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut } from 'lucide-react';
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.6.347/pdf.worker.min.js
 interface DocumentViewerProps {
-  file: string | File | Blob;  // PDF 파일 경로 또는 File 객체
+  file: string | File | Blob;  // Path to the PDF file or a File object
+  onPageChange: (pageNumber: number) => void;
 }
 
-const DocumentViewer: React.FC<DocumentViewerProps> = ({ file }) => {
+const DocumentViewer: React.FC<DocumentViewerProps> = ({ file, onPageChange = (pageNumber: number) => {} }) => {
   const [numPages, setNumPages] = useState<number | null>(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.0);
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
+    setPageNumber(1);
   }
 
   const changePage = (offset: number) => {
@@ -27,12 +29,16 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ file }) => {
   const previousPage = () => {
     if (pageNumber > 1) {
       changePage(-1);
+
+      onPageChange(pageNumber - 1);
     }
   };
 
   const nextPage = () => {
     if (numPages && pageNumber < numPages) {
       changePage(1);
+
+      onPageChange(pageNumber + 1);
     }
   };
 
