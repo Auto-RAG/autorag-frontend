@@ -48,7 +48,8 @@ export function ParseDialog({ open, onOpenChange, projectId }: ParseDialogProps)
     const response = await apiClient.createParseTask(projectId, {
       name: parseName,
       extension: fileType,
-      config: parseConfig
+      config: parseConfig,
+      all_files: fileType === "*" ? true : false,
     });
 
     if (response.status === 400) {

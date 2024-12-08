@@ -286,6 +286,7 @@ export interface EvaluateTrialOptions {
       name: string;
       extension: string;
       config: Record<string, any>;
+      all_files: boolean;
     }) {
       const response = await fetch(
         `${this.baseUrl}/projects/${projectId}/parse`,

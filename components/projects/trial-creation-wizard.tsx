@@ -143,7 +143,8 @@ export function CreateTrialDialog({
         const parseResponse = await apiClient.createParseTask(projectId, {
           name: `${trialName}`,
           extension: '*',
-          config: getParseConfig(presetOption as ParseOptionEnum, "en")
+          config: getParseConfig(presetOption as ParseOptionEnum, "en"),
+          all_files: false
         });
 
         // 에러 응답 처리
