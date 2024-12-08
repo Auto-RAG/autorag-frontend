@@ -2,22 +2,161 @@
 
 import React, { useState } from 'react';
 import { Dialog } from '@radix-ui/react-dialog';
-import { ChevronDown, ChevronRight, Copy, Maximize2, X } from 'lucide-react';
+import { ChevronRight, Copy, Folder, Maximize2, X } from 'lucide-react';
+
+import { FileContents } from '../artifacts/artifacts-view-library';
+import { ResizableHandle, ResizablePanel } from '../ui/resizable';
+import { ResizablePanelGroup } from '../ui/resizable';
+import { ScrollArea } from '../ui/scroll-area';
+
 import DocumentViewer from './document-viewer';
 
+import { cn } from '@/lib/utils';
+
 interface ParsedData {
-  patient_name: string;
-  patient_age: string;
-  patient_pid: number;
-  lab_results: Array<{
-    investigation: string;
-    result: number | string;
-    reference_value: string;
-    unit: string;
-  }>;
+  texts: string;
+  path: string;
+  page: number;
+  last_modified_datetime: Date;
 }
 
-const DocumentParserInterface: React.FC<{ file?: string }> = ({ file = '/sample.pdf' }) => {
+const parsedData: ParsedData[] = [
+  {
+    texts: "Sample text from page 1",
+    path: "/sample/path/1",
+    page: 1,
+    last_modified_datetime: new Date('2023-01-01T10:00:00Z')
+  },
+  {
+    texts: "Sample text from page 2",
+    path: "/sample/path/2",
+    page: 2,
+    last_modified_datetime: new Date('2023-01-02T10:00:00Z')
+  },
+  {
+    texts: "Sample text from page 3",
+    path: "/sample/path/3",
+    page: 3,
+    last_modified_datetime: new Date('2023-01-03T10:00:00Z')
+  }
+];
+
+interface DocumentParserInterfaceProps {
+  className?: string
+  file?: string
+}
+
+export function DocumentParserInterface({ className, file = '/sample.pdf' }: DocumentParserInterfaceProps) {
+  const [isCollapsed, setIsCollapsed] = React.useState(false)
+
+  return (
+    <ResizablePanelGroup
+      className={cn("overflow-auto items-stretch", className)}
+      direction="horizontal"
+    >
+      {/* Sidebar */}
+      <ResizablePanel
+        className="min-w-[50px]"
+        collapsible={true}
+        defaultSize={20}
+        maxSize={30}
+        minSize={15}
+        onCollapse={() => setIsCollapsed(true)}
+        onExpand={() => setIsCollapsed(false)}
+      >
+        <div className="flex h-full flex-col bg-muted/50 p-2">
+          <div className="flex items-center gap-2 p-2">
+            <Folder className="h-4 w-4" />
+            <span className={cn("font-medium", isCollapsed && "hidden")}>
+              raw_data
+            </span>
+          </div>
+          <ScrollArea className="flex-1">
+            <FileContents projectId='william' onSelect={() => {}} />
+          </ScrollArea>
+        </div>
+      </ResizablePanel>
+
+      <ResizableHandle withHandle />
+
+      {/* Main Content */}
+      <ResizablePanel defaultSize={80}>
+        <ResizablePanelGroup direction="horizontal">
+          {/* PDF Viewer */}
+          <ResizablePanel defaultSize={60}>
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between border-b p-2">
+                <h2 className="text-sm font-semibold">Input Document Image</h2>
+                <div className="flex items-center gap-2">
+                  <button className="rounded p-1 hover:bg-muted">
+                    <ChevronRight className="h-4 w-4 rotate-180" />
+                  </button>
+                  <span className="text-sm">Page 1 of 15</span>
+                  <button className="rounded p-1 hover:bg-muted">
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+              <ScrollArea className="flex-1">
+                <div className="flex items-center justify-center p-4">
+                  <div className="aspect-[1/1.4] w-full max-w-3xl rounded-lg bg-white shadow-lg">
+                    {/* PDF content would go here */}
+                    <div className="p-8">
+                      <h1 className="mb-4 text-2xl font-bold">
+                        Attention Is All You Need
+                      </h1>
+                      <p className="text-sm text-muted-foreground">
+                        Sample PDF content would be rendered here
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </ScrollArea>
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle withHandle />
+
+          {/* JSON Viewer */}
+          <ResizablePanel defaultSize={40}>
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between border-b p-2">
+                <h2 className="text-sm font-semibold">Response (JSON)</h2>
+              </div>
+              <ScrollArea className="flex-1">
+                <pre className="p-4 font-mono text-sm">
+                  {JSON.stringify(
+                    {
+                      0: {
+                        text: "Sample text from page 1",
+                        path: "/sample/path/1",
+                        page: 1,
+                        last_modified_datetime: {},
+                      },
+                      1: {
+                        text: "Sample text from page 2",
+                        path: "/sample/path/2",
+                        page: 2,
+                        last_modified_datetime: {},
+                      },
+                    },
+                    null,
+                    2
+                  )}
+                </pre>
+              </ScrollArea>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      </ResizablePanel>
+    </ResizablePanelGroup>
+  )
+}
+
+
+
+
+const ddDocumentParserInterface: React.FC<{ file?: string }> = ({ file = '/sample.pdf' }) => {
   const [showFullScreen, setShowFullScreen] = useState<'document' | 'json' | null>(null);
   const [query, setQuery] = useState('');
   const [sparrowKey, setSparrowKey] = useState('');
@@ -32,119 +171,93 @@ const DocumentParserInterface: React.FC<{ file?: string }> = ({ file = '/sample.
   };
 
   return (
-    <div className="h-screen bg-gray-100 p-4">
-      <div className="grid grid-cols-2 gap-4 h-[60vh]">
-        {/* Original Document View */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
-          <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
-            <h2 className="font-semibold">Input Document Image</h2>
-            <button 
-              onClick={() => setShowFullScreen('document')}
-              className="p-1 hover:bg-gray-200 rounded"
-            >
-              <Maximize2 size={16} />
-            </button>
-          </div>
-          <div className="flex-1 overflow-auto p-4">
-          <DocumentViewer file={file} />
-          </div>
+    <div className="h-screen bg-gray-100 flex">
+      {/* Sidebar for File Contents */}
+      <aside className="w-64 bg-white border-r shadow-lg">
+        <div className="h-full overflow-y-auto">
+          <FileContents projectId='william' onSelect={() => {}} />
         </div>
+      </aside>
 
-        {/* Parsed JSON View */}
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
-          <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
-            <h2 className="font-semibold">Response (JSON)</h2>
-            <div className="flex gap-2">
+      {/* Main Content Area */}
+      <div className="flex-1 p-2">
+        <div className="grid grid-cols-2 gap-4 h-[60vh]">
+          {/* Original Document View */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
+              <h2 className="font-semibold">Input Document Image</h2>
               <button 
-                onClick={() => copyToClipboard(JSON.stringify(parsedData, null, 2))}
                 className="p-1 hover:bg-gray-200 rounded"
-              >
-                <Copy size={16} />
-              </button>
-              <button 
-                onClick={() => setShowFullScreen('json')}
-                className="p-1 hover:bg-gray-200 rounded"
+                onClick={() => setShowFullScreen('document')}
               >
                 <Maximize2 size={16} />
               </button>
             </div>
-          </div>
-          <div className="flex-1 overflow-auto">
-            <JsonView data={parsedData} />
-          </div>
-        </div>
-      </div>
-
-      {/* Query Interface */}
-      <div className="mt-4 bg-white rounded-lg shadow-lg p-4">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Query
-            </label>
-            <textarea
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="w-full h-24 p-3 border rounded-md font-mono text-sm"
-              placeholder={'{"patient_name": "example", "patient_age": "example"...'}
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sparrow Key
-            </label>
-            <input
-              type="text"
-              value={sparrowKey}
-              onChange={(e) => setSparrowKey(e.target.value)}
-              className="w-full p-2 border rounded-md"
-            />
-          </div>
-
-          <button
-            onClick={handleSubmitQuery}
-            className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-          >
-            Submit
-          </button>
-        </div>
-      </div>
-
-      {/* Fullscreen Dialog */}
-      {showFullScreen && (
-        <Dialog open onOpenChange={() => setShowFullScreen(null)}>
-          <div className="fixed inset-0 bg-black/50 z-50">
-            <div className="fixed inset-4 bg-white rounded-lg flex flex-col">
-              <div className="p-4 border-b flex justify-between items-center">
-                <h2 className="font-semibold">
-                  {showFullScreen === 'document' ? 'Document View' : 'JSON View'}
-                </h2>
-                <button 
-                  onClick={() => setShowFullScreen(null)}
-                  className="p-1 hover:bg-gray-100 rounded"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-              <div className="flex-1 overflow-auto p-4">
-                {showFullScreen === 'document' ? (
-                  <img 
-                    src="/api/placeholder/800/1000"
-                    alt="Original Document" 
-                    className="w-full h-auto"
-                  />
-                ) : (
-                  <JsonView data={parsedData} />
-                )}
-              </div>
+            <div className="flex-1 overflow-auto p-4">
+              <DocumentViewer file={file} />
             </div>
           </div>
-        </Dialog>
-      )}
+
+          {/* Parsed JSON View */}
+          <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
+            <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
+              <h2 className="font-semibold">Response (JSON)</h2>
+              <div className="flex gap-2">
+                <button 
+                  className="p-1 hover:bg-gray-200 rounded"
+                  onClick={() => copyToClipboard(JSON.stringify(parsedData, null, 2))}
+                >
+                  <Copy size={16} />
+                </button>
+                <button 
+                  className="p-1 hover:bg-gray-200 rounded"
+                  onClick={() => setShowFullScreen('json')}
+                >
+                  <Maximize2 size={16} />
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 overflow-auto">
+              <JsonView data={parsedData} />
+            </div>
+          </div>
+        </div>
+
+        {/* Fullscreen Dialog */}
+        {showFullScreen && (
+          <Dialog open onOpenChange={() => setShowFullScreen(null)}>
+            <div className="fixed inset-0 bg-black/50 z-50">
+              <div className="fixed inset-4 bg-white rounded-lg flex flex-col">
+                <div className="p-4 border-b flex justify-between items-center">
+                  <h2 className="font-semibold">
+                    {showFullScreen === 'document' ? 'Document View' : 'JSON View'}
+                  </h2>
+                  <button 
+                    className="p-1 hover:bg-gray-100 rounded"
+                    onClick={() => setShowFullScreen(null)}
+                  >
+                    <X size={16} />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-auto p-4">
+                  {showFullScreen === 'document' ? (
+                    <img 
+                      alt="Original Document"
+                      className="w-full h-auto" 
+                      src="/api/placeholder/800/1000"
+                    />
+                  ) : (
+                    <JsonView data={parsedData} />
+                  )}
+                </div>
+              </div>
+            </div>
+          </Dialog>
+        )}
+      </div>
     </div>
   );
-};
+}
 
 // JSON Tree View 컴포넌트
 const JsonView: React.FC<{ data: any }> = ({ data }) => {
@@ -193,26 +306,5 @@ const JsonView: React.FC<{ data: any }> = ({ data }) => {
   );
 };
 
-// 샘플 데이터
-const parsedData: ParsedData = {
-  "patient_name": "Yash M. Patel",
-  "patient_age": "21 Years",
-  "patient_pid": 555,
-  "lab_results": [
-    {
-      "investigation": "Hemoglobin (Hb)",
-      "result": 12.5,
-      "reference_value": "13.0 - 17.0",
-      "unit": "g/dL"
-    },
-    {
-      "investigation": "RBC COUNT",
-      "result": 5.2,
-      "reference_value": "4.5 - 5.5",
-      "unit": "mill/cumm"
-    }
-    // ... 추가 결과들
-  ]
-};
 
 export default DocumentParserInterface;

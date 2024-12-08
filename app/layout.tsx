@@ -54,10 +54,10 @@ export default function RootLayout({
                 <Toaster />
               </main>
             </div>
-
+{/* 
             <footer className="fixed bottom-0 w-full flex items-center justify-center py-3 bg-background border-t">
               <small><b>Powered by AutoRAG</b></small>
-            </footer>
+            </footer> */}
           </div>
         </Providers>
       </body>

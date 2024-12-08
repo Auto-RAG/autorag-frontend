@@ -41,7 +41,7 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
   }, []);
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full">
       {!selectedFile ? (
           <Table>
             <TableHeader>
@@ -89,7 +89,7 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
             </TableBody>
         </Table>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-4 h-full">
           <div className="flex items-center justify-between">
             <button
               className="flex items-center gap-1 px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 rounded"
@@ -116,7 +116,7 @@ const ParseTabContent: React.FC<{ project_id: string }> = ({ project_id }) => {
   const [showParseDialog, setShowParseDialog] = useState(false);
 
   return (
-    <div>
+    <div className="h-full">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-semibold">Parsed Data</h1>
         <button 
