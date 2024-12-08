@@ -178,7 +178,7 @@ const ArtifactsView: React.FC<{ projectId: string }> = ({ projectId }) => {
         </div>
         <div className="overflow-auto border rounded p-2">
           {selectedFileContent ? (
-            <DocumentViewer file={selectedFileContent} />
+            <DocumentViewer file={selectedFileContent} onPageChange={() => {}}/>
           ) : (
             <div className="text-gray-500 text-sm">Select a file to view its contents</div>
           )}

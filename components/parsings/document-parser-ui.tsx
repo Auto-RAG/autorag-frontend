@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
 
 import { FileContents } from '../artifacts/artifacts-view-library';
@@ -19,35 +19,15 @@ interface ParsedData {
   last_modified_datetime: Date;
 }
 
-const parsedData: ParsedData[] = [
-  {
-    texts: "Sample text from page 1",
-    path: "/sample/path/1",
-    page: 1,
-    last_modified_datetime: new Date('2023-01-01T10:00:00Z')
-  },
-  {
-    texts: "Sample text from page 2",
-    path: "/sample/path/2",
-    page: 2,
-    last_modified_datetime: new Date('2023-01-02T10:00:00Z')
-  },
-  {
-    texts: "Sample text from page 3",
-    path: "/sample/path/3",
-    page: 3,
-    last_modified_datetime: new Date('2023-01-03T10:00:00Z')
-  }
-];
-
 interface DocumentParserInterfaceProps {
   project_id: string;
   className?: string
 }
 
 export default function DocumentParserInterface({ project_id, className }: DocumentParserInterfaceProps) {
-  const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedFileContent, setSelectedFileContent] = useState<string | File | Blob>("");
+  const [parsedData, setParsedData] = useState<string>("");
 
 
   const handleFileSelected = async (nodeId: string) => {
@@ -76,6 +56,11 @@ export default function DocumentParserInterface({ project_id, className }: Docum
     } else {
       toast.error("Now only supporting PDF file at viewer");
     }
+  };
+
+  const handlePageChanged = (pageNum: number) => {
+    setParsedData(`${pageNum} Jax`);
+
   };
 
   return (
@@ -108,7 +93,7 @@ export default function DocumentParserInterface({ project_id, className }: Docum
           {/* PDF Viewer */}
           <ResizablePanel defaultSize={60}>
             <div className="flex h-full flex-col">
-              <DocumentViewer file={selectedFileContent} />
+              <DocumentViewer file={selectedFileContent} onPageChange={handlePageChanged}/>
             </div>
           </ResizablePanel>
 
@@ -122,7 +107,7 @@ export default function DocumentParserInterface({ project_id, className }: Docum
               </div>
               <ScrollArea className="flex-1">
                 <pre className="p-4 font-mono text-sm">
-                  {"Havertz Hevertz Havertz"}
+                  {parsedData}
                 </pre>
               </ScrollArea>
             </div>
