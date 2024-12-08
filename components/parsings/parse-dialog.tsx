@@ -41,6 +41,7 @@ export function ParseDialog({ open, onOpenChange, projectId }: ParseDialogProps)
   const handleSubmit = async () => {
     const parseConfig = {modules: [{
       module_type: "langchain_parse",
+      file_type: "pdf",
       parse_method: pdfReader
     }]}
 

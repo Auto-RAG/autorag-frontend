@@ -11,6 +11,7 @@ import { ScrollArea } from '../ui/scroll-area';
 import DocumentViewer from './document-viewer';
 
 import { cn } from '@/lib/utils';
+import { APIClient } from '@/lib/api-client';
 
 interface ParsedData {
   texts: string;
@@ -21,13 +22,16 @@ interface ParsedData {
 
 interface DocumentParserInterfaceProps {
   project_id: string;
+  parsed_name: string;
   className?: string
 }
 
-export default function DocumentParserInterface({ project_id, className }: DocumentParserInterfaceProps) {
+export default function DocumentParserInterface({ project_id, parsed_name, className }: DocumentParserInterfaceProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selectedFileContent, setSelectedFileContent] = useState<string | File | Blob>("");
   const [parsedData, setParsedData] = useState<string>("");
+  const [selectedFileName, setSelectedFileName] = useState<string>("");
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
 
 
   const handleFileSelected = async (nodeId: string) => {
@@ -47,6 +51,8 @@ export default function DocumentParserInterface({ project_id, className }: Docum
           const blob = await response.blob();
           
           setSelectedFileContent(blob);
+
+          setSelectedFileName(nodeId);
         
       } catch (error) {
         console.error('Supporting only PDF file at viewer', error);
@@ -58,8 +64,10 @@ export default function DocumentParserInterface({ project_id, className }: Docum
     }
   };
 
-  const handlePageChanged = (pageNum: number) => {
-    setParsedData(`${pageNum} Jax`);
+  const handlePageChanged = async (pageNum: number) => {
+    const response = await apiClient.getParsedRow(project_id, parsed_name, selectedFileName, pageNum);
+
+    setParsedData(response.texts);
 
   };
 

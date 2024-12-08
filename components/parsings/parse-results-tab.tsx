@@ -104,7 +104,7 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
             </div>
           </div>
           
-          <DocumentParserInterface project_id={project_id} />
+          <DocumentParserInterface parsed_name={selectedFile.parse_name} project_id={project_id} />
         </div>
       )}
     </div>

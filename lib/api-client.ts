@@ -307,6 +307,21 @@ export interface EvaluateTrialOptions {
       return await response.json();
     }
 
+    async getParsedRow(projectId: string, parsedName: string, fileName: string, pageNum: number = -1) {
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/parse/${parsedName}?filename=${fileName}&page=${pageNum}`,
+        {method: 'GET'},
+      )
+
+      if (response.status === 400) {
+        return {error: "The filename not found.", status: 400};
+      } else if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
     async getParsedDocuments(projectId: string) {
       return this.fetch<Array<{
         parse_filepath: string;
