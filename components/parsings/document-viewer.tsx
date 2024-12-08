@@ -19,6 +19,7 @@ const DocumentViewer: React.FC<DocumentViewerProps> = ({ file, onPageChange = (p
 
   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
     setNumPages(numPages);
+    setPageNumber(1);
   }
 
   const changePage = (offset: number) => {

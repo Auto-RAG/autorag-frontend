@@ -62,6 +62,14 @@ export default function DocumentParserInterface({ project_id, parsed_name, class
     } else {
       toast.error("Now only supporting PDF file at viewer");
     }
+    try{
+      const parsedResponse = await apiClient.getParsedRow(project_id, parsed_name, nodeId, 1);
+
+      setParsedData(parsedResponse.texts);
+    } catch {
+      toast.error("This file is not parsed in this parsed data.");
+    }
+      
   };
 
   const handlePageChanged = async (pageNum: number) => {

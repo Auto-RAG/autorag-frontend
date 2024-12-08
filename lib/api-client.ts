@@ -314,7 +314,7 @@ export interface EvaluateTrialOptions {
       )
 
       if (response.status === 400) {
-        return {error: "The filename not found.", status: 400};
+        throw new Error("The filename not found.");
       } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
