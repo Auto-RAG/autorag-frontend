@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Dialog } from '@radix-ui/react-dialog';
-import { ChevronRight, Copy, Folder, Maximize2, X } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 import { FileContents } from '../artifacts/artifacts-view-library';
 import { ResizableHandle, ResizablePanel } from '../ui/resizable';
@@ -42,12 +41,42 @@ const parsedData: ParsedData[] = [
 ];
 
 interface DocumentParserInterfaceProps {
+  project_id: string;
   className?: string
-  file?: string
 }
 
-export function DocumentParserInterface({ className, file = '/sample.pdf' }: DocumentParserInterfaceProps) {
+export default function DocumentParserInterface({ project_id, className }: DocumentParserInterfaceProps) {
   const [isCollapsed, setIsCollapsed] = React.useState(false)
+  const [selectedFileContent, setSelectedFileContent] = useState<string | File | Blob>("");
+
+
+  const handleFileSelected = async (nodeId: string) => {
+    if (nodeId.includes('.pdf')) {
+      try {
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${project_id}/artifacts/content?filename=${nodeId}`, {
+            method: 'GET',
+            headers: {
+              'Accept': 'application/pdf'
+            }
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to fetch file');
+          }
+
+          const blob = await response.blob();
+          
+          setSelectedFileContent(blob);
+        
+      } catch (error) {
+        console.error('Supporting only PDF file at viewer', error);
+
+        toast.error("Now only supporting PDF file at viewer");
+      }
+    } else {
+      toast.error("Now only supporting PDF file at viewer");
+    }
+  };
 
   return (
     <ResizablePanelGroup
@@ -65,14 +94,8 @@ export function DocumentParserInterface({ className, file = '/sample.pdf' }: Doc
         onExpand={() => setIsCollapsed(false)}
       >
         <div className="flex h-full flex-col bg-muted/50 p-2">
-          <div className="flex items-center gap-2 p-2">
-            <Folder className="h-4 w-4" />
-            <span className={cn("font-medium", isCollapsed && "hidden")}>
-              raw_data
-            </span>
-          </div>
           <ScrollArea className="flex-1">
-            <FileContents projectId='william' onSelect={() => {}} />
+            <FileContents projectId='william' onSelect={handleFileSelected} />
           </ScrollArea>
         </div>
       </ResizablePanel>
@@ -85,33 +108,7 @@ export function DocumentParserInterface({ className, file = '/sample.pdf' }: Doc
           {/* PDF Viewer */}
           <ResizablePanel defaultSize={60}>
             <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between border-b p-2">
-                <h2 className="text-sm font-semibold">Input Document Image</h2>
-                <div className="flex items-center gap-2">
-                  <button className="rounded p-1 hover:bg-muted">
-                    <ChevronRight className="h-4 w-4 rotate-180" />
-                  </button>
-                  <span className="text-sm">Page 1 of 15</span>
-                  <button className="rounded p-1 hover:bg-muted">
-                    <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              <ScrollArea className="flex-1">
-                <div className="flex items-center justify-center p-4">
-                  <div className="aspect-[1/1.4] w-full max-w-3xl rounded-lg bg-white shadow-lg">
-                    {/* PDF content would go here */}
-                    <div className="p-8">
-                      <h1 className="mb-4 text-2xl font-bold">
-                        Attention Is All You Need
-                      </h1>
-                      <p className="text-sm text-muted-foreground">
-                        Sample PDF content would be rendered here
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </ScrollArea>
+              <DocumentViewer file={selectedFileContent} />
             </div>
           </ResizablePanel>
 
@@ -121,28 +118,11 @@ export function DocumentParserInterface({ className, file = '/sample.pdf' }: Doc
           <ResizablePanel defaultSize={40}>
             <div className="flex h-full flex-col">
               <div className="flex items-center justify-between border-b p-2">
-                <h2 className="text-sm font-semibold">Response (JSON)</h2>
+                <h2 className="text-sm font-semibold">Parsed Text</h2>
               </div>
               <ScrollArea className="flex-1">
                 <pre className="p-4 font-mono text-sm">
-                  {JSON.stringify(
-                    {
-                      0: {
-                        text: "Sample text from page 1",
-                        path: "/sample/path/1",
-                        page: 1,
-                        last_modified_datetime: {},
-                      },
-                      1: {
-                        text: "Sample text from page 2",
-                        path: "/sample/path/2",
-                        page: 2,
-                        last_modified_datetime: {},
-                      },
-                    },
-                    null,
-                    2
-                  )}
+                  {"Havertz Hevertz Havertz"}
                 </pre>
               </ScrollArea>
             </div>
@@ -152,159 +132,3 @@ export function DocumentParserInterface({ className, file = '/sample.pdf' }: Doc
     </ResizablePanelGroup>
   )
 }
-
-
-
-
-const ddDocumentParserInterface: React.FC<{ file?: string }> = ({ file = '/sample.pdf' }) => {
-  const [showFullScreen, setShowFullScreen] = useState<'document' | 'json' | null>(null);
-  const [query, setQuery] = useState('');
-  const [sparrowKey, setSparrowKey] = useState('');
-
-  const handleSubmitQuery = () => {
-    // Query 처리 로직 구현
-    console.log('Executing query:', query);
-  };
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-  };
-
-  return (
-    <div className="h-screen bg-gray-100 flex">
-      {/* Sidebar for File Contents */}
-      <aside className="w-64 bg-white border-r shadow-lg">
-        <div className="h-full overflow-y-auto">
-          <FileContents projectId='william' onSelect={() => {}} />
-        </div>
-      </aside>
-
-      {/* Main Content Area */}
-      <div className="flex-1 p-2">
-        <div className="grid grid-cols-2 gap-4 h-[60vh]">
-          {/* Original Document View */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
-            <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
-              <h2 className="font-semibold">Input Document Image</h2>
-              <button 
-                className="p-1 hover:bg-gray-200 rounded"
-                onClick={() => setShowFullScreen('document')}
-              >
-                <Maximize2 size={16} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-auto p-4">
-              <DocumentViewer file={file} />
-            </div>
-          </div>
-
-          {/* Parsed JSON View */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden flex flex-col">
-            <div className="p-3 bg-gray-50 border-b flex justify-between items-center">
-              <h2 className="font-semibold">Response (JSON)</h2>
-              <div className="flex gap-2">
-                <button 
-                  className="p-1 hover:bg-gray-200 rounded"
-                  onClick={() => copyToClipboard(JSON.stringify(parsedData, null, 2))}
-                >
-                  <Copy size={16} />
-                </button>
-                <button 
-                  className="p-1 hover:bg-gray-200 rounded"
-                  onClick={() => setShowFullScreen('json')}
-                >
-                  <Maximize2 size={16} />
-                </button>
-              </div>
-            </div>
-            <div className="flex-1 overflow-auto">
-              <JsonView data={parsedData} />
-            </div>
-          </div>
-        </div>
-
-        {/* Fullscreen Dialog */}
-        {showFullScreen && (
-          <Dialog open onOpenChange={() => setShowFullScreen(null)}>
-            <div className="fixed inset-0 bg-black/50 z-50">
-              <div className="fixed inset-4 bg-white rounded-lg flex flex-col">
-                <div className="p-4 border-b flex justify-between items-center">
-                  <h2 className="font-semibold">
-                    {showFullScreen === 'document' ? 'Document View' : 'JSON View'}
-                  </h2>
-                  <button 
-                    className="p-1 hover:bg-gray-100 rounded"
-                    onClick={() => setShowFullScreen(null)}
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-                <div className="flex-1 overflow-auto p-4">
-                  {showFullScreen === 'document' ? (
-                    <img 
-                      alt="Original Document"
-                      className="w-full h-auto" 
-                      src="/api/placeholder/800/1000"
-                    />
-                  ) : (
-                    <JsonView data={parsedData} />
-                  )}
-                </div>
-              </div>
-            </div>
-          </Dialog>
-        )}
-      </div>
-    </div>
-  );
-}
-
-// JSON Tree View 컴포넌트
-const JsonView: React.FC<{ data: any }> = ({ data }) => {
-  const renderValue = (value: any, path: string, key?: string) => {
-    if (value === null) return <span className="text-gray-500">null</span>;
-    if (typeof value === 'boolean') return <span className="text-blue-600">{value.toString()}</span>;
-    if (typeof value === 'number') return <span className="text-blue-600">{value}</span>;
-    if (typeof value === 'string') return <span className="text-green-600">"{value}"</span>;
-    
-    const isArray = Array.isArray(value);
-    
-    return (
-      <div>
-        <div className="flex items-center gap-1">
-          {key && <span className="text-purple-600">"{key}"</span>}
-          <span>{isArray ? '[' : '{'}</span>
-        </div>
-        
-        <div className="ml-4 border-l pl-2">
-          {isArray ? (
-            value.map((item: any, index: number) => (
-              <div key={index} className="flex items-start gap-1">
-                <span className="text-gray-500">{index}:</span>
-                {renderValue(item, `${path}.${index}`)}
-                {index < value.length - 1 && <span>,</span>}
-              </div>
-            ))
-          ) : (
-            Object.entries(value).map(([k, v], index, arr) => (
-              <div key={k} className="flex items-start gap-1">
-                {renderValue(v, `${path}.${k}`, k)}
-                {index < arr.length - 1 && <span>,</span>}
-              </div>
-            ))
-          )}
-        </div>
-        <div>{isArray ? ']' : '}'}</div>
-      </div>
-    );
-  };
-
-  return (
-    <div className="font-mono text-sm p-4">
-      {renderValue(data, 'root')}
-    </div>
-  );
-};
-
-
-export default DocumentParserInterface;

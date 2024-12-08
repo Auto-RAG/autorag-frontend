@@ -104,7 +104,7 @@ const ParseResultsContent: React.FC<{ project_id: string }> = ({ project_id }) =
             </div>
           </div>
           
-          <DocumentParserInterface />
+          <DocumentParserInterface project_id={project_id} />
         </div>
       )}
     </div>
