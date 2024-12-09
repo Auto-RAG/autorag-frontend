@@ -55,7 +55,7 @@ export function UploadDialog({ projectId }: { projectId: string }) {
           <DialogTitle>Upload Files</DialogTitle>
         </DialogHeader>
         <div className="grid w-full max-w-sm items-center gap-1.5">
-          <Label htmlFor="files">Files</Label>
+          <Label htmlFor="files">Files (Only pdf, csv, json, md, html, xml available)</Label>
           <Input
             multiple
             accept="*/*"
