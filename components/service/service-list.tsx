@@ -1,19 +1,32 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 import { ViewServiceDetailButton } from "./view-service-detail-button";
 
-import { APIClient } from "@/lib/api-client";
+import { APIClient, Project } from "@/lib/api-client";
 import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
 
-export async function ServiceList() {
-  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
-  const { data } = await apiClient.getProjects(1, 50, 'active');
-  const services = data;
+export function ServiceList() {
+  const [services, setServices] = useState<Project[]>([]);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+      const { data } = await apiClient.getProjects(1, 50, 'active');
+
+      setServices(data);
+    };
+
+    fetchServices();
+  }, []);
 
   return (
     <Table>
