@@ -286,6 +286,7 @@ export interface EvaluateTrialOptions {
       name: string;
       extension: string;
       config: Record<string, any>;
+      all_files: boolean;
     }) {
       const response = await fetch(
         `${this.baseUrl}/projects/${projectId}/parse`,
@@ -300,6 +301,21 @@ export interface EvaluateTrialOptions {
 
       if (response.status === 400) {
         return {error: "The parse name is duplicated.", status: 400};
+      } else if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    }
+
+    async getParsedRow(projectId: string, parsedName: string, fileName: string, pageNum: number = -1) {
+      const response = await fetch(
+        `${this.baseUrl}/projects/${projectId}/parse/${parsedName}?filename=${fileName}&page=${pageNum}`,
+        {method: 'GET'},
+      )
+
+      if (response.status === 400) {
+        throw new Error("The filename not found.");
       } else if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
