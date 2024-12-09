@@ -96,7 +96,7 @@ export default function DocumentParserInterface({ project_id, parsed_name, class
       >
         <div className="flex h-full flex-col bg-muted/50 p-2">
           <ScrollArea className="flex-1">
-            <FileContents projectId='william' onSelect={handleFileSelected} />
+            <FileContents projectId={project_id} onSelect={handleFileSelected} />
           </ScrollArea>
         </div>
       </ResizablePanel>
