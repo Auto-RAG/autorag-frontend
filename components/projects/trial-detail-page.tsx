@@ -14,6 +14,7 @@ import { ChevronRight } from "lucide-react";
 
 import QADashboard from "../qacreations/qacreation-page";
 import ParquetViewer from "../qacreations/qa-analysis-layout";
+import QAOneRow from "../qacreations/qa-one-row";
 
 import { ConfigEditor } from "./trials/configuration/config-editor";
 import { ConfigSelector } from "./trials/configuration/config-selector";
@@ -412,8 +413,16 @@ export function TrialDetail({
               <Settings2 className="h-4 w-4" />
               Configuration
             </TabsTrigger>
+            <TabsTrigger className="flex items-center gap-2" value="test-qa-row">
+              <Settings2 className="h-4 w-4" />
+              test-qa-row
+            </TabsTrigger>
           </TabsList>
 
+
+          <TabsContent value="test-qa-row">
+            <QAOneRow project_id={projectId} qa_name={'last-pls'}/>
+          </TabsContent>
 
           <TabsContent value="qa">
             <Card>
