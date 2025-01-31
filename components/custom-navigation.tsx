@@ -18,7 +18,7 @@ export function CustomNavigation() {
               <Button
                 className="text-xl font-ibm font-extrabold -ml-4 "
                 variant="ghost"
-                onClick={() => router.push("/service")}
+                onClick={() => router.push("/")}
               >
                 AutoRAG GUI
               </Button>
