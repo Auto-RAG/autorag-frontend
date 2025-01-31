@@ -60,9 +60,9 @@ export const siteConfig = {
     },
   ],
   links: {
-    github: "https://github.com/nextui-org/nextui",
+    github: "https://github.com/Marker-Inc-Korea/AutoRAG",
     twitter: "https://twitter.com/getnextui",
-    docs: "https://nextui.org",
+    docs: "https://docs.auto-rag.com/index.html",
     discord: "https://discord.gg/9b6yyZKmH4",
     sponsor: "https://patreon.com/jrgarciadev",
   },
