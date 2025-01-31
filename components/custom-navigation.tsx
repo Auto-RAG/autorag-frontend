@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Settings, Smile } from "lucide-react";
+import { Baby, Settings } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -34,7 +34,7 @@ export function CustomNavigation() {
               variant="ghost"
               onClick={() => router.push("/service")}
             >
-              <Smile className="h-5 w-5 mr-2" />
+              <Baby className="h-5 w-5 mr-2" />
               Newbie
             </Button>
             {/* <Button
