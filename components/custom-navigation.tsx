@@ -2,7 +2,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Home, Settings } from "lucide-react";
+import { Settings, Smile } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +20,7 @@ export function CustomNavigation() {
                 variant="ghost"
                 onClick={() => router.push("/service")}
               >
-                AutoRAG Cloud
+                AutoRAG GUI
               </Button>
             </div>
           </div>
@@ -34,8 +34,8 @@ export function CustomNavigation() {
               variant="ghost"
               onClick={() => router.push("/service")}
             >
-              <Home className="h-5 w-5 mr-2" />
-              Service
+              <Smile className="h-5 w-5 mr-2" />
+              Newbie
             </Button>
             {/* <Button
               size="sm"
