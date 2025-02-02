@@ -2,13 +2,9 @@ import React, { useState, useEffect } from 'react';
 import * as arrow from "apache-arrow";
 import { parseTable } from "arrow-js-ffi";
 import initWasm, { wasmMemory, readParquet } from "parquet-wasm";
-import { 
-  Edit,           // 기본 편집 아이콘
-  Edit2,          // 다른 스타일의 편집 아이콘
-  Edit3,          // 또 다른 스타일의 편집 아이콘
-  Pencil,         // 연필 아이콘
-  PenTool,        // 펜 도구 아이콘
-  RotateCw,       // 회전 아이콘
+import {
+  Edit2, // 펜 도구 아이콘
+  RotateCw
 } from 'lucide-react';
 
 const vectorToStringList = (vector: any): string[] => {
@@ -18,6 +14,7 @@ const vectorToStringList = (vector: any): string[] => {
 
   // Vector의 data 속성에서 실제 값을 추출
   const values = vector.data[0].values;
+
   if (!values) return [];
 
   if (Array.isArray(values)) {
@@ -25,14 +22,17 @@ const vectorToStringList = (vector: any): string[] => {
       if (typeof value === 'string') {
         return value.replace(/[\[\]]/g, '');
       }
+
       return String(value);
     });
   }
 
   // TypedArray인 경우
   const result: string[] = [];
+
   for (let i = 0; i < vector.length; i++) {
     const value = vector.get(i);
+
     if (value) {
       if (typeof value === 'string') {
         result.push(value.replace(/[\[\]]/g, ''));
@@ -41,6 +41,7 @@ const vectorToStringList = (vector: any): string[] => {
       }
     }
   }
+
   return result;
 };
 
@@ -207,6 +208,7 @@ const ParquetViewer: React.FC<{
   const filteredQaData = React.useMemo(() => {
     if (!searchTerm) return qaData;
     const lowercaseSearch = searchTerm.toLowerCase();
+
     return qaData.filter(row => 
       row.question.toLowerCase().includes(lowercaseSearch) ||
       row.answer.toLowerCase().includes(lowercaseSearch)
@@ -288,15 +290,14 @@ const ParquetViewer: React.FC<{
           <div className="flex-1 overflow-y-auto">
             {selectedChunkId ? (
               <div className="p-4">
-                  <p className="text-xs text-gray-500 mb-2">
-                  
-                  </p>
+                  <p className="text-xs text-gray-500 mb-2" />
                 <div className="text-xs text-gray-500 mb-2">
                   Chunk ID: <b>{selectedChunkId}</b> of {chunkData.size} chunks
                 </div>
                   <p className="text-sm whitespace-pre-wrap">
                      { Array.from(chunkData.entries()).map(([key, value]) => {
                      const isEqual = String(key) === String(selectedChunkId);
+
                       return (isEqual) ? (
                         <span key={key}> 
                             <b>{key}</b>: {value}
