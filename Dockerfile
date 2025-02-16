@@ -22,6 +22,13 @@ COPY . .
 COPY --from=deps /app/node_modules ./node_modules
 # COPY --from=deps /app/.yarn ./.yarn
 
+# Add this line to set the environment variable during build
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ARG NEXT_PUBLIC_HOST_URL
+ENV NEXT_PUBLIC_HOST_URL=$NEXT_PUBLIC_HOST_URL
+
 # 빌드 전에 디렉토리 확인
 RUN ls -la && \
     # Next.js 빌드 실행
