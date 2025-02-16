@@ -4,16 +4,16 @@ import { useState, useEffect } from "react";
 import { Button } from "@nextui-org/button";
 import {
   Settings2,
-  PlayCircle, AlertCircle,
+  PlayCircle,
+  AlertCircle,
   CheckCircle2,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import toast, { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from "react-hot-toast";
 import { ChevronRight } from "lucide-react";
 
 import QADashboard from "../qacreations/qacreation-page";
-import ParquetViewer from "../qacreations/qa-analysis-layout";
 
 import { ConfigEditor } from "./trials/configuration/config-editor";
 import { ConfigSelector } from "./trials/configuration/config-selector";
@@ -63,7 +63,7 @@ export function TrialDetail({
   trialId: string;
 }) {
   const [trialConfig, setTrialConfig] = useState<TrialConfig>({
-    project_id: ""
+    project_id: "",
   });
   const [trial, setTrial] = useState<Trial | null>(null);
   const mockTasks: Task[] = [
@@ -73,23 +73,23 @@ export function TrialDetail({
       type: "parse",
       status: "completed",
       created_at: new Date().toISOString(),
-      name: "Parse Task"
+      name: "Parse Task",
     },
     {
-      task_id: "task_002", 
+      task_id: "task_002",
       trial_id: trialId,
       type: "chunk",
       status: "in_progress",
       created_at: new Date().toISOString(),
-      name: "Chunk Task"
+      name: "Chunk Task",
     },
     {
       task_id: "task_003",
       trial_id: trialId,
       type: "qa",
-      status: "not_started", 
+      status: "not_started",
       created_at: new Date().toISOString(),
-      name: "QA Task"
+      name: "QA Task",
     },
     {
       task_id: "task_004",
@@ -98,12 +98,12 @@ export function TrialDetail({
       status: "failed",
       error_message: "Validation failed",
       created_at: new Date().toISOString(),
-      name: "Validate Task"
-    }
+      name: "Validate Task",
+    },
   ];
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
   const [config, setConfig] = useState("");
-  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, '');
+  const apiClient = new APIClient(process.env.NEXT_PUBLIC_API_URL!, "");
 
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("tasks");
@@ -114,16 +114,17 @@ export function TrialDetail({
   // URL 해시가 변경될 때마다 탭 상태 업데이트
   useEffect(() => {
     const hash = window.location.hash.slice(1);
-    
+
     // Fetch project and trial info
     const fetchInitialData = async () => {
       try {
-        const [projectResponse, trialConfigResponse, trialResponse] = await Promise.all([
-          apiClient.getProject(projectId),
-          apiClient.getTrialConfig(projectId, trialId),
-          apiClient.getTrial(projectId, trialId)
-        ]);
-        
+        const [projectResponse, trialConfigResponse, trialResponse] =
+          await Promise.all([
+            apiClient.getProject(projectId),
+            apiClient.getTrialConfig(projectId, trialId),
+            apiClient.getTrial(projectId, trialId),
+          ]);
+
         setProjectName(projectResponse.name);
         console.log(trialConfigResponse);
         // @ts-ignore
@@ -148,7 +149,7 @@ export function TrialDetail({
   const handleTabChange = (value: string) => {
     setActiveTab(value);
     router.push(`${window.location.pathname}#${value}`, { scroll: false });
-    
+
     // Refresh tasks when switching to tasks tab
     if (value === "tasks") {
       fetchTasks();
@@ -158,16 +159,16 @@ export function TrialDetail({
   // Move fetchTasks to a separate function outside useEffect
   const fetchTasks = async () => {
     if (!projectId) return;
-    
+
     try {
       setIsLoading(true);
       const response = await apiClient.getTasks(projectId);
-      
+
       // @ts-ignore
       setTasks(response.data as Task[]);
       toast.success("Tasks fetched successfully");
     } catch (error) {
-      console.error('Error fetching tasks:', error);
+      console.error("Error fetching tasks:", error);
       toast.error("Error: Failed to fetch tasks");
     } finally {
       setIsLoading(false);
@@ -188,8 +189,12 @@ export function TrialDetail({
     const parsedConfig = await response.json();
 
     try {
-      const response = await apiClient.setTrialConfig(projectId, trialId, trialConfig);
-      
+      const response = await apiClient.setTrialConfig(
+        projectId,
+        trialId,
+        trialConfig
+      );
+
       if (!response) {
         throw new Error("Failed to save config");
       }
@@ -207,17 +212,15 @@ export function TrialDetail({
 
       const task = await apiClient.evaluateTrial(projectId, trialId, {
         full_ingest: fullIngest,
-        skip_validation: skipValidation
+        skip_validation: skipValidation,
       });
 
       console.log(task);
       toast.success("Trial Started");
       fetchTasks();
-
     } catch (error) {
       console.error("Error running trial:", error);
-      toast.error("Failed to start trial evaluation", {
-      });
+      toast.error("Failed to start trial evaluation", {});
     }
   };
 
@@ -244,7 +247,7 @@ export function TrialDetail({
       toast("Starting Evaluation");
       const task = await apiClient.evaluateTrial(projectId, trialId, {
         full_ingest: false,
-        skip_validation: true
+        skip_validation: true,
       });
 
       console.log(task);
@@ -286,13 +289,17 @@ export function TrialDetail({
             <ChevronRight className="h-4 w-4" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbLink href={`/projects/${projectId}`}><b>{projectName || "Project Details"}</b></BreadcrumbLink>
+            <BreadcrumbLink href={`/projects/${projectId}`}>
+              <b>{projectName || "Project Details"}</b>
+            </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator>
             <ChevronRight className="h-4 w-4" />
           </BreadcrumbSeparator>
           <BreadcrumbItem>
-            <BreadcrumbPage>{'Trial : ' + trial?.name || "Trial Details"}</BreadcrumbPage>
+            <BreadcrumbPage>
+              {"Trial : " + trial?.name || "Trial Details"}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -341,68 +348,57 @@ export function TrialDetail({
               startContent={<PlayCircle size={16} />}
               onClick={handleEvaluate}
             >
-              Evaluate 
+              Evaluate
             </Button>
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">
-                        Status
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center gap-2">
-                        {getStatusIcon(trial?.status || "")}
-                        <span className="text-lg capitalize">
-                          {trial?.status}
-                        </span>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">
-                        Total Tasks
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-lg">{tasks.length}</div>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm font-medium">
-                        Completion Rate
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-lg">
-                        {(
-                          (tasks.filter((t) => t.status === "completed").length /
-                            tasks.length) *
-                            100 || 0
-                        ).toFixed(1)}
-                        %
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Status</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-2">
+                {getStatusIcon(trial?.status || "")}
+                <span className="text-lg capitalize">{trial?.status}</span>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">Total Tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg">{tasks.length}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm font-medium">
+                Completion Rate
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-lg">
+                {(
+                  (tasks.filter((t) => t.status === "completed").length /
+                    tasks.length) *
+                    100 || 0
+                ).toFixed(1)}
+                %
+              </div>
+            </CardContent>
+          </Card>
+        </div>
         <Tabs
           className="w-full"
           value={activeTab}
           onValueChange={handleTabChange}
         >
           <TabsList>
-
-          <TabsTrigger className="flex items-center gap-2" value="tasks">
+            <TabsTrigger className="flex items-center gap-2" value="tasks">
               <PlayCircle className="h-4 w-4" />
               Tasks
-            </TabsTrigger>
-            <TabsTrigger className="flex items-center gap-2" value="qa_chunk_view">
-              <Settings2 className="h-4 w-4" />
-              qa_chunk_view
             </TabsTrigger>
             <TabsTrigger className="flex items-center gap-2" value="qa">
               <Settings2 className="h-4 w-4" />
@@ -413,7 +409,6 @@ export function TrialDetail({
               Configuration
             </TabsTrigger>
           </TabsList>
-
 
           <TabsContent value="qa">
             <Card>
@@ -432,7 +427,11 @@ export function TrialDetail({
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle>Configuration</CardTitle>
-                  <Button className="bg-blue-500 hover:bg-blue-600 text-white" variant="solid" onClick={handleConfigSave}>
+                  <Button
+                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    variant="solid"
+                    onClick={handleConfigSave}
+                  >
                     Save Config
                   </Button>
                 </div>
@@ -440,11 +439,11 @@ export function TrialDetail({
               <CardContent>
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="border overflow-hidden">
-                  <ConfigSelector onConfigSelect={handleConfigSelect} />
+                    <ConfigSelector onConfigSelect={handleConfigSelect} />
                   </div>
-                <div className="border rounded-md overflow-hidden">
-                  <ConfigEditor value={config}/>
-                </div>
+                  <div className="border rounded-md overflow-hidden">
+                    <ConfigEditor value={config} />
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -468,13 +467,18 @@ export function TrialDetail({
                           <div
                             key={task.task_id}
                             className={`p-3 rounded-lg cursor-pointer hover:bg-gray-100 ${
-                              selectedTask?.task_id === task.task_id ? 'bg-gray-100' : ''
+                              selectedTask?.task_id === task.task_id
+                                ? "bg-gray-100"
+                                : ""
                             }`}
                             onClick={() => setSelectedTask(task)}
                           >
                             <div className="flex items-center justify-between">
                               <div>
-                                <div className="font-medium truncate" style={{maxWidth: "200px"}}>
+                                <div
+                                  className="font-medium truncate"
+                                  style={{ maxWidth: "200px" }}
+                                >
                                   {task.task_id.substring(0, 8)}...
                                 </div>
                                 <div className="text-sm text-gray-500 capitalize">
@@ -496,29 +500,43 @@ export function TrialDetail({
                           <div className="grid grid-cols-2 gap-4">
                             <Card>
                               <CardHeader>
-                                <CardTitle className="text-sm">Task ID</CardTitle>
+                                <CardTitle className="text-sm">
+                                  Task ID
+                                </CardTitle>
                               </CardHeader>
                               <CardContent>
-                                <p className="text-sm font-mono">{selectedTask.task_id}</p>
+                                <p className="text-sm font-mono">
+                                  {selectedTask.task_id}
+                                </p>
                               </CardContent>
                             </Card>
                             <Card>
                               <CardHeader>
-                                <CardTitle className="text-sm">Status</CardTitle>
+                                <CardTitle className="text-sm">
+                                  Status
+                                </CardTitle>
                               </CardHeader>
                               <CardContent>
                                 <div className="flex items-center gap-2">
                                   {getStatusIcon(selectedTask.status)}
-                                  <span className="capitalize">{selectedTask.status}</span>
+                                  <span className="capitalize">
+                                    {selectedTask.status}
+                                  </span>
                                 </div>
                               </CardContent>
                             </Card>
                             <Card>
                               <CardHeader>
-                                <CardTitle className="text-sm">Created At</CardTitle>
+                                <CardTitle className="text-sm">
+                                  Created At
+                                </CardTitle>
                               </CardHeader>
                               <CardContent>
-                                <p>{new Date(selectedTask.created_at).toLocaleString()}</p>
+                                <p>
+                                  {new Date(
+                                    selectedTask.created_at
+                                  ).toLocaleString()}
+                                </p>
                               </CardContent>
                             </Card>
                             <Card>
@@ -526,34 +544,49 @@ export function TrialDetail({
                                 <CardTitle className="text-sm">Type</CardTitle>
                               </CardHeader>
                               <CardContent>
-                                <p className="capitalize">{selectedTask.type}</p>
+                                <p className="capitalize">
+                                  {selectedTask.type}
+                                </p>
                               </CardContent>
                             </Card>
                           </div>
 
                           <Card>
                             <CardHeader>
-                              <CardTitle className="text-sm">Save Directory</CardTitle>
+                              <CardTitle className="text-sm">
+                                Save Directory
+                              </CardTitle>
                             </CardHeader>
                             <CardContent>
-                              <p className="text-sm font-mono break-all">{selectedTask.save_dir || "N/A"}</p>
+                              <p className="text-sm font-mono break-all">
+                                {selectedTask.save_dir || "N/A"}
+                              </p>
                             </CardContent>
                           </Card>
 
                           <Card>
                             <CardHeader>
-                              <CardTitle className="text-sm">Output Files</CardTitle>
+                              <CardTitle className="text-sm">
+                                Output Files
+                              </CardTitle>
                             </CardHeader>
                             <CardContent>
                               <div className="space-y-2">
                                 {selectedTask.corpus_path && (
                                   <div className="flex items-center justify-between">
-                                    <span className="text-sm font-mono break-all">{selectedTask.corpus_path}</span>
+                                    <span className="text-sm font-mono break-all">
+                                      {selectedTask.corpus_path}
+                                    </span>
                                     <Button
                                       color="primary"
                                       size="sm"
                                       variant="flat"
-                                      onClick={() => window.open(`/api/files${selectedTask.corpus_path}`, "_blank")}
+                                      onClick={() =>
+                                        window.open(
+                                          `/api/files${selectedTask.corpus_path}`,
+                                          "_blank"
+                                        )
+                                      }
                                     >
                                       View Corpus
                                     </Button>
@@ -561,12 +594,19 @@ export function TrialDetail({
                                 )}
                                 {selectedTask.qa_path && (
                                   <div className="flex items-center justify-between">
-                                    <span className="text-sm font-mono break-all">{selectedTask.qa_path}</span>
+                                    <span className="text-sm font-mono break-all">
+                                      {selectedTask.qa_path}
+                                    </span>
                                     <Button
                                       color="secondary"
                                       size="sm"
                                       variant="flat"
-                                      onClick={() => window.open(`/api/files${selectedTask.qa_path}`, "_blank")}
+                                      onClick={() =>
+                                        window.open(
+                                          `/api/files${selectedTask.qa_path}`,
+                                          "_blank"
+                                        )
+                                      }
                                     >
                                       View QA
                                     </Button>
@@ -574,12 +614,19 @@ export function TrialDetail({
                                 )}
                                 {selectedTask.config_path && (
                                   <div className="flex items-center justify-between">
-                                    <span className="text-sm font-mono break-all">{selectedTask.config_path}</span>
+                                    <span className="text-sm font-mono break-all">
+                                      {selectedTask.config_path}
+                                    </span>
                                     <Button
                                       color="warning"
                                       size="sm"
                                       variant="flat"
-                                      onClick={() => window.open(`/api/files${selectedTask.config_path}`, "_blank")}
+                                      onClick={() =>
+                                        window.open(
+                                          `/api/files${selectedTask.config_path}`,
+                                          "_blank"
+                                        )
+                                      }
                                     >
                                       View Config
                                     </Button>
@@ -600,26 +647,12 @@ export function TrialDetail({
               </CardContent>
             </Card>
           </TabsContent>
-          
-          <TabsContent value="qa_chunk_view">
-            <Card>
-              <CardHeader>
-                <CardTitle>qa_chunk_view</CardTitle>
-              </CardHeader>
-              <CardContent>
-              {/* <ParquetQAAnalysis qaParquetUrl={selectedTask?.qa_path || ""} chunkParquetUrl={selectedTask?.corpus_path || "" }/> */}
-              <ParquetViewer chunkParquetUrl={"http://localhost:3000/chunk.parquet" } qaParquetUrl={"http://localhost:3000/qa.parquet"}/>
-              </CardContent>
-            </Card>
-          </TabsContent>
           <TabsContent value="results">
             <Card>
               <CardHeader>
                 <CardTitle>Results & Reports</CardTitle>
               </CardHeader>
-              <CardContent>
-                ?
-              </CardContent>
+              <CardContent>?</CardContent>
             </Card>
           </TabsContent>
         </Tabs>

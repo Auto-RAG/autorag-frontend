@@ -7375,7 +7375,6 @@ __metadata:
     lucide-react: ^0.460.0
     next: ^15.0.2
     next-themes: ^0.2.1
-    parquet-wasm: ^0.6.1
     pnpm: ^9.12.3
     postcss: 8.4.38
     prettier: ^3.3.3
@@ -7707,13 +7706,6 @@ __metadata:
   dependencies:
     callsites: ^3.0.0
   checksum: 6ba8b255145cae9470cf5551eb74be2d22281587af787a2626683a6c20fbb464978784661478dd2a3f1dad74d1e802d403e1b03c1a31fab310259eec8ac560ff
-  languageName: node
-  linkType: hard
-
-"parquet-wasm@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "parquet-wasm@npm:0.6.1"
-  checksum: 5ec15c1726102d410cb87b4883f21a927cc2a6fd85a7c686fdfeddfeb40ebbe7fc8aefc219d05c5d4817330cf8539f8b03ab17b1ddff6a3c13d301601e7d720d
   languageName: node
   linkType: hard
 
