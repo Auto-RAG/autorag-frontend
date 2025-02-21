@@ -50,6 +50,7 @@ COPY --from=builder /app/.yarnrc.yml ./
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/sample_configs ./sample_configs
 
 RUN corepack enable && \
     corepack prepare yarn@3.5.1 --activate && \
